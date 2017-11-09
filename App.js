@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import Login from './src/Login';
 import firebase from 'firebase';
 import {
   FIREBASE_API_KEY,
@@ -9,6 +8,14 @@ import {
   FIREBASE_STORAGE_BUCKET,
   FIREBAE_MESSAGE_SENDER_ID
 } from 'react-native-dotenv';
+
+import {
+  Platform,
+  View,
+  StyleSheet,
+} from 'react-native';
+
+import MainNavigator from "./src/Main";
 
 export default class App extends Component {
   componentWillMount() {
@@ -24,7 +31,17 @@ export default class App extends Component {
 
   render() {
     return (
-      <Login/>
+      <View style={styles.container}>
+        <MainNavigator/>
+      </View>
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    paddingTop: Platform.OS === 'ios' ? 0 : Expo.Constants.statusBarHeight,
+    flex: 1,
+    backgroundColor: '#fff',
+  }
+});
