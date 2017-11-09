@@ -1,23 +1,30 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, {Component} from 'react';
+import Login from './src/Login';
+import firebase from 'firebase';
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_DOMAIN,
+  FIREBASE_DATABASE_URL,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBAE_MESSAGE_SENDER_ID
+} from 'react-native-dotenv';
 
-export default class App extends React.Component {
+export default class App extends Component {
+  componentWillMount() {
+    firebase.initializeApp({
+      apiKey: FIREBASE_API_KEY,
+      authDomain: FIREBASE_DOMAIN,
+      databaseURL: FIREBASE_DATABASE_URL,
+      projectId: FIREBASE_PROJECT_ID,
+      storageBucket: FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: FIREBAE_MESSAGE_SENDER_ID
+    })
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
-      </View>
+      <Login/>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
