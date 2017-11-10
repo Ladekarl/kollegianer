@@ -19,16 +19,14 @@ export default class ViManglerScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
-        <ScrollView>
-          <View style={styles.itemContainer}>
-            <Text>øl</Text>
+      <ScrollView contentContainerStyle={styles.container}>
+        <View style={styles.itemContainer}>
+          <View style={styles.rowContainer}>
+            <Text>Hello</Text>
+            <Text>Hello</Text>
           </View>
-          <View style={styles.itemContainer}>
-            <Text>øl</Text>
-          </View>
-        </ScrollView>
-      </View>
+        </View>
+      </ScrollView>
     )
   };
 }
@@ -38,9 +36,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     justifyContent: 'center',
+    width: '100%',
     alignItems: 'center'
   },
   itemContainer: {
+    flex: 1,
+    justifyContent: 'space-between',
+    backgroundColor: '#b4ccff',
+    marginLeft: 10,
+    marginRight: 10,
+    marginTop: 5,
+    marginBottom: 5
+  },
+  rowContainer: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between'

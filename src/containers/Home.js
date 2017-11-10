@@ -21,18 +21,32 @@ export default class HomeScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.imageContainer}>
-          <View style={styles.stackContainer}>
-            <Image style={styles.kokkenugeImage} source={require('../../img/køkkenuge.png')}/>
+        <View style={styles.rowContainer}>
+          <View style={styles.columnContainer}>
+            <Image style={styles.image} source={require('../../img/køkkenuge.png')}/>
             <Text>Mathias 05</Text>
           </View>
-          <View style={styles.stackContainer}>
-            <Image style={styles.sheriffImage} source={require('../../img/sheriff.png')}/>
+          <View style={styles.columnContainer}>
+            <Image style={styles.image} source={require('../../img/sheriff.png')}/>
             <Text>Kathrine</Text>
           </View>
-          <View style={styles.stackContainer}>
-            <Image style={styles.shotsImage} source={require('../../img/keep_calm_and_shots.png')}/>
+          <View style={styles.columnContainer}>
+            <Image style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
             <Text>Mathias 02</Text>
+          </View>
+        </View>
+        <View style={styles.rowContainer}>
+          <View style={styles.columnContainer}>
+            <Image style={styles.image} source={require('../../img/beerpong.png')}/>
+            <Text>JA</Text>
+          </View>
+          <View style={styles.columnContainer}>
+            <Image style={styles.image} source={require('../../img/fox.png')}/>
+            <Text>JA</Text>
+          </View>
+          <View style={styles.columnContainer}>
+            <Image style={styles.image} source={require('../../img/mvp.png')}/>
+            <Text>???</Text>
           </View>
         </View>
       </View>
@@ -47,7 +61,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
-  stackContainer: {
+  columnContainer: {
     backgroundColor: '#eeeeee',
     borderRadius: 2,
     elevation: 2,
@@ -59,24 +73,14 @@ const styles = StyleSheet.create({
     margin: 10,
     padding: 10
   },
-  imageContainer: {
+  rowContainer: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  kokkenugeImage: {
+  image: {
     height: 80,
     width: 80,
     margin: 10,
   },
-  sheriffImage: {
-    height: 80,
-    width: 80,
-    margin: 10
-  },
-  shotsImage: {
-    height: 80,
-    width: 80,
-    margin: 10
-  }
 });
