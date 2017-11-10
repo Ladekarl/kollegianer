@@ -15,7 +15,9 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import MainNavigator from "./src/Main";
+import MainNavigator from './src/Main';
+
+Expo.ScreenOrientation.allow(Expo.ScreenOrientation.Orientation.PORTRAIT_UP);
 
 export default class App extends Component {
   componentWillMount() {

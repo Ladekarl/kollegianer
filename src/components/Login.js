@@ -11,14 +11,14 @@ import {
   Keyboard
 } from 'react-native';
 import firebase from 'firebase';
+import {NavigationActions} from 'react-navigation'
+import {getUser, setUser} from '../storage/UserStorage';
 
 export default class LoginScreen extends Component {
 
   static navigationOptions = {
     title: 'Login',
-    headerTitleStyle: {
-      fontSize: 18
-    }
+    header: null
   };
 
   constructor(props) {
@@ -28,21 +28,50 @@ export default class LoginScreen extends Component {
       password: '',
       error: '',
       loading: false,
+    };
+
+    const user = firebase.auth().currentUser;
+    if (user) {
+      this._navigateAndReset();
     }
+  }
+
+  componentDidMount() {
+    getUser().then(user => {
+      if (user) {
+        this.setState({email: user.email, password: user.password});
+        this._login(user.email, user.password)
+      }
+    }).catch(error => {
+      this.setState({error: error.message})
+    });
   }
 
   onLoginPress() {
     Keyboard.dismiss();
-    this.setState({error: '', loading: true});
     const {email, password} = this.state;
+    this._login(email, password);
+  }
+
+  _login(email, password) {
+    this.setState({error: '', loading: true});
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then(() => {
         this.setState({error: '', loading: false});
-        this.props.navigation.navigate('Home');
+        setUser(email, password);
+        this._navigateAndReset();
       })
       .catch((error) => {
         this.setState({error: error.message, loading: false});
       });
+  }
+
+  _navigateAndReset() {
+    const resetAction = NavigationActions.reset({
+      index: 0,
+      actions: [NavigationActions.navigate({routeName: 'Home'})],
+    });
+    this.props.navigation.dispatch(resetAction);
   }
 
   render() {
@@ -54,18 +83,20 @@ export default class LoginScreen extends Component {
             source={require('../../img/gylden_dame.jpg')}
           />
         </View>
-        <KeyboardAvoidingView behavior="padding" style={styles.keyboardAvoidContainer}>
+        <KeyboardAvoidingView behavior='padding' style={styles.keyboardAvoidContainer}>
           <View style={styles.loginFormContainer}>
             <View style={styles.inputContainer}>
               <TextInput style={styles.usernameInput}
-                         placeholder="Username"
+                         placeholder='Email'
+                         value={this.state.email}
                          onChangeText={email => this.setState({email})}/>
               <TextInput style={styles.passwordInput}
                          secureTextEntry={true}
-                         placeholder="Password"
+                         placeholder='Password'
+                         value={this.state.password}
                          onChangeText={password => this.setState({password})}/>
             </View>
-            <Button title="Login" onPress={() => this.onLoginPress()}/>
+            <Button title='Login' onPress={() => this.onLoginPress()}/>
           </View>
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{this.state.error}</Text>
