@@ -5,8 +5,8 @@ import {
   ScrollView,
   Text,
   TouchableOpacity,
-  CheckBox,
-  TextInput
+  TextInput,
+  KeyboardAvoidingView
 } from 'react-native';
 import {FontAwesome} from '@expo/vector-icons';
 
@@ -14,97 +14,103 @@ export default class ViManglerScreen extends Component {
 
   static navigationOptions = {
     title: 'Vi Mangler',
-    drawerIcon: ({tintColor}) => ( <FontAwesome name="shopping-cart" size={20} style={{color: 'black'}}/>),
+    drawerIcon: ({tintColor}) => ( <FontAwesome name='shopping-cart' size={20} style={{color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18
     }
   };
 
+  items = [
+    {
+      id: 1,
+      room: '1709',
+      value: 'value1',
+      date: 'date1'
+    },
+    {
+      id: 2,
+      room: '1709',
+      value: 'value2',
+      date: 'date3'
+    },
+    {
+      id: 3,
+      room: '1709',
+      value: 'value3',
+      date: 'date3'
+    },
+  ];
+
   constructor(props) {
     super(props);
     this.state = {
-      room: '',
-      value: '',
-      date: ''
+      value: ''
     }
   }
 
   renderItems() {
     let renderItems = [];
-    // change this to use items from DB
+    // TODO get from server
     this.items.forEach(item => {
       renderItems.push(this._renderItem(item));
     });
-    return renderItems;
-  }
-
-  items = [
-    {
-      id: 1,
-      room: 'room1',
-      value: 'value1',
-      date: 'date1',
-      checked: false
-    },
-    {
-      id: 2,
-      room: 'room2',
-      value: 'value2',
-      date: 'date3',
-      checked: true
-    },
-    {
-      id: 3,
-      room: 'room3',
-      value: 'value3',
-      date: 'date3',
-      checked: false
-    },
-  ];
-
-  checkBoxClicked(id, value) {
-    this.items.forEach(item => {
-      if (item.id === id) {
-        item.checked = value;
-      }
-    });
+    return renderItems.reverse();
   }
 
   _renderItem(item) {
     return (
       <View key={item.id} style={styles.rowContainer}>
-        <Text style={styles.itemText}>{item.room}</Text>
-        <Text style={styles.itemText}>{item.value}</Text>
-        <Text style={styles.itemText}>{item.date}</Text>
-        <CheckBox value={item.checked}/>
+        <View style={styles.descriptionContainer}>
+          <Text style={styles.roomItemText}>{item.room}</Text>
+          <Text style={styles.itemText}>{item.value}</Text>
+          <Text style={styles.dateItemText}>{item.date}</Text>
+        </View>
+        <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.deleteItem(item)}>
+          <FontAwesome name='remove' size={20} style={styles.rowImage}/>
+        </TouchableOpacity>
       </View>
     );
   }
 
   submitItem() {
+    // TODO Add to server
+    if (this.state.value) {
+      const date = new Date();
+      this.items.push({
+        id: this.items.length + 1,
+        room: '1712',
+        value: this.state.value,
+        date: date.getDay() + '/' + date.getMonth() + '/' + date.getFullYear(),
+      });
+      this.forceUpdate();
+    }
+  }
+
+  deleteItem(item) {
+    // TODO delete from server
+    const index = this.items.indexOf(item);
+    if (index > -1) {
+      this.items.splice(index, 1);
+    }
+    this.forceUpdate();
   }
 
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.newRowContainer}>
+          <View style={styles.descriptionContainer}>
+            <TextInput style={styles.newItemInput} placeholder='Beskrivelse' value={this.state.value}
+                       placeholderTextColor='#a9a9a9'
+                       onChangeText={(value) => this.setState({value})}/>
+          </View>
+          <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.submitItem()}>
+            <FontAwesome name='plus-circle' size={20} style={styles.rowImage}/>
+          </TouchableOpacity>
+        </View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.itemContainer}>
             {this.renderItems()}
-            <View style={styles.rowContainer}>
-              <TextInput style={styles.newItemInput} placeholder="Værelse"
-                         placeholderTextColor="#a9a9a9"
-                         value={this.state.room}
-                         onChangeText={(room) => this.setState({room})}/>
-              <TextInput style={styles.newItemInput} placeholder="Ting" value={this.state.value}
-                         placeholderTextColor="#a9a9a9"
-                         onChangeText={(value) => this.setState({value})}/>
-              <TextInput style={styles.newItemInput} placeholder="Dato" value={this.state.date}
-                         placeholderTextColor="#a9a9a9"
-                         onChangeText={(date) => this.setState({date})}/>
-              <TouchableOpacity style={styles.newItemImage} onPress={() => this.submitItem()}>
-                <FontAwesome name="plus-circle" size={20} style={{color: 'black'}}/>
-              </TouchableOpacity>
-            </View>
           </View>
         </ScrollView>
       </View>
@@ -114,42 +120,87 @@ export default class ViManglerScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: '#fff',
   },
   scrollContainer: {
-    height: '100%',
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
-    width: '100%',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   itemContainer: {
     width: '100%',
     justifyContent: 'space-between',
   },
   rowContainer: {
-    backgroundColor: '#eeeeee',
+    backgroundColor: '#e3f2fd',
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginLeft: 5,
     marginRight: 5,
-    marginTop: 5,
-    marginBottom: 2,
-    borderRadius: 1,
+    marginBottom: 7,
+    padding: 5,
+    borderRadius: 0,
     elevation: 1
   },
-  itemText: {
-    margin: 5,
-    textAlign: 'center'
+  newRowContainer: {
+    backgroundColor: '#f9fbe7',
+    opacity: 0.7,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingLeft: 5,
+    paddingRight: 5,
+    paddingTop: 10,
+    paddingBottom: 10,
+    borderWidth: 0.2,
+    marginBottom: 5
   },
-  newItemInput: {
-    height: 40,
+  rowImageContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  descriptionContainer: {
+    flex: 7,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  itemText: {
+    flex: 4,
+    alignItems: 'center',
+    textAlign: 'center',
+    marginTop: 10,
+    marginBottom: 10,
+    marginLeft: 5,
+    marginRight: 5
+  },
+  roomItemText: {
+    flex: 1,
     marginLeft: 5,
     marginRight: 5,
-    width: '25%'
+    marginTop: 10,
+    marginBottom: 10,
+    textAlign: 'center',
   },
-  newItemImage: {
-    margin: 5,
+  dateItemText: {
+    flex: 3,
+    marginLeft: 5,
+    marginRight: 5,
+    marginTop: 10,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  newItemInput: {
+    flex: 1,
+    height: 40,
+    textAlign: 'center',
+    marginLeft: 5,
+    marginRight: 5
+  },
+  rowImage: {
+    textAlign: 'center',
+    color: 'black',
     alignItems: 'center',
     justifyContent: 'center'
   }

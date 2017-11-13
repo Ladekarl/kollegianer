@@ -24,29 +24,29 @@ export default class HomeScreen extends Component {
         <View style={styles.rowContainer}>
           <View style={styles.columnContainer}>
             <Image style={styles.image} source={require('../../img/køkkenuge.png')}/>
-            <Text>Mathias 05</Text>
+            <Text style={styles.text}>Mathias 05</Text>
           </View>
           <View style={styles.columnContainer}>
             <Image style={styles.image} source={require('../../img/sheriff.png')}/>
-            <Text>Kathrine</Text>
+            <Text style={styles.text}>Kathrine</Text>
           </View>
           <View style={styles.columnContainer}>
             <Image style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
-            <Text>Mathias 02</Text>
+            <Text style={styles.text}>Mathias 02</Text>
           </View>
         </View>
         <View style={styles.rowContainer}>
           <View style={styles.columnContainer}>
             <Image style={styles.image} source={require('../../img/beerpong.png')}/>
-            <Text>JA</Text>
+            <Text style={styles.text}>JA</Text>
           </View>
           <View style={styles.columnContainer}>
             <Image style={styles.image} source={require('../../img/fox.png')}/>
-            <Text>JA</Text>
+            <Text style={styles.text}>JA</Text>
           </View>
           <View style={styles.columnContainer}>
             <Image style={styles.image} source={require('../../img/mvp.png')}/>
-            <Text>???</Text>
+            <Text style={styles.text}>???</Text>
           </View>
         </View>
       </View>
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     margin: 10,
-    padding: 10
+    padding: 5
   },
   rowContainer: {
     flex: 1,
@@ -83,4 +83,7 @@ const styles = StyleSheet.create({
     width: 80,
     margin: 10,
   },
+  text: {
+    textAlign: 'center'
+  }
 });

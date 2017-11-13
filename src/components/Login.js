@@ -102,9 +102,6 @@ export default class LoginScreen extends Component {
             <Text style={styles.errorText}>{this.state.error}</Text>
           </View>
         </KeyboardAvoidingView>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator animating={true} style={this.state.loading ? {opacity: 1} : {opacity: 0}} size='large'/>
-        </View>
       </View>
     )
   }
