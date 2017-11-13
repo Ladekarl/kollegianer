@@ -6,9 +6,11 @@ import {
   Text,
   TouchableOpacity,
   TextInput,
-  KeyboardAvoidingView
+  Alert
 } from 'react-native';
 import {FontAwesome} from '@expo/vector-icons';
+import UserStorage from '../storage/UserStorage';
+import Database from '../storage/Database';
 
 export default class ViManglerScreen extends Component {
 
@@ -20,79 +22,107 @@ export default class ViManglerScreen extends Component {
     }
   };
 
-  items = [
-    {
-      id: 1,
-      room: '1709',
-      value: 'value1',
-      date: 'date1'
-    },
-    {
-      id: 2,
-      room: '1709',
-      value: 'value2',
-      date: 'date3'
-    },
-    {
-      id: 3,
-      room: '1709',
-      value: 'value3',
-      date: 'date3'
-    },
-  ];
+  items = [];
 
   constructor(props) {
     super(props);
     this.state = {
-      value: ''
-    }
+      item: '',
+      renderItems: []
+    };
+
+    UserStorage.getUser().then(user => {
+      this.user = user;
+    });
   }
+
+  componentDidMount() {
+    Database.listenViMangler(snapshot => {
+      this.items = snapshot;
+      this.setState({renderItems: this.renderItems()});
+    }).then(snapshot => {
+      this.items = snapshot;
+      this.setState({renderItems: this.renderItems()});
+    });
+  }
+
+  user;
 
   renderItems() {
     let renderItems = [];
-    // TODO get from server
     this.items.forEach(item => {
       renderItems.push(this._renderItem(item));
     });
     return renderItems.reverse();
   }
 
-  _renderItem(item) {
+  itemLongPressed(item) {
+    this.deleteItem(item);
+  }
+
+  checkItem(key, item) {
+    item.checked = !item.checked;
+    Database.updateViMangler(key, item);
+  }
+
+  _itemTextStyle(item) {
+    return {
+      flex: 4,
+      alignItems: 'center',
+      textAlign: 'center',
+      marginTop: 10,
+      marginBottom: 10,
+      marginLeft: 5,
+      marginRight: 5,
+      textDecorationLine: (item.checked ? 'line-through' : 'none')
+    }
+  }
+
+  showDeleteAlert(renderItem, item) {
+    Alert.alert(
+      'Delete ' + item.item,
+      'Do you want to delete ' + item.item,
+      [
+        {text: 'Cancel', onPress: () => {}},
+        {text: 'OK', onPress: () => this.deleteItem(renderItem)},
+      ],
+      { cancelable: false }
+    )
+  }
+
+  _renderItem(renderItem) {
+    const item = renderItem.val();
     return (
-      <View key={item.id} style={styles.rowContainer}>
+      <TouchableOpacity
+        key={renderItem.key}
+        style={styles.rowContainer}
+        onLongPress={() => this.showDeleteAlert(renderItem, item)}>
         <View style={styles.descriptionContainer}>
           <Text style={styles.roomItemText}>{item.room}</Text>
-          <Text style={styles.itemText}>{item.value}</Text>
+          <Text style={this._itemTextStyle(item)}>{item.item}</Text>
           <Text style={styles.dateItemText}>{item.date}</Text>
         </View>
-        <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.deleteItem(item)}>
+        <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.checkItem(renderItem.key, item)}>
           <FontAwesome name='remove' size={20} style={styles.rowImage}/>
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     );
   }
 
   submitItem() {
-    // TODO Add to server
-    if (this.state.value) {
+    if (this.state.item) {
       const date = new Date();
-      this.items.push({
-        id: this.items.length + 1,
-        room: '1712',
-        value: this.state.value,
-        date: date.getDay() + '/' + date.getMonth() + '/' + date.getFullYear(),
-      });
-      this.forceUpdate();
+      let newItem = {
+        room: this.user.room,
+        item: this.state.item,
+        date: date.getDate() + '/' + date.getMonth(),
+      };
+      Database.addViMangler(newItem);
     }
   }
 
   deleteItem(item) {
-    // TODO delete from server
-    const index = this.items.indexOf(item);
-    if (index > -1) {
-      this.items.splice(index, 1);
-    }
-    this.forceUpdate();
+    Database.deleteViMangler(item.key);
   }
 
   render() {
@@ -100,9 +130,9 @@ export default class ViManglerScreen extends Component {
       <View style={styles.container}>
         <View style={styles.newRowContainer}>
           <View style={styles.descriptionContainer}>
-            <TextInput style={styles.newItemInput} placeholder='Beskrivelse' value={this.state.value}
+            <TextInput style={styles.newItemInput} placeholder='Beskrivelse' value={this.state.item}
                        placeholderTextColor='#a9a9a9'
-                       onChangeText={(value) => this.setState({value})}/>
+                       onChangeText={(item) => this.setState({item})}/>
           </View>
           <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.submitItem()}>
             <FontAwesome name='plus-circle' size={20} style={styles.rowImage}/>
@@ -110,7 +140,7 @@ export default class ViManglerScreen extends Component {
         </View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.itemContainer}>
-            {this.renderItems()}
+            {this.state.renderItems}
           </View>
         </ScrollView>
       </View>
@@ -165,15 +195,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center'
-  },
-  itemText: {
-    flex: 4,
-    alignItems: 'center',
-    textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 5,
-    marginRight: 5
   },
   roomItemText: {
     flex: 1,

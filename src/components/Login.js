@@ -5,14 +5,14 @@ import {
   Button,
   TextInput,
   Text,
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Keyboard
 } from 'react-native';
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
-import {getUser, setUser} from '../storage/UserStorage';
+import UserStorage from '../storage/UserStorage';
+import Database from '../storage/Database';
 
 export default class LoginScreen extends Component {
 
@@ -37,7 +37,7 @@ export default class LoginScreen extends Component {
   }
 
   componentDidMount() {
-    getUser().then(user => {
+    UserStorage.getUser().then(user => {
       if (user) {
         this.setState({email: user.email, password: user.password});
         this._login(user.email, user.password)
@@ -56,14 +56,34 @@ export default class LoginScreen extends Component {
   _login(email, password) {
     this.setState({error: '', loading: true});
     firebase.auth().signInWithEmailAndPassword(email, password)
-      .then(() => {
-        this.setState({error: '', loading: false});
-        setUser(email, password);
-        this._navigateAndReset();
-      })
-      .catch((error) => {
-        this.setState({error: error.message, loading: false});
-      });
+      .then((user) => {
+        Database.getUser(user.uid).then(snapshot => {
+          const dbUser = snapshot.val();
+          if (!dbUser) {
+            this._stopLoadingAndSetError('User did not exist in database');
+            return;
+          }
+          dbUser.password = password;
+          this._saveUserAndNavigate(dbUser);
+        }).catch(error => {
+          this._stopLoadingAndSetError(error)
+        });
+      }).catch((error) => {
+      this._stopLoadingAndSetError(error)
+    });
+  }
+
+  _saveUserAndNavigate(dbUser) {
+    UserStorage.setUser(dbUser).then(() => {
+      this.setState({error: '', loading: false});
+      this._navigateAndReset();
+    }).catch(error => {
+      this._stopLoadingAndSetError(error);
+    });
+  }
+
+  _stopLoadingAndSetError(error) {
+    this.setState({error: error.message, loading: false});
   }
 
   _navigateAndReset() {

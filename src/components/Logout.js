@@ -9,7 +9,7 @@ import {
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
 import {FontAwesome} from '@expo/vector-icons';
-import {removeUser} from '../storage/UserStorage';
+import UserStorage from '../storage/UserStorage';
 
 export default class LogoutScreen extends Component {
 
@@ -46,7 +46,7 @@ export default class LogoutScreen extends Component {
     this.setState({loading: true});
     firebase.auth().signOut()
       .then(() => {
-        removeUser().then(() => {
+        UserStorage.removeUser().then(() => {
           this.setState({error: '', loading: false});
           this._redirectToLogin();
         }).catch((error) => {

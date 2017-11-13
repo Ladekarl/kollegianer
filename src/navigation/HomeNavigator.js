@@ -3,6 +3,7 @@ import {DrawerNavigator} from 'react-navigation'
 import HomeScreen from '../containers/Home';
 import LogoutScreen from '../components/Logout';
 import ViManglerScreen from '../components/ViMangler';
+import DutiesScreen from '../components/Duties';
 
 export default MainNavigator = DrawerNavigator({
   Home: {
@@ -10,6 +11,9 @@ export default MainNavigator = DrawerNavigator({
   },
   ViMangler: {
     screen: ViManglerScreen
+  },
+  Duties: {
+    screen: DutiesScreen
   },
   Logout: {screen: LogoutScreen}
 });
