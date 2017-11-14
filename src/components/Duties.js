@@ -1,5 +1,9 @@
 import React, {Component} from 'react';
-import {Text, View} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet
+} from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Database from '../storage/Database';
 
@@ -37,19 +41,30 @@ export default class DutiesScreen extends Component {
   _renderUser(renderUser) {
     let user = renderUser.val();
     return (
-      <View key={renderUser.key}>
+      <View style={styles.rowContainer} key={renderUser.key}>
         <Text>{user.room}</Text>
         <Text>{user.duty}</Text>
       </View>
     );
   }
 
-
   render() {
     return (
-      <View>
+      <View style={styles.container}>
         {this.state.renderUsers}
       </View>
     )
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  rowContainer: {
+    flex: 1,
+    flexDirection: 'row'
+  },
+
+});

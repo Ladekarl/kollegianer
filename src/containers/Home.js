@@ -63,7 +63,7 @@ export default class HomeScreen extends Component {
             <Image style={styles.image} source={require('../../img/olregnskab.png')}/>
           </View>
           <View style={styles.columnContainer}>
-            <Text style={styles.text}>VIP cub</Text>
+            <Text style={styles.text}>VIP club</Text>
             <Image style={styles.image} source={require('../../img/vip_logo2.png')}/>
           </View>
           <View style={styles.columnContainer}>

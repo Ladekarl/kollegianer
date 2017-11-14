@@ -3,6 +3,7 @@ import {
   View,
   StyleSheet,
   ScrollView,
+  RefreshControl,
   Text,
   TouchableOpacity,
   TextInput,
@@ -22,12 +23,11 @@ export default class ViManglerScreen extends Component {
     }
   };
 
-  items = [];
-
   constructor(props) {
     super(props);
     this.state = {
       item: '',
+      fetching: false,
       renderItems: []
     };
 
@@ -37,16 +37,27 @@ export default class ViManglerScreen extends Component {
   }
 
   componentDidMount() {
+    this.setState({fetching: true});
     Database.listenViMangler(snapshot => {
       this.items = snapshot;
-      this.setState({renderItems: this.renderItems()});
+      this.setState({
+        renderItems: this.renderItems(),
+        fetching: false
+      });
     }).then(snapshot => {
       this.items = snapshot;
-      this.setState({renderItems: this.renderItems()});
+      this.setState({
+        renderItems: this.renderItems(),
+        fetching: false
+      });
+    }).catch(error => {
+      this.setState({fetching: false});
     });
   }
 
-  user;
+  componentWillUnmount() {
+    Database.unListenViManger();
+  }
 
   renderItems() {
     let renderItems = [];
@@ -54,10 +65,6 @@ export default class ViManglerScreen extends Component {
       renderItems.push(this._renderItem(item));
     });
     return renderItems.reverse();
-  }
-
-  itemLongPressed(item) {
-    this.deleteItem(item);
   }
 
   checkItem(key, item) {
@@ -74,19 +81,36 @@ export default class ViManglerScreen extends Component {
       marginBottom: 10,
       marginLeft: 5,
       marginRight: 5,
-      textDecorationLine: (item.checked ? 'line-through' : 'none')
+      textDecorationLine: (item.checked ? 'line-through' : 'none'),
+
+    }
+  }
+
+  _rowContainerStyle(item) {
+    return {
+      borderWidth: 5,
+      borderColor: (item.checked ? '#fde4e3' : '#e3f2fd'),
+      flexDirection: 'row',
+      marginLeft: 5,
+      marginRight: 5,
+      marginBottom: 7,
+      padding: 5,
+      borderRadius: 0
     }
   }
 
   showDeleteAlert(renderItem, item) {
     Alert.alert(
-      'Delete ' + item.item,
-      'Do you want to delete ' + item.item,
+      'Slet ' + item.item,
+      'Er du nu helt sikker på at du vil slette ' + item.item + '?',
       [
-        {text: 'Cancel', onPress: () => {}},
-        {text: 'OK', onPress: () => this.deleteItem(renderItem)},
+        {
+          text: 'Annullér', onPress: () => {
+        }
+        },
+        {text: 'Slet', onPress: () => this.deleteItem(renderItem)},
       ],
-      { cancelable: false }
+      {cancelable: false}
     )
   }
 
@@ -95,7 +119,7 @@ export default class ViManglerScreen extends Component {
     return (
       <TouchableOpacity
         key={renderItem.key}
-        style={styles.rowContainer}
+        style={this._rowContainerStyle(item)}
         onLongPress={() => this.showDeleteAlert(renderItem, item)}>
         <View style={styles.descriptionContainer}>
           <Text style={styles.roomItemText}>{item.room}</Text>
@@ -103,7 +127,7 @@ export default class ViManglerScreen extends Component {
           <Text style={styles.dateItemText}>{item.date}</Text>
         </View>
         <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.checkItem(renderItem.key, item)}>
-          <FontAwesome name='remove' size={20} style={styles.rowImage}/>
+          <FontAwesome name='shopping-basket' size={20} style={styles.rowImage}/>
         </TouchableOpacity>
       </TouchableOpacity>
     );
@@ -118,11 +142,25 @@ export default class ViManglerScreen extends Component {
         date: date.getDate() + '/' + date.getMonth(),
       };
       Database.addViMangler(newItem);
+      this.setState({item: ''});
     }
   }
 
   deleteItem(item) {
     Database.deleteViMangler(item.key);
+  }
+
+  updateItems() {
+    this.setState({fetching: true});
+    Database.getViMangler().then((snapshot) => {
+      this.items = snapshot;
+      this.setState({
+        renderItems: this.renderItems(),
+        fetching: false
+      });
+    }).catch((error) => {
+      this.setState({fetching: false});
+    });
   }
 
   render() {
@@ -131,14 +169,19 @@ export default class ViManglerScreen extends Component {
         <View style={styles.newRowContainer}>
           <View style={styles.descriptionContainer}>
             <TextInput style={styles.newItemInput} placeholder='Beskrivelse' value={this.state.item}
-                       placeholderTextColor='#a9a9a9'
                        onChangeText={(item) => this.setState({item})}/>
           </View>
           <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.submitItem()}>
             <FontAwesome name='plus-circle' size={20} style={styles.rowImage}/>
           </TouchableOpacity>
         </View>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={this.state.fetching}
+                        onRefresh={() => this.updateItems()}
+                      />
+                    }>
           <View style={styles.itemContainer}>
             {this.state.renderItems}
           </View>
@@ -154,7 +197,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   scrollContainer: {
-    backgroundColor: '#fff',
     justifyContent: 'flex-start',
     alignItems: 'center',
   },
@@ -162,19 +204,7 @@ const styles = StyleSheet.create({
     width: '100%',
     justifyContent: 'space-between',
   },
-  rowContainer: {
-    backgroundColor: '#e3f2fd',
-    flexDirection: 'row',
-    marginLeft: 5,
-    marginRight: 5,
-    marginBottom: 7,
-    padding: 5,
-    borderRadius: 0,
-    elevation: 1
-  },
   newRowContainer: {
-    backgroundColor: '#f9fbe7',
-    opacity: 0.7,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -182,8 +212,9 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     paddingTop: 10,
     paddingBottom: 10,
-    borderWidth: 0.2,
-    marginBottom: 5
+    marginBottom: 5,
+    marginLeft: 10,
+    marginRight: 10
   },
   rowImageContainer: {
     flex: 1,
@@ -193,8 +224,6 @@ const styles = StyleSheet.create({
   descriptionContainer: {
     flex: 7,
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
   },
   roomItemText: {
     flex: 1,
@@ -214,6 +243,7 @@ const styles = StyleSheet.create({
   },
   newItemInput: {
     flex: 1,
+    width: '100%',
     height: 40,
     textAlign: 'center',
     marginLeft: 5,
