@@ -42,8 +42,8 @@ export default class DutiesScreen extends Component {
     let user = renderUser.val();
     return (
       <View style={styles.rowContainer} key={renderUser.key}>
-        <Text>{user.room}</Text>
-        <Text>{user.duty}</Text>
+        <Text style={styles.textRoom}>{user.room}</Text>
+        <Text style={styles.textDuty}>{user.duty}</Text>
       </View>
     );
   }
@@ -64,7 +64,24 @@ const styles = StyleSheet.create({
   },
   rowContainer: {
     flex: 1,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    borderWidth: 5,
+    borderColor: '#e3f2fd',
+    marginLeft: 3,
+    marginRight: 3,
+    marginBottom: 3,
+    borderRadius: 0,
+    alignItems: 'center' 
   },
+  textRoom: {
+    textAlign: 'center',
+    fontWeight: 'bold',
+    flex: 1
+  },
+  textDuty: {
+    textAlign: 'left',
+    flex: 2
+  }
+
 
 });
