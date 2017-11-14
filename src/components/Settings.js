@@ -33,12 +33,7 @@ export default class SettingsScreen extends Component {
         uid: ''
       }
     };
-  }
-
-  componentDidMount() {
-    UserStorage.getUser().then(user => {
-      this.setState({user});
-    });
+    this._getUser();
   }
 
   changeDuty(value) {
@@ -60,8 +55,16 @@ export default class SettingsScreen extends Component {
   }
 
   _updateUser(user) {
-    Database.updateUser(user.uid, user);
-    this.setState({user});
+    this.setState({user: user});
+    Database.updateUser(user.uid, user).then(() => {
+      UserStorage.setUser(user);
+    });
+  }
+
+  _getUser() {
+    UserStorage.getUser().then(user => {
+      this.setState({user: user});
+    });
   }
 
   render() {
@@ -84,17 +87,17 @@ export default class SettingsScreen extends Component {
           <Picker style={styles.rightPicker}
                   onValueChange={(itemValue) => this.changeDuty(itemValue)}
                   selectedValue={this.state.user.duty}
-                  mode="dialog"
+                  mode='dialog'
                   itemStyle={styles.pickerItemStyle}>
-            <Picker.Item label="Panter + filter" value="Panter + filter"/>
-            <Picker.Item label="Ovnmand" value="Ovnmand"/>
-            <Picker.Item label="Regnskab" value="Regnskab"/>
-            <Picker.Item label="Vaskemand" value="Vaskemand"/>
-            <Picker.Item label="Regnskabsmand/vaskemand" value="Regnskabsmand/vaskemand"/>
-            <Picker.Item label="Formand" value="Formand"/>
-            <Picker.Item label="Indkøber" value="Indkøber"/>
-            <Picker.Item label="Sedler" value="Sedler"/>
-            <Picker.Item label="Recycler" value="Recycler"/>
+            <Picker.Item label='Panter + filter' value='Panter + filter'/>
+            <Picker.Item label='Ovnmand' value='Ovnmand'/>
+            <Picker.Item label='Regnskab' value='Regnskab'/>
+            <Picker.Item label='Vaskemand' value='Vaskemand'/>
+            <Picker.Item label='Regnskabsmand/vaskemand' value='Regnskabsmand/vaskemand'/>
+            <Picker.Item label='Formand' value='Formand'/>
+            <Picker.Item label='Indkøber' value='Indkøber'/>
+            <Picker.Item label='Sedler' value='Sedler'/>
+            <Picker.Item label='Recycler' value='Recycler'/>
           </Picker>
         </View>
         <View style={styles.rowContainer}>
