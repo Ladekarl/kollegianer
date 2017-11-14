@@ -80,7 +80,7 @@ const styles = StyleSheet.create({
   },
   textDuty: {
     textAlign: 'left',
-    flex: 2
+    flex: 1
   }
 
 
