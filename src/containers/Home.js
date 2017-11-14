@@ -23,7 +23,7 @@ export default class HomeScreen extends Component {
       <View style={styles.container}>
         <View style={styles.rowContainer}>
           <View style={styles.headerContainer}>
-            <Text style={styles.textHeader}>Velkommen til Køkken1700 </Text>
+            <Text style={styles.textHeader}>Velkommen til Køkken 1700 </Text>
             <Image style={styles.image} source={require('../../img/baggrund_guld.png')}/>
           </View>
         </View>
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start'
   },
   columnContainer: {
-    backgroundColor: '#eeeeee',
+    backgroundColor: '#e3f2fd',
     borderRadius: 2,
     elevation: 2,
     alignSelf: 'flex-end',
