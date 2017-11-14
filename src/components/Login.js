@@ -17,8 +17,7 @@ import Database from '../storage/Database';
 export default class LoginScreen extends Component {
 
   static navigationOptions = {
-    title: 'Login',
-    header: null
+    header: null,
   };
 
   constructor(props) {
@@ -63,6 +62,7 @@ export default class LoginScreen extends Component {
             this._stopLoadingAndSetError('User did not exist in database');
             return;
           }
+          dbUser.uid = user.uid;
           dbUser.password = password;
           this._saveUserAndNavigate(dbUser);
         }).catch(error => {

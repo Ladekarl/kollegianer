@@ -11,7 +11,7 @@ import {FontAwesome} from '@expo/vector-icons';
 export default class HomeScreen extends Component {
 
   static navigationOptions = {
-    title: 'Home',
+    title: 'Hjem',
     drawerIcon: ({tintColor}) => ( <FontAwesome name="home" size={20} style={{color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18

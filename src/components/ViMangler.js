@@ -74,7 +74,7 @@ export default class ViManglerScreen extends Component {
 
   _itemTextStyle(item) {
     return {
-      flex: 4,
+      flex: 6,
       alignItems: 'center',
       textAlign: 'center',
       marginTop: 10,
@@ -224,9 +224,11 @@ const styles = StyleSheet.create({
   descriptionContainer: {
     flex: 7,
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   roomItemText: {
-    flex: 1,
+    flex: 2,
     marginLeft: 5,
     marginRight: 5,
     marginTop: 10,
@@ -234,16 +236,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   dateItemText: {
-    flex: 3,
-    marginLeft: 5,
-    marginRight: 5,
-    marginTop: 10,
-    marginBottom: 10,
+    flex: 2,
+    marginLeft: 2,
+    marginRight: 2,
+    alignSelf: 'center',
+    justifyContent: 'center',
     textAlign: 'center',
   },
   newItemInput: {
     flex: 1,
-    width: '100%',
     height: 40,
     textAlign: 'center',
     marginLeft: 5,

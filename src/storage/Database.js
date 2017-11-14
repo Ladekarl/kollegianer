@@ -4,8 +4,11 @@ export default class Database {
 
   static async getUser(userId) {
     let userPath = '/user/' + userId;
-
     return firebase.database().ref(userPath).once('value');
+  }
+
+  static async updateUser(key, user) {
+    return firebase.database().ref('/user/' + key).update(user);
   }
 
   static async getUsers() {

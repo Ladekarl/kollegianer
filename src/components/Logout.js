@@ -14,8 +14,8 @@ import UserStorage from '../storage/UserStorage';
 export default class LogoutScreen extends Component {
 
   static navigationOptions = {
-    title: 'Logout',
-    drawerLabel: 'Logout',
+    title: 'Log ud',
+    drawerLabel: 'Log ud',
     drawerIcon: ({tintColor}) => ( <FontAwesome name="sign-out" size={20} style={{color: '#dd1d00'}}/>),
     headerTitleStyle: {
       fontSize: 18
