@@ -12,6 +12,7 @@ import {
 import {FontAwesome} from '@expo/vector-icons';
 import UserStorage from '../storage/UserStorage';
 import Database from '../storage/Database';
+import colors from "../shared/colors";
 
 export default class ViManglerScreen extends Component {
 
@@ -39,12 +40,6 @@ export default class ViManglerScreen extends Component {
   componentDidMount() {
     this.setState({fetching: true});
     Database.listenViMangler(snapshot => {
-      this.items = snapshot;
-      this.setState({
-        renderItems: this.renderItems(),
-        fetching: false
-      });
-    }).then(snapshot => {
       this.items = snapshot;
       this.setState({
         renderItems: this.renderItems(),
@@ -89,7 +84,7 @@ export default class ViManglerScreen extends Component {
   _rowContainerStyle(item) {
     return {
       borderWidth: 5,
-      borderColor: (item.checked ? '#fde4e3' : '#e3f2fd'),
+      borderColor: (item.checked ? colors.redColor : colors.blueColor),
       flexDirection: 'row',
       marginLeft: 5,
       marginRight: 5,
@@ -111,7 +106,7 @@ export default class ViManglerScreen extends Component {
         {text: 'Slet', onPress: () => this.deleteItem(renderItem)},
       ],
       {cancelable: false}
-    )
+    );
   }
 
   _renderItem(renderItem) {
@@ -194,7 +189,7 @@ export default class ViManglerScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundColor,
   },
   scrollContainer: {
     justifyContent: 'flex-start',

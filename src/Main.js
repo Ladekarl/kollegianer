@@ -4,7 +4,10 @@ import LoginScreen from './components/Login';
 import HomeNavigator from './navigation/HomeNavigator';
 
 import {FontAwesome} from '@expo/vector-icons';
-import {TouchableOpacity, View} from 'react-native';
+import {
+  TouchableOpacity,
+  View
+} from 'react-native';
 import SettingsScreen from './components/Settings';
 
 export default MainNavigator = StackNavigator({

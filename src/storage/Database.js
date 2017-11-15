@@ -16,6 +16,18 @@ export default class Database {
     return firebase.database().ref(userPath).orderByChild('room').once('value');
   }
 
+  static async listenUsers(callback) {
+    let userPath = '/user/';
+    return firebase.database().ref(userPath).on('value', (snapshot) => {
+      callback(snapshot);
+    });
+  }
+
+  static async unListenUsers() {
+    let userPath = '/user/';
+    return firebase.database().ref(userPath).off('value');
+  }
+
   static async getViMangler() {
     return firebase.database().ref('/vimangler/').once('value');
   }
@@ -50,5 +62,23 @@ export default class Database {
 
   static async getDuties() {
     return firebase.database().ref('/duties/').once('value');
+  }
+
+  static async listenEvents(callback) {
+    let eventsPath = '/events/';
+    return firebase.database().ref(eventsPath).on('value', (snapshot) => {
+      callback(snapshot);
+    });
+  }
+
+  static async unListenEvents() {
+    let eventsPath = '/events/';
+    return firebase.database().ref(eventsPath).off('value');
+  }
+
+  static async updateEvent(key, value) {
+    let updates = {};
+    updates['/events/' + key] = value;
+    return firebase.database().ref().update(updates);
   }
 }

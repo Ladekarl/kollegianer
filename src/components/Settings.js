@@ -4,10 +4,13 @@ import {
   Text,
   StyleSheet,
   Switch,
-  Picker
+  Picker,
+  Alert,
+  ScrollView
 } from 'react-native';
 import UserStorage from '../storage/UserStorage';
 import Database from '../storage/Database';
+import colors from "../shared/colors";
 
 export default class SettingsScreen extends Component {
 
@@ -38,6 +41,28 @@ export default class SettingsScreen extends Component {
     this._getDuties();
   }
 
+  componentDidMount() {
+    Database.listenUsers(snapshot => {
+      let currentSheriff = null;
+      let currentKitchenWeek = null;
+      snapshot.forEach(snap => {
+        const user = snap.val();
+        if (user.sheriff) {
+          currentSheriff = user;
+        }
+        if (user.kitchenweek) {
+          currentKitchenWeek = user;
+        }
+      });
+      this.currentSheriff = currentSheriff;
+      this.currentKitchenWeek = currentKitchenWeek;
+    });
+  }
+
+  componentWillUnmount() {
+    Database.unListenUsers();
+  }
+
   changeDuty(value) {
     let user = this.state.user;
     user.duty = value;
@@ -45,15 +70,23 @@ export default class SettingsScreen extends Component {
   }
 
   changeKitchenweek(value) {
-    let user = this.state.user;
-    user.kitchenweek = value;
-    this._updateUser(user);
+    if (value && this.currentKitchenWeek) {
+      Alert.alert(this.currentKitchenWeek.name + ' har allerede køkkenugen');
+    } else {
+      let user = this.state.user;
+      user.kitchenweek = value;
+      this._updateUser(user);
+    }
   }
 
   changeSheriff(value) {
-    let user = this.state.user;
-    user.sheriff = value;
-    this._updateUser(user);
+    if (value && this.currentSheriff) {
+      Alert.alert(this.currentSheriff.name + ' har allerede køkkenugen');
+    } else {
+      let user = this.state.user;
+      user.sheriff = value;
+      this._updateUser(user);
+    }
   }
 
   _updateUser(user) {
@@ -64,8 +97,8 @@ export default class SettingsScreen extends Component {
   }
 
   _getUser() {
-    UserStorage.getUser().then(user => {
-      this.setState({user: user});
+    UserStorage.getUser().then(snapshot => {
+      this.setState({user: snapshot});
     });
   }
 
@@ -87,7 +120,7 @@ export default class SettingsScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Navn:</Text>
           <Text style={styles.rightText}>{this.state.user.name}</Text>
@@ -105,8 +138,7 @@ export default class SettingsScreen extends Component {
           <Picker style={styles.rightPicker}
                   onValueChange={(itemValue) => this.changeDuty(itemValue)}
                   selectedValue={this.state.user.duty}
-                  mode='dialog'
-                  itemStyle={styles.pickerItemStyle}>
+                  mode='dialog'>
             {this.state.pickerItems}
           </Picker>
         </View>
@@ -122,7 +154,7 @@ export default class SettingsScreen extends Component {
                   value={this.state.user.sheriff}
                   onValueChange={(value) => this.changeSheriff(value)}/>
         </View>
-      </View>
+      </ScrollView>
     )
   }
 }
@@ -130,14 +162,14 @@ export default class SettingsScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: colors.backgroundColor
   },
   rowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     borderWidth: 5,
-    borderColor: '#e3f2fd',
+    borderColor: colors.blueColor,
     marginTop: 5,
     marginLeft: 5,
     marginRight: 5,
@@ -154,10 +186,8 @@ const styles = StyleSheet.create({
   rightPicker: {
     marginRight: 10,
     width: '50%',
+    height: 40,
     alignItems: 'flex-end',
     justifyContent: 'flex-end'
-  },
-  pickerItemStyle: {
-    textAlign: 'right'
   }
 });

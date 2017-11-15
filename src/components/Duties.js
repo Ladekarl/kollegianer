@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Database from '../storage/Database';
+import colors from '../shared/colors';
 
 export default class DutiesScreen extends Component {
 
@@ -60,18 +61,18 @@ export default class DutiesScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundColor,
   },
   rowContainer: {
     flex: 1,
     flexDirection: 'row',
     borderWidth: 5,
-    borderColor: '#e3f2fd',
+    borderColor: colors.blueColor,
     marginLeft: 3,
     marginRight: 3,
     marginBottom: 3,
     borderRadius: 0,
-    alignItems: 'center' 
+    alignItems: 'center'
   },
   textRoom: {
     textAlign: 'center',
