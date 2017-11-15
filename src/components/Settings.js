@@ -31,9 +31,11 @@ export default class SettingsScreen extends Component {
         room: '',
         sheriff: false,
         uid: ''
-      }
+      },
+      pickerItems: []
     };
     this._getUser();
+    this._getDuties();
   }
 
   changeDuty(value) {
@@ -67,6 +69,22 @@ export default class SettingsScreen extends Component {
     });
   }
 
+  _getDuties() {
+    Database.getDuties().then(snapshot => {
+      this._renderPickerItems(snapshot);
+    });
+  }
+
+  _renderPickerItems(snapshot) {
+    let pickerItems = [];
+    snapshot.forEach(child => {
+      pickerItems.push(
+        <Picker.Item key={child.key} label={child.val()} value={child.val()}/>
+      )
+    });
+    this.setState({pickerItems})
+  }
+
   render() {
     return (
       <View style={styles.container}>
@@ -89,15 +107,7 @@ export default class SettingsScreen extends Component {
                   selectedValue={this.state.user.duty}
                   mode='dialog'
                   itemStyle={styles.pickerItemStyle}>
-            <Picker.Item label='Panter + filter' value='Panter + filter'/>
-            <Picker.Item label='Ovnmand' value='Ovnmand'/>
-            <Picker.Item label='Regnskab' value='Regnskab'/>
-            <Picker.Item label='Vaskemand' value='Vaskemand'/>
-            <Picker.Item label='Regnskabsmand/vaskemand' value='Regnskabsmand/vaskemand'/>
-            <Picker.Item label='Formand' value='Formand'/>
-            <Picker.Item label='Indkøber' value='Indkøber'/>
-            <Picker.Item label='Sedler' value='Sedler'/>
-            <Picker.Item label='Recycler' value='Recycler'/>
+            {this.state.pickerItems}
           </Picker>
         </View>
         <View style={styles.rowContainer}>

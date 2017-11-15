@@ -28,7 +28,7 @@ export default class Database {
   }
 
   static async unListenViManger() {
-    let viManglerPath = '/vimanger';
+    let viManglerPath = '/vimanger/';
     return firebase.database().ref(viManglerPath).off('value');
   };
 
@@ -46,5 +46,9 @@ export default class Database {
 
   static async updateViMangler(key, item) {
     return firebase.database().ref('/vimangler/' + key).update(item);
+  }
+
+  static async getDuties() {
+    return firebase.database().ref('/duties/').once('value');
   }
 }
