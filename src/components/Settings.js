@@ -130,6 +130,10 @@ export default class SettingsScreen extends Component {
           <Text style={styles.rightText}>{this.state.user.email}</Text>
         </View>
         <View style={styles.rowContainer}>
+          <Text style={styles.leftText}>Fødselsdato:</Text>
+          <Text style={styles.rightText}>{this.state.user.birthday}</Text>
+        </View>
+        <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Værelse:</Text>
           <Text style={styles.rightText}>{this.state.user.room}</Text>
         </View>

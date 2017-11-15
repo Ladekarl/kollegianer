@@ -56,10 +56,11 @@ export default class HomeScreen extends Component {
 
   componentDidMount() {
     Database.listenEvents(snapshot => {
+      let events = snapshot.val();
       this.setState({
-        events: snapshot.val(),
-        selectedMvp: snapshot.val().mvp,
-        selectedShots: snapshot.val().shots
+        events: events,
+        selectedMvp: events.mvp,
+        selectedShots: events.shots
       });
     });
   }
@@ -170,7 +171,7 @@ export default class HomeScreen extends Component {
               <Text>Vælg en person</Text>
               <Picker
                 mode='dialog'
-                onValueChange={(itemValue) => this.setState({selectedMvp: itemValue})}
+                onValueChange={itemValue => this.setState({selectedMvp: itemValue})}
                 selectedValue={this.state.selectedMvp}>
                 {this.state.pickerItems}
               </Picker>
@@ -201,7 +202,7 @@ export default class HomeScreen extends Component {
               <Text>Vælg en person</Text>
               <Picker
                 mode='dialog'
-                onValueChange={(itemValue) => this.setState({selectedShots: itemValue})}
+                onValueChange={itemValue => this.setState({selectedShots: itemValue})}
                 selectedValue={this.state.selectedShots}>
                 {this.state.pickerItems}
               </Picker>
@@ -293,6 +294,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end'
   },
   modalButton: {
-    marginLeft: 20
+    marginLeft: 40
   }
 });

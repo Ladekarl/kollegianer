@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {
   Text,
   View,
+  ScrollView,
   StyleSheet
 } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -51,9 +52,9 @@ export default class DutiesScreen extends Component {
 
   render() {
     return (
-      <View style={styles.container}>
+      <ScrollView style={styles.container}>
         {this.state.renderUsers}
-      </View>
+      </ScrollView>
     )
   }
 }
@@ -62,16 +63,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
+    marginTop: 5,
+    marginBottom: 5
   },
   rowContainer: {
     flex: 1,
     flexDirection: 'row',
     borderWidth: 5,
     borderColor: colors.blueColor,
-    marginLeft: 3,
-    marginRight: 3,
-    marginBottom: 3,
+    marginBottom: 7,
+    marginLeft: 5,
+    marginRight: 5,
     borderRadius: 0,
+    padding: 10,
     alignItems: 'center'
   },
   textRoom: {
