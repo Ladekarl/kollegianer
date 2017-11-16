@@ -81,7 +81,7 @@ export default class SettingsScreen extends Component {
 
   changeSheriff(value) {
     if (value && this.currentSheriff) {
-      Alert.alert(this.currentSheriff.name + ' har allerede køkkenugen');
+      Alert.alert(this.currentSheriff.name + ' er allerede sheriff');
     } else {
       let user = this.state.user;
       user.sheriff = value;
