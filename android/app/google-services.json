@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "343414260788",
+    "firebase_url": "https://kollegianer-169c6.firebaseio.com",
+    "project_id": "kollegianer-169c6",
+    "storage_bucket": "kollegianer-169c6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:343414260788:android:0e3e83cd521a6032",
+        "android_client_info": {
+          "package_name": "com.kollegianer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "343414260788-kar5q5tpk0482frd26hi2l49deegp656.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBtfOUVbSIbbGGh919Pz1mdytzhAeY-XU0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
