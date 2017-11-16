@@ -9,7 +9,7 @@ import {
   TextInput,
   Alert
 } from 'react-native';
-import {FontAwesome} from '@expo/vector-icons';
+import Icon from 'react-native-fa-icons';
 import UserStorage from '../storage/UserStorage';
 import Database from '../storage/Database';
 import colors from "../shared/colors";
@@ -18,7 +18,7 @@ export default class ViManglerScreen extends Component {
 
   static navigationOptions = {
     title: 'Vi Mangler',
-    drawerIcon: ({tintColor}) => ( <FontAwesome name='shopping-cart' size={20} style={{color: 'black'}}/>),
+    drawerIcon: ({tintColor}) => ( <Icon name='shopping-cart' style={{fontSize: 18, color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18
     }
@@ -122,7 +122,9 @@ export default class ViManglerScreen extends Component {
           <Text style={styles.dateItemText}>{item.date}</Text>
         </View>
         <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.checkItem(renderItem.key, item)}>
-          <FontAwesome name='shopping-basket' size={20} style={styles.rowImage}/>
+          <Text style={{margin: 10, fontSize: 15, textAlign: 'left'}}>
+            <Icon name='shopping-basket' style={styles.rowImage}/>
+          </Text>
         </TouchableOpacity>
       </TouchableOpacity>
     );
@@ -167,7 +169,7 @@ export default class ViManglerScreen extends Component {
                        onChangeText={(item) => this.setState({item})}/>
           </View>
           <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.submitItem()}>
-            <FontAwesome name='plus-circle' size={20} style={styles.rowImage}/>
+            <Icon name='plus-circle' style={{fontSize: 20, color: 'black'}}/>
           </TouchableOpacity>
         </View>
         <ScrollView contentContainerStyle={styles.scrollContainer}

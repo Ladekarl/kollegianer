@@ -103,7 +103,7 @@ export default class LoginScreen extends Component {
             source={require('../../img/gylden_dame.jpg')}
           />
         </View>
-        <KeyboardAvoidingView behavior='padding' style={styles.keyboardAvoidContainer}>
+        <View style={styles.keyboardAvoidContainer}>
           <View style={styles.loginFormContainer}>
             <View style={styles.inputContainer}>
               <TextInput style={styles.usernameInput}
@@ -121,7 +121,7 @@ export default class LoginScreen extends Component {
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{this.state.error}</Text>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </View>
     )
   }

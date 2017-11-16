@@ -8,15 +8,16 @@ import {
 } from 'react-native';
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
-import {FontAwesome} from '@expo/vector-icons';
+
 import UserStorage from '../storage/UserStorage';
+import Icon from 'react-native-fa-icons';
 
 export default class LogoutScreen extends Component {
 
   static navigationOptions = {
     title: 'Log ud',
     drawerLabel: 'Log ud',
-    drawerIcon: ({tintColor}) => ( <FontAwesome name="sign-out" size={20} style={{color: '#dd1d00'}}/>),
+    drawerIcon: ({tintColor}) => ( <Icon name='sign-out' style={{fontSize: 18, color: '#dd1d00'}}/>),
     headerTitleStyle: {
       fontSize: 18
     },

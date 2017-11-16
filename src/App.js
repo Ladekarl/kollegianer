@@ -15,9 +15,7 @@ import {
   StyleSheet,
 } from 'react-native';
 
-import MainNavigator from './src/Main';
-
-Expo.ScreenOrientation.allow(Expo.ScreenOrientation.Orientation.PORTRAIT_UP);
+import MainNavigator from './navigation/MainNavigator';
 
 export default class App extends Component {
   componentWillMount() {
@@ -42,7 +40,6 @@ export default class App extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    paddingTop: Platform.OS === 'ios' ? 0 : Expo.Constants.statusBarHeight,
     flex: 1,
     backgroundColor: '#fff',
   }

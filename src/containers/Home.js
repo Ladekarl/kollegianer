@@ -9,15 +9,15 @@ import {
   Modal,
   TouchableOpacity,
 } from 'react-native';
-import {FontAwesome} from '@expo/vector-icons';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
+import Icon from 'react-native-fa-icons';
 
 export default class HomeScreen extends Component {
 
   static navigationOptions = {
     title: 'Hjem',
-    drawerIcon: ({tintColor}) => ( <FontAwesome name='home' size={20} style={{color: 'black'}}/>),
+    drawerIcon: ({tintColor}) => ( <Icon name='home' style={{fontSize: 20, color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18
     }

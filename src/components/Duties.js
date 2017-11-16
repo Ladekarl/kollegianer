@@ -5,15 +5,15 @@ import {
   ScrollView,
   StyleSheet
 } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
+import Icon from 'react-native-fa-icons';
 
 export default class DutiesScreen extends Component {
 
   static navigationOptions = {
     title: 'Tjanser',
-    drawerIcon: ({tintColor}) => ( <FontAwesome name='tasks' size={20} style={{color: 'black'}}/>),
+    drawerIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 18, color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18
     }
