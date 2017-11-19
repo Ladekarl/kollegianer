@@ -52,4 +52,6 @@ buck-out/
 */fastlane/Preview.html
 */fastlane/screenshots
 
-/*.env
+*.env
+GoogleService-Info.plist
+google-services.json
