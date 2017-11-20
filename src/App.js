@@ -6,7 +6,7 @@ import {
   FIREBASE_DATABASE_URL,
   FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET,
-  FIREBAE_MESSAGE_SENDER_ID
+  FIREBASE_MESSAGE_SENDER_ID
 } from 'react-native-dotenv';
 import {
   Platform,
@@ -67,7 +67,7 @@ export default class App extends Component {
       databaseURL: FIREBASE_DATABASE_URL,
       projectId: FIREBASE_PROJECT_ID,
       storageBucket: FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: FIREBAE_MESSAGE_SENDER_ID
+      messagingSenderId: FIREBASE_MESSAGE_SENDER_ID
     })
   }
 
