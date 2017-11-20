@@ -9,7 +9,7 @@ import {
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
 
-import UserStorage from '../storage/UserStorage';
+import LocalStorage from '../storage/LocalStorage';
 import Icon from 'react-native-fa-icons';
 
 export default class LogoutScreen extends Component {
@@ -47,7 +47,7 @@ export default class LogoutScreen extends Component {
     this.setState({loading: true});
     firebase.auth().signOut()
       .then(() => {
-        UserStorage.removeUser().then(() => {
+        LocalStorage.removeUser().then(() => {
           this.setState({error: '', loading: false});
           this._redirectToLogin();
         }).catch((error) => {

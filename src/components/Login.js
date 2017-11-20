@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
-import UserStorage from '../storage/UserStorage';
+import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 
 export default class LoginScreen extends Component {
@@ -36,7 +36,7 @@ export default class LoginScreen extends Component {
   }
 
   componentDidMount() {
-    UserStorage.getUser().then(user => {
+    LocalStorage.getUser().then(user => {
       if (user) {
         this.setState({email: user.email, password: user.password});
         this._login(user.email, user.password)
@@ -62,9 +62,16 @@ export default class LoginScreen extends Component {
             this._stopLoadingAndSetError('User did not exist in database');
             return;
           }
-          dbUser.uid = user.uid;
-          dbUser.password = password;
-          this._saveUserAndNavigate(dbUser);
+          LocalStorage.getFcmToken().then(token => {
+            if (token) {
+              dbUser.notificationToken = token;
+              Database.updateUser(user.uid, dbUser);
+            }
+          }).finally(() => {
+            dbUser.uid = user.uid;
+            dbUser.password = password;
+            this._saveUserAndNavigate(dbUser);
+          });
         }).catch(error => {
           this._stopLoadingAndSetError(error)
         });
@@ -74,7 +81,7 @@ export default class LoginScreen extends Component {
   }
 
   _saveUserAndNavigate(dbUser) {
-    UserStorage.setUser(dbUser).then(() => {
+    LocalStorage.setUser(dbUser).then(() => {
       this.setState({error: '', loading: false});
       this._navigateAndReset();
     }).catch(error => {

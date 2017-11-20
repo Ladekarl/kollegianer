@@ -165,6 +165,8 @@ export default class HomeScreen extends Component {
         <Modal
           animationType='fade'
           transparent={true}
+          onRequestClose={() => {
+          }}
           visible={this.state.mvpModalVisible}>
           <View style={styles.modalContainer}>
             <View style={styles.modalPickerContainer}>
@@ -196,6 +198,8 @@ export default class HomeScreen extends Component {
         <Modal
           animationType='fade'
           transparent={true}
+          onRequestClose={() => {
+          }}
           visible={this.state.shotsModalVisible}>
           <View style={styles.modalContainer}>
             <View style={styles.modalPickerContainer}>

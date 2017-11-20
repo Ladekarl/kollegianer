@@ -8,7 +8,7 @@ import {
   Alert,
   ScrollView
 } from 'react-native';
-import UserStorage from '../storage/UserStorage';
+import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from "../shared/colors";
 
@@ -92,12 +92,12 @@ export default class SettingsScreen extends Component {
   _updateUser(user) {
     this.setState({user: user});
     Database.updateUser(user.uid, user).then(() => {
-      UserStorage.setUser(user);
+      LocalStorage.setUser(user);
     });
   }
 
   _getUser() {
-    UserStorage.getUser().then(snapshot => {
+    LocalStorage.getUser().then(snapshot => {
       this.setState({user: snapshot});
     });
   }

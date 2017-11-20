@@ -10,7 +10,7 @@ import {
   Alert
 } from 'react-native';
 import Icon from 'react-native-fa-icons';
-import UserStorage from '../storage/UserStorage';
+import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from "../shared/colors";
 
@@ -32,7 +32,7 @@ export default class ViManglerScreen extends Component {
       renderItems: []
     };
 
-    UserStorage.getUser().then(user => {
+    LocalStorage.getUser().then(user => {
       this.user = user;
     });
   }
