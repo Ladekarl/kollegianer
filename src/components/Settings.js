@@ -5,8 +5,10 @@ import {
   StyleSheet,
   Switch,
   Picker,
+  TouchableOpacity,
   Alert,
-  ScrollView
+  ScrollView,
+  Modal
 } from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
@@ -35,7 +37,9 @@ export default class SettingsScreen extends Component {
         sheriff: false,
         uid: ''
       },
-      pickerItems: []
+      pickerItems: [],
+      selectedDuty: '',
+      dutyModalVisible: false
     };
     this._getUser();
     this._getDuties();
@@ -63,10 +67,12 @@ export default class SettingsScreen extends Component {
     Database.unListenUsers();
   }
 
-  changeDuty(value) {
-    let user = this.state.user;
-    user.duty = value;
-    this._updateUser(user);
+  changeDuty() {
+    if (this.state.selectedDuty) {
+      let user = this.state.user;
+      user.duty = this.state.selectedDuty;
+      this._updateUser(user);
+    }
   }
 
   changeKitchenweek(value) {
@@ -118,6 +124,10 @@ export default class SettingsScreen extends Component {
     this.setState({pickerItems})
   }
 
+  setDutyModalVisible(visible) {
+    this.setState({selectedDuty: this.state.user.duty, dutyModalVisible: visible});
+  }
+
   render() {
     return (
       <ScrollView style={styles.container}>
@@ -139,12 +149,9 @@ export default class SettingsScreen extends Component {
         </View>
         <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Tjans:</Text>
-          <Picker style={styles.rightPicker}
-                  onValueChange={(itemValue) => this.changeDuty(itemValue)}
-                  selectedValue={this.state.user.duty}
-                  mode='dialog'>
-            {this.state.pickerItems}
-          </Picker>
+          <TouchableOpacity style={styles.rightText} onPress={() => {this.setDutyModalVisible(true)}}>
+            <Text>{this.state.user.duty}</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Køkkenuge:</Text>
@@ -158,6 +165,38 @@ export default class SettingsScreen extends Component {
                   value={this.state.user.sheriff}
                   onValueChange={(value) => this.changeSheriff(value)}/>
         </View>
+        <Modal
+          animationType='fade'
+          transparent={true}
+          onRequestClose={() => {
+          }}
+          visible={this.state.dutyModalVisible}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalPickerContainer}>
+              <Text>Vælg en tjans</Text>
+              <Picker onValueChange={(itemValue) => this.setState({selectedDuty: itemValue})}
+                      selectedValue={this.state.selectedDuty}
+                      mode='dialog'>
+                {this.state.pickerItems}
+              </Picker>
+              <View style={styles.modalPickerRowContainer}>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => this.setDutyModalVisible(false)}>
+                  <Text>Annullér</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalButton}
+                  onPress={() => {
+                    this.changeDuty();
+                    this.setDutyModalVisible(false);
+                  }}>
+                  <Text>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     )
   }
@@ -187,11 +226,29 @@ const styles = StyleSheet.create({
   rightText: {
     marginRight: 10,
   },
-  rightPicker: {
-    marginRight: 10,
-    width: '50%',
-    height: 40,
-    alignItems: 'flex-end',
-    justifyContent: 'flex-end'
+  modalContainer: {
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalPickerContainer: {
+    width: '80%',
+    padding: 20,
+    borderRadius: 5,
+    opacity: 1,
+    backgroundColor: colors.modalBackgroundColor
+  },
+  modalPickerRowContainer: {
+    flexDirection: 'row',
+    margin: 5,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end'
+  },
+  modalButton: {
+    marginLeft: 40
   }
 });

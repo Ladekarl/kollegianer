@@ -278,18 +278,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   modalContainer: {
-    backgroundColor: '#000',
-    opacity: 0.9,
-    flex: 1,
+    position: 'absolute',
+    right: 0,
+    left: 0,
+    top: 0,
+    bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalPickerContainer: {
     width: '80%',
     padding: 20,
-    borderRadius: 2,
+    borderRadius: 5,
     opacity: 1,
-    backgroundColor: '#fff'
+    backgroundColor: colors.modalBackgroundColor
   },
   modalPickerRowContainer: {
     flexDirection: 'row',

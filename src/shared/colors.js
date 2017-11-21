@@ -5,6 +5,7 @@ export default new ThemeManager({
     backgroundColor: '#fff',
     redColor: '#fda497',
     blueColor: '#eaf6fd',
-    greenColor: '#c9fdaf'
+    greenColor: '#c9fdaf',
+    modalBackgroundColor: '#f3f3f3'
   },
 });
