@@ -24,7 +24,7 @@ project.xcworkspace
 
 # Android/IntelliJ
 #
-build/
+android/gradle.properties
 .idea
 .gradle
 local.properties
@@ -55,3 +55,4 @@ buck-out/
 *.env
 GoogleService-Info.plist
 google-services.json
+
