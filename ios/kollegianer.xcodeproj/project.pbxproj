@@ -333,6 +333,7 @@
 		86C749382CF64C519D1F14C2 /* RNFIRMessaging.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFIRMessaging.xcodeproj; path = "../node_modules/react-native-fcm/ios/RNFIRMessaging.xcodeproj"; sourceTree = "<group>"; };
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		C6D78C132EEC13965D6AE42E /* Pods_kollegianer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_kollegianer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB7A762E1FC6FB7C0053A08F /* kollegianer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = kollegianer.entitlements; path = kollegianer/kollegianer.entitlements; sourceTree = "<group>"; };
 		CBFF38631FC2427E00E4B884 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "kollegianer/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		D5B6A7D5EEF72C3FD4509396 /* Pods-kollegianer-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kollegianer-tvOSTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-kollegianer-tvOSTests/Pods-kollegianer-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		EA452F9874ADC2568087E64F /* libPods-kollegianer-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-kollegianer-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -492,6 +493,7 @@
 		13B07FAE1A68108700A75B9A /* kollegianer */ = {
 			isa = PBXGroup;
 			children = (
+				CB7A762E1FC6FB7C0053A08F /* kollegianer.entitlements */,
 				CBFF38631FC2427E00E4B884 /* GoogleService-Info.plist */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.m */,
@@ -739,12 +741,13 @@
 					};
 					13B07F861A680F5B00A75B9A = {
 						DevelopmentTeam = 2AFEAX4TBH;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.BackgroundModes = {
 								enabled = 1;
 							};
 							com.apple.Push = {
-								enabled = 0;
+								enabled = 1;
 							};
 						};
 					};
@@ -1413,6 +1416,9 @@
 			baseConfigurationReference = 7A2C1CD9FA72753F1DB1FCC6 /* Pods-kollegianer.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = kollegianer/kollegianer.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = NO;
 				DEVELOPMENT_TEAM = 2AFEAX4TBH;
@@ -1424,7 +1430,10 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kk1700.kollegianer;
 				PRODUCT_NAME = kollegianer;
+				PROVISIONING_PROFILE = "0731c354-8dcd-4185-aef3-95f4cda61c8e";
+				PROVISIONING_PROFILE_SPECIFIER = "Kollegianer Development";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1434,6 +1443,9 @@
 			baseConfigurationReference = 31686EB26F769557A8DA0A36 /* Pods-kollegianer.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = kollegianer/kollegianer.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2AFEAX4TBH;
 				HEADER_SEARCH_PATHS = "$(SRCROOT)/../node_modules/react-native-fcm/ios";
@@ -1444,7 +1456,10 @@
 					"-ObjC",
 					"-lc++",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.kk1700.kollegianer;
 				PRODUCT_NAME = kollegianer;
+				PROVISIONING_PROFILE = "0731c354-8dcd-4185-aef3-95f4cda61c8e";
+				PROVISIONING_PROFILE_SPECIFIER = "Kollegianer Development";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

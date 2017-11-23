@@ -4,6 +4,7 @@ import {
   Text,
   StyleSheet,
   Switch,
+  Button,
   Picker,
   TouchableOpacity,
   Alert,
@@ -13,6 +14,7 @@ import {
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from "../shared/colors";
+import firebase from 'firebase';
 
 export default class SettingsScreen extends Component {
 
@@ -43,6 +45,7 @@ export default class SettingsScreen extends Component {
     };
     this._getUser();
     this._getDuties();
+    this.auth = firebase.auth();
   }
 
   componentDidMount() {
@@ -128,6 +131,19 @@ export default class SettingsScreen extends Component {
     this.setState({selectedDuty: this.state.user.duty, dutyModalVisible: visible});
   }
 
+  changePasswordAlert() {
+    Alert.alert('Er du sikker?',
+      'Du vil modtage en mail på ' + this.state.user.email,
+      [
+        {text: 'Annullér', onPress: () => {}},
+        {text: 'OK', onPress: () => this._changePassword()},
+      ])
+  }
+
+  _changePassword() {
+    this.auth.sendPasswordResetEmail(this.state.user.email);
+  }
+
   render() {
     return (
       <ScrollView style={styles.container}>
@@ -164,6 +180,10 @@ export default class SettingsScreen extends Component {
           <Switch style={styles.rightText}
                   value={this.state.user.sheriff}
                   onValueChange={(value) => this.changeSheriff(value)}/>
+        </View>
+        <View style={styles.changePasswordRowContainer}>
+          <Button title='Skift Adgangskode'
+                  onPress={() => this.changePasswordAlert()} />
         </View>
         <Modal
           animationType='fade'
@@ -210,6 +230,18 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
+    borderWidth: 5,
+    borderColor: colors.blueColor,
+    marginTop: 5,
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 7,
+    padding: 15,
+  },
+  changePasswordRowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 5,
     borderColor: colors.blueColor,

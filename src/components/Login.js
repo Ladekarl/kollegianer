@@ -5,6 +5,7 @@ import {
   Button,
   TextInput,
   Text,
+  Platform,
   Image,
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -76,7 +77,7 @@ export default class LoginScreen extends Component {
         }).catch(error => {
           this._stopLoadingAndSetError(error)
         });
-      }).catch((error) => {
+      }).catch(error => {
       this._stopLoadingAndSetError(error)
     });
   }
@@ -102,9 +103,25 @@ export default class LoginScreen extends Component {
     this.props.navigation.dispatch(resetAction);
   }
 
-  render() {
+  _renderIos() {
     return (
+      <KeyboardAvoidingView style={styles.container} behavior="padding">
+        {this._renderShared()}
+      </KeyboardAvoidingView>
+    );
+  }
+
+  _renderAndroid() {
+    return(
       <View style={styles.container}>
+        {this._renderShared()}
+      </View>
+    );
+  }
+
+  _renderShared() {
+    return (
+      <View style={styles.innerContainer}>
         <View style={styles.topContainer}>
           <Image
             style={styles.image}
@@ -136,11 +153,22 @@ export default class LoginScreen extends Component {
         </View>
         }
       </View>
-    )
+    );
+  }
+
+  render() {
+    if (Platform.OS === 'ios') {
+      return this._renderIos();
+    } else {
+      return this._renderAndroid();
+    }
   }
 }
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  innerContainer: {
     flex: 1,
     backgroundColor: '#fff',
     paddingLeft: 20,
