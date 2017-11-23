@@ -52,8 +52,8 @@ FCM.on(FCMEvent.Notification, async (notif) => {
 
 FCM.on(FCMEvent.RefreshToken, (token) => {
   const user = firebase.auth().currentUser;
+  LocalStorage.setFcmToken(token);
   if (user && token) {
-    LocalStorage.setFcmToken(token);
     Database.updateNotificationToken(user.uid);
   }
 });
