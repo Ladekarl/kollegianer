@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 import MainNavigator from './navigation/MainNavigator';
 import LocalStorage from './storage/LocalStorage';
+import {NavigationActions} from 'react-navigation'
 import FCM, {
   FCMEvent,
   RemoteNotificationResult, WillPresentNotificationResult, NotificationType
@@ -29,8 +30,7 @@ FCM.on(FCMEvent.Notification, async (notif) => {
     //this is a local notification
   }
   if (notif.opened_from_tray) {
-    //iOS: app is open/resumed because user clicked banner
-    //Android: app is open/resumed because user clicked banner or tapped app icon
+
   }
   // await someAsyncCall();
 
@@ -89,6 +89,15 @@ export default class App extends Component {
     // initial notification will be triggered all the time even when open app by icon so send some action identifier when you send notification
     FCM.getInitialNotification().then(notif => {
       // If this is a ViMangler notification, navigate to ViMangler screen
+      const user = firebase.auth().currentUser;
+      const action = (Platform.OS === 'ios' ? notif.apns.action_category : notif.fcm.action);
+      if (user && action === 'fcm.VI_MANGLER') {
+        const navigateAction = NavigationActions.navigate({
+          routeName: 'Home',
+          action: NavigationActions.navigate({ routeName: 'ViMangler'})
+        });
+        this.props.navigation.dispatch(navigateAction);
+      }
     });
   }
 

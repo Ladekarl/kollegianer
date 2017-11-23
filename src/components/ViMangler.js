@@ -136,7 +136,7 @@ export default class ViManglerScreen extends Component {
       let newItem = {
         room: this.user.room,
         item: this.state.item,
-        date: date.getDate() + '/' + date.getMonth(),
+        date: date.getDate() + '/' + (date.getMonth() + 1),
       };
       Database.addViMangler(newItem);
       this.setState({item: ''});

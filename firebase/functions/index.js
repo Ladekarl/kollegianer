@@ -8,6 +8,7 @@ admin.initializeApp(functions.config().firebase);
 exports.sendViManglerNotification = functions.database.ref('/vimangler/{viManglerUid}').onWrite(event => {
   const viManglerUid = event.params.viManglerUid;
   const viMangler = event.data.val();
+  const uid = event.auth.variable ? event.auth.variable.uid : '';
   // If delete ViMangler then exit the function.
   if (!viMangler) {
     return console.log(viManglerUid,' was deleted');
@@ -20,7 +21,7 @@ exports.sendViManglerNotification = functions.database.ref('/vimangler/{viMangle
     let notificationTokens = [];
     usersSnapshots.forEach(userSnapshot => {
       const user = userSnapshot.val();
-      if (user.duty === "Indkøber" && user.notificationToken) {
+      if (uid !== userSnapshot.key && user.duty === "Indkøber" && user.notificationToken) {
         notificationTokens.push(user.notificationToken);
       }
     });
@@ -31,15 +32,25 @@ exports.sendViManglerNotification = functions.database.ref('/vimangler/{viMangle
     console.log('There are', notificationTokens.length, 'tokens to send notifications to.');
 
     // Notification details.
-    const payload = {
+    const viManglerAdded = {
       notification: {
         title: 'Der blev tilføjet en ting til Vi Mangler',
-        body: `${viMangler.item} blev tilføjet af ${viMangler.room}`
+        body: `${viMangler.item} blev tilføjet af ${viMangler.room}`,
+        click_action: "fcm.VI_MANGLER"
+      }
+    };
+
+    const viManglerChecked = {
+      notification: {
+        title: 'Der blev købt en ting på Vi Mangler',
+        body: `${viMangler.item} blev købt`,
+        click_action: "fcm.VI_MANGLER"
       }
     };
 
     // Send notifications to all tokens.
-    return admin.messaging().sendToDevice(notificationTokens, payload).then(response => {
+    return admin.messaging().sendToDevice(notificationTokens, viMangler.checked ? viManglerChecked : viManglerAdded)
+      .then(response => {
       // For each message check if there was an error.
       response.results.forEach((result, index) => {
         const error = result.error;
