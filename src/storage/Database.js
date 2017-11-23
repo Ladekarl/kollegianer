@@ -11,6 +11,10 @@ export default class Database {
     return firebase.database().ref('/user/' + key).update(user);
   }
 
+  static async updateNotificationToken(key, value) {
+    return firebase.database().ref('/user/' + key + 'notificationToken').update(value);
+  }
+
   static async getUsers() {
     let userPath = '/user/';
     return firebase.database().ref(userPath).orderByChild('room').once('value');

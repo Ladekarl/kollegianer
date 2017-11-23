@@ -13,53 +13,57 @@ import {
   Alert,
   View,
   StyleSheet,
+  AppState
 } from 'react-native';
 import MainNavigator from './navigation/MainNavigator';
-import LocalStorage from './storage/LocalStorage';
+import LocalStorage from './storage/LocalStorage'
+import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation'
 import FCM, {
   FCMEvent,
   RemoteNotificationResult, WillPresentNotificationResult, NotificationType
 } from 'react-native-fcm';
 
-// this shall be called regardless of app state: running, background or not running. Won't be called when app is killed by user in iOS
+let initialNotification;
+let openedFromTray = false;
+
 FCM.on(FCMEvent.Notification, async (notif) => {
-  // there are two parts of notif.
-  // notif.notification contains the notification payload, notif.data contains data payload
   if (notif.local_notification) {
-    //this is a local notification
   }
   if (notif.opened_from_tray) {
-
+    openedFromTray = true;
+    initialNotification = notif;
   }
-  // await someAsyncCall();
 
   if (Platform.OS === 'ios') {
-    // optional
-    // iOS requires developers to call completionHandler to end notification process.
-    // If you do not call it your background remote notifications could be throttled, to read more about it see the above documentation link.
-    //This library handles it for you automatically with default behavior (for remote notification, finish with NoData; for WillPresent, finish depend on "show_in_foreground"). However if you want to return different result, follow the following code to override
-    //notif._notificationType is available for iOS platfrom
     switch (notif._notificationType) {
       case NotificationType.Remote:
-        notif.finish(RemoteNotificationResult.NewData); //other types available: RemoteNotificationResult.NewData, RemoteNotificationResult.ResultFailed
+        notif.finish(RemoteNotificationResult.NewData);
         break;
       case NotificationType.NotificationResponse:
         notif.finish();
         break;
       case NotificationType.WillPresent:
-        notif.finish(WillPresentNotificationResult.All); //other types available: WillPresentNotificationResult.None
+        notif.finish(WillPresentNotificationResult.All);
         break;
     }
   }
 });
+
 FCM.on(FCMEvent.RefreshToken, (token) => {
-  if (token) {
+  const user = firebase.auth().currentUser;
+  if (user && token) {
     LocalStorage.setFcmToken(token);
+    Database.updateNotificationToken(user.uid);
   }
 });
 
 export default class App extends Component {
+
+  state = {
+    appState: AppState.currentState
+  };
+
   componentWillMount() {
     firebase.initializeApp({
       apiKey: FIREBASE_API_KEY,
@@ -72,8 +76,8 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    // iOS: show permission prompt for the first call. Later just check permission in user settings
-    // Android: check permission in user settings
+    AppState.addEventListener('change', this._handleAppStateChange);
+
     FCM.requestPermissions()
       .catch(() => Alert.alert('Tilladelse afvist',
         'Du afviste tilladelsen. Du er da smart hva. Prøv lige igen.'));
@@ -84,21 +88,53 @@ export default class App extends Component {
       }
     });
 
-    // initial notification contains the notification that launches the app. If user launches app by clicking banner, the banner notification info will be here rather than through FCM.on event
-    // sometimes Android kills activity when app goes to background, and when resume it broadcasts notification before JS is run. You can use FCM.getInitialNotification() to capture those missed events.
-    // initial notification will be triggered all the time even when open app by icon so send some action identifier when you send notification
+    if (openedFromTray) {
+      this._openedFromTray();
+    }
+
+    // Not always triggered. Only if Android killed background activity and boots up from notification click.
     FCM.getInitialNotification().then(notif => {
-      // If this is a ViMangler notification, navigate to ViMangler screen
-      const user = firebase.auth().currentUser;
-      const action = (Platform.OS === 'ios' ? notif.apns.action_category : notif.fcm.action);
-      if (user && action === 'fcm.VI_MANGLER') {
+      initialNotification = notif;
+      this._openedFromTray();
+    });
+  }
+
+  componentWillUnmount() {
+    AppState.removeEventListener('change', this._handleAppStateChange);
+  }
+
+  _handleAppStateChange = (nextAppState) => {
+    // Check if app was opened by clicking notification
+    if (this.state.appState.match(/inactive|background/)
+      && nextAppState === 'active'
+      && openedFromTray) {
+      this._openedFromTray();
+    }
+    this.setState({appState: nextAppState});
+  };
+
+  _openedFromTray() {
+    openedFromTray = false;
+    this._navigateOnInitialNotification(initialNotification);
+  };
+
+  _navigateOnInitialNotification(notification) {
+    const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      return;
+    }
+    switch (action) {
+      // Switch on current_action from FCM payload
+      case 'fcm.VI_MANGLER': {
         const navigateAction = NavigationActions.navigate({
           routeName: 'Home',
-          action: NavigationActions.navigate({ routeName: 'ViMangler'})
+          // Nested navigation param
+          action: NavigationActions.navigate({routeName: 'ViMangler'})
         });
         this.props.navigation.dispatch(navigateAction);
       }
-    });
+    }
   }
 
   render() {
