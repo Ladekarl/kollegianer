@@ -19,9 +19,15 @@ exports.sendViManglerNotification = functions.database.ref('/vimangler/{viMangle
   return Promise.all([getUsersPromise]).then(results => {
     const usersSnapshots = results[0];
     let notificationTokens = [];
+    let committingUser;
     usersSnapshots.forEach(userSnapshot => {
       const user = userSnapshot.val();
-      if (uid !== userSnapshot.key && user.duty === "Indkøber" && user.notificationToken) {
+      // Find the user who actually did the update.
+      if (uid === userSnapshot.key) {
+        committingUser = userSnapshot.val();
+      }
+      // Do not push notification to user who updated and only push if duty is indkøber.
+      else if (user.duty === "Indkøber" && user.notificationToken) {
         notificationTokens.push(user.notificationToken);
       }
     });
@@ -35,7 +41,7 @@ exports.sendViManglerNotification = functions.database.ref('/vimangler/{viMangle
     const viManglerAdded = {
       notification: {
         title: 'Der blev tilføjet en ting til Vi Mangler',
-        body: `${viMangler.item} blev tilføjet af ${viMangler.room}`,
+        body: `${viMangler.item} blev tilføjet af ${committingUser.room}`,
         click_action: "fcm.VI_MANGLER"
       }
     };
@@ -43,7 +49,7 @@ exports.sendViManglerNotification = functions.database.ref('/vimangler/{viMangle
     const viManglerChecked = {
       notification: {
         title: 'Der blev købt en ting på Vi Mangler',
-        body: `${viMangler.item} blev købt`,
+        body: `${viMangler.item} blev købt af ${committingUser.room}`,
         click_action: "fcm.VI_MANGLER"
       }
     };
@@ -56,6 +62,7 @@ exports.sendViManglerNotification = functions.database.ref('/vimangler/{viMangle
         const error = result.error;
         if (error) {
           console.error('Failure sending notification to', notificationTokens[index], error);
+          // Should remove the failed tokens and return them.
         }
       });
       return Promise.all([]);
