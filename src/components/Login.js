@@ -125,7 +125,7 @@ export default class LoginScreen extends Component {
         <View style={styles.topContainer}>
           <Image
             style={styles.image}
-            source={require('../../img/gylden_dame.jpg')}
+            source={require('../../img/kollegianer.png')}
           />
         </View>
         <View style={styles.keyboardAvoidContainer}>
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   image: {
-    width: 100,
+    width: 200,
     height: 200,
     opacity: 0.8
   },

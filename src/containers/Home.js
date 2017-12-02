@@ -107,7 +107,7 @@ export default class HomeScreen extends Component {
         <View style={styles.rowContainer}>
           <View style={styles.headerContainer}>
             <Text style={styles.textHeader}>Velkommen til Køkken 1700 </Text>
-            <Image style={styles.image} source={require('../../img/baggrund_guld.png')}/>
+            <Image style={styles.headerImage} source={require('../../img/kollegianer.png')}/>
           </View>
         </View>
         <View style={styles.rowContainer}>
@@ -265,10 +265,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'stretch'
   },
+  headerImage: {
+    height: 80,
+    width: 80,
+    margin: 10
+  },
   image: {
     height: 60,
     width: 60,
-    margin: 10,
+    margin: 10
   },
   text: {
     textAlign: 'center'
