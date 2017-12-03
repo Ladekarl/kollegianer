@@ -48,7 +48,7 @@ export default class SettingsScreen extends Component {
     this.auth = firebase.auth();
   }
 
-  componentDidMount() {
+  componentWillMount() {
     Database.listenUsers(snapshot => {
       let currentSheriff = null;
       let currentKitchenWeek = null;

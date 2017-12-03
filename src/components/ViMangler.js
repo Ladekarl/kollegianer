@@ -37,7 +37,7 @@ export default class ViManglerScreen extends Component {
     });
   }
 
-  componentDidMount() {
+  componentWillMount() {
     this.setState({fetching: true});
     Database.listenViMangler(snapshot => {
       this.items = snapshot;

@@ -37,7 +37,7 @@ export default class LoginScreen extends Component {
     }
   }
 
-  componentDidMount() {
+  componentWillMount() {
     LocalStorage.getUser().then(user => {
       if (user) {
         this.setState({email: user.email, password: user.password});

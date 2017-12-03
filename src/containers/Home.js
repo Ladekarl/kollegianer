@@ -54,7 +54,7 @@ export default class HomeScreen extends Component {
     })
   }
 
-  componentDidMount() {
+  componentWillMount() {
     Database.listenEvents(snapshot => {
       let events = snapshot.val();
       this.setState({
