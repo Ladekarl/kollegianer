@@ -17,8 +17,8 @@ import colors from "../shared/colors";
 export default class ViManglerScreen extends Component {
 
   static navigationOptions = {
-    title: 'Vi Mangler',
-    drawerIcon: ({tintColor}) => ( <Icon name='shopping-cart' style={{fontSize: 18, color: 'black'}}/>),
+    tabBarLabel: 'Vi Mangler',
+    tabBarIcon: ({tintColor}) => ( <Icon name='shopping-cart' style={{fontSize: 20, color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18
     }

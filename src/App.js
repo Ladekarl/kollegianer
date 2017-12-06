@@ -15,13 +15,15 @@ import {
   StyleSheet,
   AppState
 } from 'react-native';
-import MainNavigator from './navigation/MainNavigator';
+import Stack from './navigation/Stack';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation'
 import FCM, {
   FCMEvent,
-  RemoteNotificationResult, WillPresentNotificationResult, NotificationType
+  RemoteNotificationResult,
+  WillPresentNotificationResult,
+  NotificationType
 } from 'react-native-fcm';
 
 let initialNotification;
@@ -65,14 +67,16 @@ export default class App extends Component {
   };
 
   componentWillMount() {
-    firebase.initializeApp({
-      apiKey: FIREBASE_API_KEY,
-      authDomain: FIREBASE_DOMAIN,
-      databaseURL: FIREBASE_DATABASE_URL,
-      projectId: FIREBASE_PROJECT_ID,
-      storageBucket: FIREBASE_STORAGE_BUCKET,
-      messagingSenderId: FIREBASE_MESSAGE_SENDER_ID
-    })
+    if (!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: FIREBASE_API_KEY,
+        authDomain: FIREBASE_DOMAIN,
+        databaseURL: FIREBASE_DATABASE_URL,
+        projectId: FIREBASE_PROJECT_ID,
+        storageBucket: FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: FIREBASE_MESSAGE_SENDER_ID
+      });
+    }
   }
 
   componentDidMount() {
@@ -119,11 +123,11 @@ export default class App extends Component {
   };
 
   _navigateOnInitialNotification(notification) {
-    const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
     const user = firebase.auth().currentUser;
-    if (!user) {
+    if (!user || (Platform.OS === 'ios' && !notification.apns)) {
       return;
     }
+    const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
     switch (action) {
       // Switch on current_action from FCM payload
       case 'fcm.VI_MANGLER': {
@@ -140,7 +144,7 @@ export default class App extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <MainNavigator/>
+        <Stack/>
       </View>
     );
   }

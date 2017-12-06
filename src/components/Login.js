@@ -133,15 +133,19 @@ export default class LoginScreen extends Component {
             <View style={styles.inputContainer}>
               <TextInput style={styles.usernameInput}
                          placeholder='Email'
+                         editable={!this.state.loading}
                          value={this.state.email}
                          onChangeText={email => this.setState({email})}/>
               <TextInput style={styles.passwordInput}
                          secureTextEntry={true}
+                         editable={!this.state.loading}
                          placeholder='Password'
                          value={this.state.password}
                          onChangeText={password => this.setState({password})}/>
             </View>
-            <Button title='Login' onPress={() => this.onLoginPress()}/>
+            <Button title='Login'
+                    onPress={() => this.onLoginPress()}
+                    disabled={this.state.loading}/>
           </View>
           <View style={styles.errorContainer}>
             <Text style={styles.errorText}>{this.state.error}</Text>

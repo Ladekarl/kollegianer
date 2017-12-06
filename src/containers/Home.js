@@ -16,11 +16,8 @@ import Icon from 'react-native-fa-icons';
 export default class HomeScreen extends Component {
 
   static navigationOptions = {
-    title: 'Hjem',
-    drawerIcon: ({tintColor}) => ( <Icon name='home' style={{fontSize: 20, color: 'black'}}/>),
-    headerTitleStyle: {
-      fontSize: 18
-    }
+    tabBarLabel: 'Hjem',
+    tabBarIcon: ({tintColor}) => ( <Icon name='home' style={{fontSize: 20}}/>)
   };
 
   constructor(props) {

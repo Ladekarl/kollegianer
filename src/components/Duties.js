@@ -12,8 +12,8 @@ import Icon from 'react-native-fa-icons';
 export default class DutiesScreen extends Component {
 
   static navigationOptions = {
-    title: 'Tjanser',
-    drawerIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 18, color: 'black'}}/>),
+    tabBarLabel: 'Tjanser',
+    tabBarIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 20, color: 'black'}}/>),
     headerTitleStyle: {
       fontSize: 18
     }
