@@ -1,7 +1,7 @@
 import React from 'react';
 import {StackNavigator} from 'react-navigation'
 import LoginScreen from '../components/Login';
-import HomeNavigator from './HomeNavigator';
+import Drawer from './Drawer';
 
 import {
   TouchableOpacity,
@@ -10,13 +10,12 @@ import {
 import SettingsScreen from '../components/Settings';
 import Icon from 'react-native-fa-icons';
 
-export default MainNavigator = StackNavigator({
+export default Stack = StackNavigator({
   Login: {
     screen: LoginScreen,
-
   },
   Home: {
-    screen: HomeNavigator,
+    screen: Drawer,
     navigationOptions: ({navigation}) => ({
       headerLeft:
         <TouchableOpacity onPress={() => navigation.navigate('DrawerToggle')}>

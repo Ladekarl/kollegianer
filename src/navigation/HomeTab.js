@@ -1,11 +1,11 @@
 import React from 'react';
-import {DrawerNavigator} from 'react-navigation'
-import HomeScreen from '../containers/Home';
-import LogoutScreen from '../components/Logout';
+import {TabNavigator} from 'react-navigation';
 import ViManglerScreen from '../components/ViMangler';
 import DutiesScreen from '../components/Duties';
+import HomeTabScreen from '../containers/HomeTab';
+import HomeScreen from '../containers/Home';
 
-export default MainNavigator = DrawerNavigator({
+export default HomeTab = TabNavigator({
   Home: {
     screen: HomeScreen
   },
@@ -14,6 +14,5 @@ export default MainNavigator = DrawerNavigator({
   },
   Duties: {
     screen: DutiesScreen
-  },
-  Logout: {screen: LogoutScreen}
+  }
 });
