@@ -6,7 +6,6 @@ import {
   TextInput,
   Text,
   Platform,
-  Image,
   ActivityIndicator,
   KeyboardAvoidingView,
   Keyboard
@@ -15,6 +14,8 @@ import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
+import FitImage from 'react-native-fit-image';
+import colors from '../shared/colors';
 
 export default class LoginScreen extends Component {
 
@@ -37,7 +38,7 @@ export default class LoginScreen extends Component {
     }
   }
 
-  componentWillMount() {
+  componentDidMount() {
     LocalStorage.getUser().then(user => {
       if (user) {
         this.setState({email: user.email, password: user.password});
@@ -105,7 +106,7 @@ export default class LoginScreen extends Component {
 
   _renderIos() {
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <KeyboardAvoidingView style={styles.container} behavior='padding'>
         {this._renderShared()}
       </KeyboardAvoidingView>
     );
@@ -123,7 +124,8 @@ export default class LoginScreen extends Component {
     return (
       <View style={styles.innerContainer}>
         <View style={styles.topContainer}>
-          <Image
+          <FitImage
+            resizeMode='contain'
             style={styles.image}
             source={require('../../img/kollegianer.png')}
           />
@@ -134,16 +136,21 @@ export default class LoginScreen extends Component {
               <TextInput style={styles.usernameInput}
                          placeholder='Email'
                          editable={!this.state.loading}
+                         underlineColorAndroid={colors.overviewIconColor}
+                         selectionColor={colors.overviewIconColor}
                          value={this.state.email}
                          onChangeText={email => this.setState({email})}/>
               <TextInput style={styles.passwordInput}
                          secureTextEntry={true}
                          editable={!this.state.loading}
+                         underlineColorAndroid={colors.overviewIconColor}
+                         selectionColor={colors.overviewIconColor}
                          placeholder='Password'
                          value={this.state.password}
                          onChangeText={password => this.setState({password})}/>
             </View>
             <Button title='Login'
+                    color={colors.overviewIconColor}
                     onPress={() => this.onLoginPress()}
                     disabled={this.state.loading}/>
           </View>
@@ -215,8 +222,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center'
   },
   image: {
-    width: 200,
-    height: 200,
+    flex: 1,
+    alignSelf: 'stretch',
+    width: undefined,
+    height: undefined,
     opacity: 0.8
   },
   usernameInput: {

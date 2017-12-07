@@ -21,7 +21,7 @@ export default class SettingsScreen extends Component {
   static navigationOptions = {
     title: 'Indstillinger',
     headerTitleStyle: {
-      fontSize: 18
+      fontSize: 15
     }
   };
 
@@ -106,8 +106,11 @@ export default class SettingsScreen extends Component {
   }
 
   _getUser() {
-    LocalStorage.getUser().then(snapshot => {
-      this.setState({user: snapshot});
+    LocalStorage.getUser().then(user => {
+      Database.getUser(user.uid).then(snapshot => {
+        this.setState({user: snapshot.val()});
+        this.forceUpdate();
+      });
     });
   }
 
@@ -183,6 +186,7 @@ export default class SettingsScreen extends Component {
         </View>
         <View style={styles.changePasswordRowContainer}>
           <Button title='Skift Adgangskode'
+                  color={colors.logoutTextColor}
                   onPress={() => this.changePasswordAlert()} />
         </View>
         <Modal
@@ -231,8 +235,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 5,
-    borderColor: colors.blueColor,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 2,
+    borderColor: colors.overviewIconColor,
     marginTop: 5,
     marginLeft: 5,
     marginRight: 5,
@@ -243,8 +248,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 5,
-    borderColor: colors.blueColor,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 2,
+    borderColor: colors.overviewIconColor,
     marginTop: 5,
     marginLeft: 5,
     marginRight: 5,

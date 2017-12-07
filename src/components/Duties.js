@@ -13,10 +13,7 @@ export default class DutiesScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Tjanser',
-    tabBarIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 20, color: 'black'}}/>),
-    headerTitleStyle: {
-      fontSize: 18
-    }
+    tabBarIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 25, color: tintColor}}/>),
   };
 
   constructor(props) {
@@ -63,18 +60,18 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
-    marginTop: 5,
-    marginBottom: 5
+    paddingTop: 5,
+    paddingBottom: 5
   },
   rowContainer: {
     flex: 1,
     flexDirection: 'row',
-    borderWidth: 5,
-    borderColor: colors.blueColor,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 2,
+    borderColor: colors.overviewIconColor,
     marginBottom: 7,
     marginLeft: 5,
     marginRight: 5,
-    borderRadius: 0,
     padding: 10,
     alignItems: 'center'
   },

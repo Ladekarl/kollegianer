@@ -1,7 +1,7 @@
 import {AsyncStorage} from 'react-native';
 import {USER_STORAGE_KEY, FCM_TOKEN_STORAGE_KEY} from 'react-native-dotenv';
 
-export default class UserStorage {
+export default class LocalStorage {
 
   static async getUser() {
     try {

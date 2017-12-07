@@ -1,6 +1,6 @@
 {
   "name": "kollegianer",
-  "version": "0.1.1",
+  "version": "1.0.2",
   "private": true,
   "devDependencies": {
     "babel-jest": "20.0.3",
@@ -25,6 +25,7 @@
     "react-native-color-theme": "0.0.1",
     "react-native-fa-icons": "^3.0.1",
     "react-native-fcm": "^10.0.3",
+    "react-native-fit-image": "^1.5.4",
     "react-navigation": "^1.0.0-beta.19"
   }
 }

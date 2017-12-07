@@ -12,16 +12,13 @@ import {
 import Icon from 'react-native-fa-icons';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
-import colors from "../shared/colors";
+import colors from '../shared/colors';
 
 export default class ViManglerScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Vi Mangler',
-    tabBarIcon: ({tintColor}) => ( <Icon name='shopping-cart' style={{fontSize: 20, color: 'black'}}/>),
-    headerTitleStyle: {
-      fontSize: 18
-    }
+    tabBarIcon: ({tintColor}) => ( <Icon name='shopping-cart' style={{fontSize: 25, color: tintColor}}/>),
   };
 
   constructor(props) {
@@ -37,7 +34,7 @@ export default class ViManglerScreen extends Component {
     });
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.setState({fetching: true});
     Database.listenViMangler(snapshot => {
       this.items = snapshot;
@@ -83,14 +80,15 @@ export default class ViManglerScreen extends Component {
 
   _rowContainerStyle(item) {
     return {
-      borderWidth: 5,
-      borderColor: (item.checked ? colors.redColor : colors.blueColor),
+      borderWidth: StyleSheet.hairlineWidth,
+      backgroundColor: (item.checked ? colors.redColor : colors.blueColor),
       flexDirection: 'row',
       marginLeft: 5,
       marginRight: 5,
       marginBottom: 7,
       padding: 5,
-      borderRadius: 0
+      borderRadius: 2,
+      borderColor: colors.overviewIconColor
     }
   }
 
@@ -165,7 +163,11 @@ export default class ViManglerScreen extends Component {
       <View style={styles.container}>
         <View style={styles.newRowContainer}>
           <View style={styles.descriptionContainer}>
-            <TextInput style={styles.newItemInput} placeholder='Beskrivelse' value={this.state.item}
+            <TextInput style={styles.newItemInput}
+                       placeholder='Beskrivelse'
+                       underlineColorAndroid={colors.overviewIconColor}
+                       selectionColor={colors.overviewIconColor}
+                       value={this.state.item}
                        onChangeText={(item) => this.setState({item})}/>
           </View>
           <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.submitItem()}>

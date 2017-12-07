@@ -11,18 +11,21 @@ import {NavigationActions} from 'react-navigation'
 
 import LocalStorage from '../storage/LocalStorage';
 import Icon from 'react-native-fa-icons';
+import colors from '../shared/colors';
 
 export default class LogoutScreen extends Component {
 
   static navigationOptions = {
     title: 'Log ud',
-    drawerLabel: 'Log ud',
-    drawerIcon: ({tintColor}) => ( <Icon name='sign-out' style={{fontSize: 18, color: '#dd1d00'}}/>),
+    drawerLabel: (() => <Text style={{color: colors.logoutTextColor, fontWeight: 'bold', marginLeft: 17, marginTop: 15, marginBottom: 15}}>Log ud</Text>),
+    drawerIcon: ({tintColor}) => ( <Icon name='sign-out' style={{fontSize: 20, color: colors.logoutIconColor, marginTop: 15, marginBottom: 15}}/>),
     headerTitleStyle: {
-      fontSize: 18
+      fontSize: 15,
+      tintColor: colors.logoutColor
     },
     labelStyle: {
-      color: '#dd1d00'
+      color: colors.logoutColor,
+      tintColor: colors.logoutColor
     }
   };
 
@@ -34,7 +37,7 @@ export default class LogoutScreen extends Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     const user = firebase.auth().currentUser;
     if (user) {
       this._logoutAndRedirect();
