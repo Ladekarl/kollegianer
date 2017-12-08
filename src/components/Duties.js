@@ -29,15 +29,15 @@ export default class DutiesScreen extends Component {
 
   users = [];
 
-  renderUsers() {
+  renderUsers = () => {
     let renderUsers = [];
     this.users.forEach(user => {
       renderUsers.push(this._renderUser(user));
     });
     return renderUsers
-  }
+  };
 
-  _renderUser(renderUser) {
+  _renderUser = (renderUser) => {
     let user = renderUser.val();
     return (
       <View style={styles.rowContainer} key={renderUser.key}>
@@ -45,7 +45,7 @@ export default class DutiesScreen extends Component {
         <Text style={styles.textDuty}>{user.duty}</Text>
       </View>
     );
-  }
+  };
 
   render() {
     return (

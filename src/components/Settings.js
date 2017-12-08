@@ -15,6 +15,7 @@ import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from "../shared/colors";
 import firebase from 'firebase';
+import ModalScreen from './Modal';
 
 export default class SettingsScreen extends Component {
 
@@ -48,7 +49,7 @@ export default class SettingsScreen extends Component {
     this.auth = firebase.auth();
   }
 
-  componentWillMount() {
+  componentDidMount() {
     Database.listenUsers(snapshot => {
       let currentSheriff = null;
       let currentKitchenWeek = null;
@@ -70,15 +71,15 @@ export default class SettingsScreen extends Component {
     Database.unListenUsers();
   }
 
-  changeDuty() {
+  changeDuty = () => {
     if (this.state.selectedDuty) {
       let user = this.state.user;
       user.duty = this.state.selectedDuty;
       this._updateUser(user);
     }
-  }
+  };
 
-  changeKitchenweek(value) {
+  changeKitchenweek = (value) => {
     if (value && this.currentKitchenWeek) {
       Alert.alert(this.currentKitchenWeek.name + ' har allerede køkkenugen');
     } else {
@@ -86,9 +87,9 @@ export default class SettingsScreen extends Component {
       user.kitchenweek = value;
       this._updateUser(user);
     }
-  }
+  };
 
-  changeSheriff(value) {
+  changeSheriff = (value) => {
     if (value && this.currentSheriff) {
       Alert.alert(this.currentSheriff.name + ' er allerede sheriff');
     } else {
@@ -96,31 +97,33 @@ export default class SettingsScreen extends Component {
       user.sheriff = value;
       this._updateUser(user);
     }
-  }
+  };
 
-  _updateUser(user) {
+  _updateUser = (user) => {
     this.setState({user: user});
     Database.updateUser(user.uid, user).then(() => {
-      LocalStorage.setUser(user);
+      let passUser = Object.assign({password: this.localUser.password}, user);
+      LocalStorage.setUser(passUser);
     });
-  }
+  };
 
-  _getUser() {
+  _getUser = () => {
     LocalStorage.getUser().then(user => {
+      this.localUser = user;
       Database.getUser(user.uid).then(snapshot => {
         this.setState({user: snapshot.val()});
         this.forceUpdate();
       });
     });
-  }
+  };
 
-  _getDuties() {
+  _getDuties = () => {
     Database.getDuties().then(snapshot => {
       this._renderPickerItems(snapshot);
     });
-  }
+  };
 
-  _renderPickerItems(snapshot) {
+  _renderPickerItems = (snapshot) => {
     let pickerItems = [];
     snapshot.forEach(child => {
       pickerItems.push(
@@ -128,24 +131,40 @@ export default class SettingsScreen extends Component {
       )
     });
     this.setState({pickerItems})
-  }
+  };
 
-  setDutyModalVisible(visible) {
+  setDutyModalVisible = (visible) => {
     this.setState({selectedDuty: this.state.user.duty, dutyModalVisible: visible});
-  }
+  };
 
-  changePasswordAlert() {
+  changePasswordAlert = () => {
     Alert.alert('Er du sikker?',
       'Du vil modtage en mail på ' + this.state.user.email,
       [
-        {text: 'Annullér', onPress: () => {}},
-        {text: 'OK', onPress: () => this._changePassword()},
+        {
+          text: 'Annullér', onPress: () => {
+          }
+        },
+        {text: 'OK', onPress: this._changePassword},
       ])
-  }
+  };
 
-  _changePassword() {
+  _changePassword = () => {
     this.auth.sendPasswordResetEmail(this.state.user.email);
-  }
+  };
+
+  onDutyCancel = () => {
+    this.setDutyModalVisible(false);
+  };
+
+  onDutySubmit = () => {
+    this.changeDuty();
+    this.setDutyModalVisible(false);
+  };
+
+  onDutyChange = (itemValue) => {
+    this.setState({selectedDuty: itemValue});
+  };
 
   render() {
     return (
@@ -168,7 +187,7 @@ export default class SettingsScreen extends Component {
         </View>
         <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Tjans:</Text>
-          <TouchableOpacity style={styles.rightText} onPress={() => {this.setDutyModalVisible(true)}}>
+          <TouchableOpacity style={styles.rightText} onPress={() => this.setDutyModalVisible(true)}>
             <Text>{this.state.user.duty}</Text>
           </TouchableOpacity>
         </View>
@@ -176,51 +195,28 @@ export default class SettingsScreen extends Component {
           <Text style={styles.leftText}>Køkkenuge:</Text>
           <Switch style={styles.rightText}
                   value={this.state.user.kitchenweek}
-                  onValueChange={(value) => this.changeKitchenweek(value)}/>
+                  onValueChange={this.changeKitchenweek}/>
         </View>
         <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Sheriff:</Text>
           <Switch style={styles.rightText}
                   value={this.state.user.sheriff}
-                  onValueChange={(value) => this.changeSheriff(value)}/>
+                  onValueChange={this.changeSheriff}/>
         </View>
         <View style={styles.changePasswordRowContainer}>
           <Button title='Skift Adgangskode'
                   color={colors.logoutTextColor}
-                  onPress={() => this.changePasswordAlert()} />
+                  onPress={this.changePasswordAlert}/>
         </View>
-        <Modal
-          animationType='fade'
-          transparent={true}
-          onRequestClose={() => {
-          }}
-          visible={this.state.dutyModalVisible}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalPickerContainer}>
-              <Text>Vælg en tjans</Text>
-              <Picker onValueChange={(itemValue) => this.setState({selectedDuty: itemValue})}
-                      selectedValue={this.state.selectedDuty}
-                      mode='dialog'>
-                {this.state.pickerItems}
-              </Picker>
-              <View style={styles.modalPickerRowContainer}>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => this.setDutyModalVisible(false)}>
-                  <Text>Annullér</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => {
-                    this.changeDuty();
-                    this.setDutyModalVisible(false);
-                  }}>
-                  <Text>OK</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
+        <ModalScreen
+          onValueChange={this.onDutyChange}
+          selectedValue={this.state.selectedDuty}
+          pickerItems={this.state.pickerItems}
+          modalTitle='Vælg en tjans'
+          visible={this.state.dutyModalVisible}
+          onSubmit={this.onDutySubmit}
+          onCancel={this.onDutyCancel}
+        />
       </ScrollView>
     )
   }

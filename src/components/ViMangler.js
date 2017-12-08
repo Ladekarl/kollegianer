@@ -18,7 +18,7 @@ export default class ViManglerScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Vi Mangler',
-    tabBarIcon: ({tintColor}) => ( <Icon name='shopping-cart' style={{fontSize: 25, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (<Icon name='shopping-cart' style={{fontSize: 25, color: tintColor}}/>),
   };
 
   constructor(props) {
@@ -51,20 +51,20 @@ export default class ViManglerScreen extends Component {
     Database.unListenViManger();
   }
 
-  renderItems() {
+  renderItems = () => {
     let renderItems = [];
     this.items.forEach(item => {
       renderItems.push(this._renderItem(item));
     });
     return renderItems.reverse();
-  }
+  };
 
-  checkItem(key, item) {
+  checkItem = (key, item) => {
     item.checked = !item.checked;
     Database.updateViMangler(key, item);
-  }
+  };
 
-  _itemTextStyle(item) {
+  _itemTextStyle = (item) => {
     return {
       flex: 6,
       alignItems: 'center',
@@ -76,9 +76,9 @@ export default class ViManglerScreen extends Component {
       textDecorationLine: (item.checked ? 'line-through' : 'none'),
 
     }
-  }
+  };
 
-  _rowContainerStyle(item) {
+  _rowContainerStyle = (item) => {
     return {
       borderWidth: StyleSheet.hairlineWidth,
       backgroundColor: (item.checked ? colors.redColor : colors.blueColor),
@@ -90,24 +90,24 @@ export default class ViManglerScreen extends Component {
       borderRadius: 2,
       borderColor: colors.overviewIconColor
     }
-  }
+  };
 
-  showDeleteAlert(renderItem, item) {
+  showDeleteAlert = (renderItem, item) => {
     Alert.alert(
       'Slet ' + item.item,
       'Er du nu helt sikker på at du vil slette ' + item.item + '?',
       [
         {
           text: 'Annullér', onPress: () => {
-        }
+          }
         },
         {text: 'Slet', onPress: () => this.deleteItem(renderItem)},
       ],
       {cancelable: false}
     );
-  }
+  };
 
-  _renderItem(renderItem) {
+  _renderItem = (renderItem) => {
     const item = renderItem.val();
     return (
       <TouchableOpacity
@@ -126,9 +126,9 @@ export default class ViManglerScreen extends Component {
         </TouchableOpacity>
       </TouchableOpacity>
     );
-  }
+  };
 
-  submitItem() {
+  submitItem = () => {
     if (this.state.item) {
       const date = new Date();
       let newItem = {
@@ -139,13 +139,13 @@ export default class ViManglerScreen extends Component {
       Database.addViMangler(newItem);
       this.setState({item: ''});
     }
-  }
+  };
 
-  deleteItem(item) {
+  deleteItem = (item) => {
     Database.deleteViMangler(item.key);
-  }
+  };
 
-  updateItems() {
+  updateItems = () => {
     this.setState({fetching: true});
     Database.getViMangler().then((snapshot) => {
       this.items = snapshot;
@@ -156,7 +156,11 @@ export default class ViManglerScreen extends Component {
     }).catch((error) => {
       this.setState({fetching: false});
     });
-  }
+  };
+
+  onItemChange = (item) => {
+    this.setState({item});
+  };
 
   render() {
     return (
@@ -168,9 +172,9 @@ export default class ViManglerScreen extends Component {
                        underlineColorAndroid={colors.overviewIconColor}
                        selectionColor={colors.overviewIconColor}
                        value={this.state.item}
-                       onChangeText={(item) => this.setState({item})}/>
+                       onChangeText={this.onItemChange}/>
           </View>
-          <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.submitItem()}>
+          <TouchableOpacity style={styles.rowImageContainer} onPress={this.submitItem}>
             <Icon name='plus-circle' style={{fontSize: 20, color: 'black'}}/>
           </TouchableOpacity>
         </View>
@@ -178,7 +182,7 @@ export default class ViManglerScreen extends Component {
                     refreshControl={
                       <RefreshControl
                         refreshing={this.state.fetching}
-                        onRefresh={() => this.updateItems()}
+                        onRefresh={this.updateItems}
                       />
                     }>
           <View style={styles.itemContainer}>
@@ -193,15 +197,15 @@ export default class ViManglerScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.backgroundColor
   },
   scrollContainer: {
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   itemContainer: {
     width: '100%',
-    justifyContent: 'space-between',
+    justifyContent: 'space-between'
   },
   newRowContainer: {
     flexDirection: 'row',
@@ -232,7 +236,7 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginTop: 10,
     marginBottom: 10,
-    textAlign: 'center',
+    textAlign: 'center'
   },
   dateItemText: {
     flex: 2,
@@ -240,7 +244,7 @@ const styles = StyleSheet.create({
     marginRight: 2,
     alignSelf: 'center',
     justifyContent: 'center',
-    textAlign: 'center',
+    textAlign: 'center'
   },
   newItemInput: {
     flex: 1,
