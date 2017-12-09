@@ -6,13 +6,14 @@ import {
   TouchableOpacity,
   RefreshControl,
   ScrollView,
+  KeyboardAvoidingView,
   Text,
-  Keyboard
+  Keyboard, Platform
 } from 'react-native';
 import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
 import AutoExpandingTextInput from './AutoExpandingTextInput';
-import Database from "../storage/Database";
+import Database from '../storage/Database';
 
 export default class GossipScreen extends Component {
 
@@ -31,6 +32,11 @@ export default class GossipScreen extends Component {
     };
   }
 
+  componentWillMount() {
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
+  }
+
   componentDidMount() {
     this.setState({fetching: true});
     Database.listenGossip(snapshot => {
@@ -47,7 +53,17 @@ export default class GossipScreen extends Component {
 
   componentWillUnmount() {
     Database.unListenGossip();
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
+
+  _keyboardDidShow = () => {
+    this.scrollView.scrollToEnd({animated: true});
+  };
+
+  _keyboardDidHide = () => {
+    this.scrollView.scrollToEnd({animated: true});
+  };
 
   renderMessages = () => {
     let renderMessages = [];
@@ -80,15 +96,30 @@ export default class GossipScreen extends Component {
 
   submitMessage = () => {
     if (this.state.message) {
-      let date = new Date();
+      let date = this._formatDate();
       let newMessage = {
         message: this.state.message,
-        date: `${date.getDate()}/${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}`
+        date: date
       };
       Database.addGossip(newMessage);
       this.setState({message: ''});
       Keyboard.dismiss();
     }
+  };
+
+  _formatDate = () => {
+    let d = new Date(),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      hour = '' + d.getHours(),
+      minute = '' + d.getMinutes();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+    if (hour.length < 2) hour = '0' + hour;
+    if (minute.length < 2) minute = '0' + minute;
+
+    return `${day}/${month} ${hour}:${minute}`;
   };
 
   updateMessages = () => {
@@ -104,9 +135,28 @@ export default class GossipScreen extends Component {
     });
   };
 
-  render() {
+  _renderIos = () => {
+    return (
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior='padding'
+        keyboardVerticalOffset={64}>
+        {this._renderShared()}
+      </KeyboardAvoidingView>
+    );
+  };
+
+  _renderAndroid = () => {
     return (
       <View style={styles.container}>
+        {this._renderShared()}
+      </View>
+    );
+  };
+
+  _renderShared() {
+    return (
+      <View style={styles.innerContainer}>
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -141,14 +191,25 @@ export default class GossipScreen extends Component {
       </View>
     );
   }
+
+  render() {
+    if (Platform.OS === 'ios') {
+      return this._renderIos();
+    } else {
+      return this._renderAndroid();
+    }
+  }
 }
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1
+  },
+  innerContainer: {
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    backgroundColor: colors.backgroundColor,
+    backgroundColor: colors.backgroundColor
   },
   scrollContainer: {
     flexGrow: 1,
@@ -195,7 +256,7 @@ const styles = StyleSheet.create({
     flex: 7,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'flex-end',
+    alignItems: 'flex-end'
   },
   dateText: {
     alignSelf: 'center'

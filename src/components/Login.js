@@ -177,7 +177,7 @@ export default class LoginScreen extends Component {
 }
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 1
   },
   innerContainer: {
     flex: 1,
@@ -186,7 +186,7 @@ const styles = StyleSheet.create({
     paddingRight: 20
   },
   keyboardAvoidContainer: {
-    flex: 1,
+    flex: 1
   },
   topContainer: {
     marginTop: '10%',
@@ -197,7 +197,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '40%',
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   loginFormContainer: {
     flex: 5,
@@ -205,12 +205,12 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   errorContainer: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center',
+    alignItems: 'center'
   },
   loadingContainer: {
     position: 'absolute',
