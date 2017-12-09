@@ -37,16 +37,16 @@ export default class LogoutScreen extends Component {
     };
   }
 
-  componentDidMount() {
+  componentDidMount = () => {
     const user = firebase.auth().currentUser;
     if (user) {
       this._logoutAndRedirect();
     } else {
       this._redirectToLogin();
     }
-  }
+  };
 
-  _logoutAndRedirect() {
+  _logoutAndRedirect = () => {
     this.setState({loading: true});
     firebase.auth().signOut()
       .then(() => {
@@ -60,15 +60,15 @@ export default class LogoutScreen extends Component {
       .catch((error) => {
         this.setState({error: error.message, loading: false});
       });
-  }
+  };
 
-  _redirectToLogin() {
+  _redirectToLogin = () => {
     const resetAction = NavigationActions.reset({
       index: 0,
       actions: [NavigationActions.navigate({routeName: 'Login'})],
     });
     this.props.navigation.dispatch(resetAction);
-  }
+  };
 
   render() {
     return (

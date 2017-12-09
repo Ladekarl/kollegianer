@@ -40,7 +40,7 @@ export default class LoginScreen extends Component {
 
   componentDidMount() {
     LocalStorage.getUser().then(user => {
-      if (user) {
+      if (user && user.email && user.password) {
         this.setState({email: user.email, password: user.password});
         this._login(user.email, user.password)
       }
@@ -49,13 +49,13 @@ export default class LoginScreen extends Component {
     });
   }
 
-  onLoginPress() {
+  onLoginPress = () => {
     Keyboard.dismiss();
     const {email, password} = this.state;
     this._login(email, password);
-  }
+  };
 
-  _login(email, password) {
+  _login = (email, password) => {
     this.setState({error: '', loading: true});
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((user) => {
@@ -81,46 +81,46 @@ export default class LoginScreen extends Component {
       }).catch(error => {
       this._stopLoadingAndSetError(error)
     });
-  }
+  };
 
-  _saveUserAndNavigate(dbUser) {
+  _saveUserAndNavigate = (dbUser) => {
     LocalStorage.setUser(dbUser).then(() => {
       this.setState({error: '', loading: false});
       this._navigateAndReset();
     }).catch(error => {
       this._stopLoadingAndSetError(error);
     });
-  }
+  };
 
-  _stopLoadingAndSetError(error) {
+  _stopLoadingAndSetError = (error) => {
     this.setState({error: error.message, loading: false});
-  }
+  };
 
-  _navigateAndReset() {
+  _navigateAndReset = () => {
     const resetAction = NavigationActions.reset({
       index: 0,
       actions: [NavigationActions.navigate({routeName: 'Home'})],
     });
     this.props.navigation.dispatch(resetAction);
-  }
+  };
 
-  _renderIos() {
+  _renderIos = () => {
     return (
       <KeyboardAvoidingView style={styles.container} behavior='padding'>
         {this._renderShared()}
       </KeyboardAvoidingView>
     );
-  }
+  };
 
-  _renderAndroid() {
-    return(
+  _renderAndroid = () => {
+    return (
       <View style={styles.container}>
         {this._renderShared()}
       </View>
     );
-  }
+  };
 
-  _renderShared() {
+  _renderShared = () => {
     return (
       <View style={styles.innerContainer}>
         <View style={styles.topContainer}>
@@ -151,7 +151,7 @@ export default class LoginScreen extends Component {
             </View>
             <Button title='Login'
                     color={colors.overviewIconColor}
-                    onPress={() => this.onLoginPress()}
+                    onPress={this.onLoginPress}
                     disabled={this.state.loading}/>
           </View>
           <View style={styles.errorContainer}>
@@ -160,12 +160,12 @@ export default class LoginScreen extends Component {
         </View>
         {this.state.loading &&
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' />
+          <ActivityIndicator size='large' color={colors.activeTabColor}/>
         </View>
         }
       </View>
     );
-  }
+  };
 
   render() {
     if (Platform.OS === 'ios') {

@@ -5,13 +5,14 @@ import {
   StyleSheet,
   Picker,
   Text,
-  Modal,
   TouchableOpacity,
 } from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import FitImage from 'react-native-fit-image';
+import ModalScreen from './Modal';
+import Base64 from '../shared/Base64';
 
 export default class OverviewScreen extends Component {
 
@@ -51,7 +52,7 @@ export default class OverviewScreen extends Component {
     })
   }
 
-  componentWillMount() {
+  componentDidMount() {
     Database.listenEvents(snapshot => {
       let events = snapshot.val();
       this.currentShots = events.shots;
@@ -68,7 +69,7 @@ export default class OverviewScreen extends Component {
     Database.unListenEvents();
   }
 
-  _renderPickerItems(snapshot) {
+  _renderPickerItems = (snapshot) => {
     let pickerItems = [];
     snapshot.forEach(child => {
       pickerItems.push(
@@ -76,15 +77,43 @@ export default class OverviewScreen extends Component {
       )
     });
     this.setState({pickerItems})
-  }
+  };
 
-  setMvpModalVisible(visible) {
+  setMvpModalVisible = (visible) => {
     this.setState({mvpModalVisible: visible});
-  }
+  };
 
-  setShotsModalVisible(visible) {
+  setShotsModalVisible = (visible) => {
     this.setState({shotsModalVisible: visible});
-  }
+  };
+
+  onMvpCancel = () => {
+    this.setState({selectedMvp: this.currentMvp});
+    this.setMvpModalVisible(false);
+  };
+
+  onMvpSubmit = () => {
+    Database.updateEvent('mvp', this.state.selectedMvp);
+    this.setMvpModalVisible(false);
+  };
+
+  onMvpChange = (itemValue) => {
+    this.setState({selectedMvp: itemValue});
+  };
+
+  onShotsCancel = () => {
+    this.setState({selectedShots: this.currentShots});
+    this.setShotsModalVisible(false);
+  };
+
+  onShotsSubmit = () => {
+    Database.updateEvent('shots', this.state.selectedShots);
+    this.setShotsModalVisible(false);
+  };
+
+  onShotsChange = (itemValue) => {
+    this.setState({selectedShots: itemValue});
+  };
 
   columnContainerStyle(value) {
     return {
@@ -101,6 +130,28 @@ export default class OverviewScreen extends Component {
     };
   }
 
+  updateBeerPongEvent = () => {
+    let beerpong = !this.state.events.beerpong;
+    Database.updateEvent('beerpong', beerpong);
+    this._togglePartyLights(beerpong);
+  };
+
+  _togglePartyLights = (turnOn) => {
+    fetch('https://se2-openhab04.compute.dtu.dk/rest/items/Dtu4Plug_Switch', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'text/plain',
+        Authorization: 'Basic ' + Base64.btoa('group-d:hunter2')
+      },
+      body: turnOn ? 'ON' : 'OFF',
+    });
+  };
+
+  updateFoxEvent = () => {
+    Database.updateEvent('fox', !this.state.events.fox);
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -108,7 +159,7 @@ export default class OverviewScreen extends Component {
           <View style={styles.headerContainer}>
             <Text style={styles.textHeader}>Velkommen til Køkken 1700 </Text>
             <FitImage
-              resizeMode="contain"
+              resizeMode='contain'
               style={styles.headerImage}
               source={require('../../img/kollegianer.png')}/>
           </View>
@@ -138,14 +189,14 @@ export default class OverviewScreen extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.beerpong)}
-            onPress={() => Database.updateEvent('beerpong', !this.state.events.beerpong)}>
+            onPress={this.updateBeerPongEvent}>
             <Text style={styles.text}>Beer pong?</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/beerpong.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.fox)}
-            onPress={() => Database.updateEvent('fox', !this.state.events.fox)}>
+            onPress={() => this.updateFoxEvent()}>
             <Text style={styles.text}>Har vi ræv?</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.fox ? 'ofc' : 'Næææh'}</Text>
@@ -160,83 +211,29 @@ export default class OverviewScreen extends Component {
             <Text style={styles.text}>VIP club</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/vip_logo2.png')}/>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.columnContainer}>
+          <TouchableOpacity style={styles.columnContainer} onPress={() => {this.props.navigation.navigate('Gossip');}}>
             <Text style={styles.text}>Gossip club</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/gossip_icon.png')}/>
           </TouchableOpacity>
         </View>
-        <Modal
-          animationType='fade'
-          transparent={true}
-          onRequestClose={() => {
-          }}
-          visible={this.state.mvpModalVisible}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalPickerContainer}>
-              <Text>Vælg en person</Text>
-              <Picker
-                mode='dialog'
-                onValueChange={itemValue => this.setState({selectedMvp: itemValue})}
-                selectedValue={this.state.selectedMvp}>
-                {this.state.pickerItems}
-              </Picker>
-              <View style={styles.modalPickerRowContainer}>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => {
-                    this.setState({selectedMvp: this.currentMvp});
-                    this.setMvpModalVisible(false)
-                  }}>
-                  <Text>Annullér</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => {
-                    Database.updateEvent('mvp', this.state.selectedMvp);
-                    this.setMvpModalVisible(false);
-                  }}>
-                  <Text>OK</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-        <Modal
-          animationType='fade'
-          transparent={true}
-          onRequestClose={() => {
-          }}
-          visible={this.state.shotsModalVisible}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalPickerContainer}>
-              <Text>Vælg en person</Text>
-              <Picker
-                mode='dialog'
-                onValueChange={itemValue => this.setState({selectedShots: itemValue})}
-                selectedValue={this.state.selectedShots}>
-                {this.state.pickerItems}
-              </Picker>
-              <View style={styles.modalPickerRowContainer}>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => {
-                    this.setState({selectedShots: this.currentShots});
-                    this.setShotsModalVisible(false)
-                  }}>
-                  <Text>Annullér</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.modalButton}
-                  onPress={() => {
-                    Database.updateEvent('shots', this.state.selectedShots);
-                    this.setShotsModalVisible(false);
-                  }}>
-                  <Text>OK</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
+        <ModalScreen
+          modalTitle='Vælg en person'
+          onCancel={this.onMvpCancel}
+          onSubmit={this.onMvpSubmit}
+          onValueChange={this.onMvpChange}
+          pickerItems={this.state.pickerItems}
+          selectedValue={this.state.selectedMvp}
+          visible={this.state.mvpModalVisible}
+        />
+        <ModalScreen
+          onValueChange={this.onShotsChange}
+          selectedValue={this.state.selectedShots}
+          pickerItems={this.state.pickerItems}
+          modalTitle='Vælg en person'
+          visible={this.state.shotsModalVisible}
+          onSubmit={this.onShotsSubmit}
+          onCancel={this.onShotsCancel}
+        />
       </View>
     );
   }
