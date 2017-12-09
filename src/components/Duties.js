@@ -27,8 +27,6 @@ export default class DutiesScreen extends Component {
     });
   }
 
-  users = [];
-
   renderUsers = () => {
     let renderUsers = [];
     this.users.forEach(user => {

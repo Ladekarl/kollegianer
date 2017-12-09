@@ -5,6 +5,7 @@ import ViManglerScreen from '../components/ViMangler';
 import DutiesScreen from '../components/Duties';
 import OverviewScreen from '../components/Overview';
 import colors from '../shared/colors';
+import GossipScreen from '../components/Gossip';
 
 export default HomeTab = TabNavigator({
   Home: {
@@ -15,6 +16,9 @@ export default HomeTab = TabNavigator({
   },
   Duties: {
     screen: DutiesScreen
+  },
+  Gossip: {
+    screen: GossipScreen
   }
 }, {
   animationEnabled: true,

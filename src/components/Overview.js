@@ -12,6 +12,7 @@ import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import FitImage from 'react-native-fit-image';
 import ModalScreen from './Modal';
+import Base64 from '../shared/Base64';
 
 export default class OverviewScreen extends Component {
 
@@ -130,7 +131,21 @@ export default class OverviewScreen extends Component {
   }
 
   updateBeerPongEvent = () => {
-    Database.updateEvent('beerpong', !this.state.events.beerpong);
+    let beerpong = !this.state.events.beerpong;
+    Database.updateEvent('beerpong', beerpong);
+    this._togglePartyLights(beerpong);
+  };
+
+  _togglePartyLights = (turnOn) => {
+    fetch('https://se2-openhab04.compute.dtu.dk/rest/items/Dtu4Plug_Switch', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'text/plain',
+        Authorization: 'Basic ' + Base64.btoa('group-d:hunter2')
+      },
+      body: turnOn ? 'ON' : 'OFF',
+    });
   };
 
   updateFoxEvent = () => {
@@ -144,7 +159,7 @@ export default class OverviewScreen extends Component {
           <View style={styles.headerContainer}>
             <Text style={styles.textHeader}>Velkommen til Køkken 1700 </Text>
             <FitImage
-              resizeMode="contain"
+              resizeMode='contain'
               style={styles.headerImage}
               source={require('../../img/kollegianer.png')}/>
           </View>
@@ -196,7 +211,7 @@ export default class OverviewScreen extends Component {
             <Text style={styles.text}>VIP club</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/vip_logo2.png')}/>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.columnContainer}>
+          <TouchableOpacity style={styles.columnContainer} onPress={() => {this.props.navigation.navigate('Gossip');}}>
             <Text style={styles.text}>Gossip club</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/gossip_icon.png')}/>
           </TouchableOpacity>

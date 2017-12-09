@@ -51,13 +51,13 @@ export default class ViManglerScreen extends Component {
     Database.unListenViManger();
   }
 
-  renderItems = () => {
+  renderItems() {
     let renderItems = [];
     this.items.forEach(item => {
       renderItems.push(this._renderItem(item));
     });
     return renderItems.reverse();
-  };
+  }
 
   checkItem = (key, item) => {
     item.checked = !item.checked;
@@ -73,8 +73,7 @@ export default class ViManglerScreen extends Component {
       marginBottom: 10,
       marginLeft: 5,
       marginRight: 5,
-      textDecorationLine: (item.checked ? 'line-through' : 'none'),
-
+      textDecorationLine: (item.checked ? 'line-through' : 'none')
     }
   };
 

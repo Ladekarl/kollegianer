@@ -160,7 +160,7 @@ export default class LoginScreen extends Component {
         </View>
         {this.state.loading &&
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large'/>
+          <ActivityIndicator size='large' color={colors.activeTabColor}/>
         </View>
         }
       </View>

@@ -64,6 +64,36 @@ export default class Database {
     return firebase.database().ref('/vimangler/' + key).update(item);
   }
 
+  static async getGossip() {
+    return firebase.database().ref('/gossip/').once('value');
+  }
+
+  static async listenGossip(callback) {
+    return firebase.database().ref('/gossip/').on('value', (snapshot) => {
+      callback(snapshot);
+    });
+  }
+
+  static async unListenGossip() {
+    return firebase.database().ref('/gossip/').off('value');
+  };
+
+  static async addGossip(message) {
+    let newGossipPath = firebase.database().ref().child('/gossip/').push().key;
+    let updates = {};
+    updates['/gossip/' + newGossipPath] = message;
+    return firebase.database().ref().update(updates);
+  }
+
+  static async deleteGossip(key) {
+    let gossipPath = '/gossip/' + key;
+    return firebase.database().ref(gossipPath).remove();
+  }
+
+  static async updateGossip(key, message) {
+    return firebase.database().ref('/gossip/' + key).update(message);
+  }
+
   static async getDuties() {
     return firebase.database().ref('/duties/').once('value');
   }
