@@ -30,6 +30,13 @@
 	<dict>
 		<key>NSExceptionDomains</key>
 		<dict>
+			<key>se2-openhab04.compute.dtu.dk</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSTemporaryExceptionMinimumTLSVersion</key>
+				<string>TLSv1.1</string>
+			</dict>
 			<key>kollegianer-169c6.appspot.com</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>

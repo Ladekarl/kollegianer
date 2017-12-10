@@ -84,7 +84,7 @@ export default class App extends Component {
 
     FCM.requestPermissions()
       .catch(() => Alert.alert('Tilladelse afvist',
-        'Du afviste tilladelsen. Du er da smart hva. Prøv lige igen.'));
+        'Du afviste tilladelsen. Prøv lige igen.'));
 
     FCM.getFCMToken().then(token => {
       if (token) {

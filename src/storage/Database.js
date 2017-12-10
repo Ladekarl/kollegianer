@@ -22,7 +22,7 @@ export default class Database {
 
   static async listenUsers(callback) {
     let userPath = '/user/';
-    return firebase.database().ref(userPath).on('value', (snapshot) => {
+    return firebase.database().ref(userPath).orderByChild('room').on('value', (snapshot) => {
       callback(snapshot);
     });
   }

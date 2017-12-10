@@ -5,7 +5,7 @@ import {
   StyleSheet,
   Picker,
   Text,
-  TouchableOpacity,
+  TouchableOpacity, Alert,
 } from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
@@ -47,9 +47,12 @@ export default class OverviewScreen extends Component {
         if (user.sheriff) {
           this.setState({sheriff: user.name});
         }
+        if (user.kitchenweek && user.sheriff) {
+          this.showAssignSheriffAlert();
+        }
       });
       this._renderPickerItems(snapshot);
-    })
+    });
   }
 
   componentDidMount() {
@@ -68,6 +71,21 @@ export default class OverviewScreen extends Component {
   componentWillUnmount() {
     Database.unListenEvents();
   }
+
+  showAssignSheriffAlert = () => {
+    Alert.alert(
+      'Vælg en ny sheroff',
+      'Du har både køkkenugen og er sheriff',
+      [
+        {text: 'OK', onPress: this._navigateToSettings},
+      ],
+      {cancelable: false}
+    );
+  };
+
+  _navigateToSettings = () => {
+    this.props.screenProps.rootNavigation.navigate('Settings');
+  };
 
   _renderPickerItems = (snapshot) => {
     let pickerItems = [];
@@ -211,7 +229,9 @@ export default class OverviewScreen extends Component {
             <Text style={styles.text}>VIP club</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/vip_logo2.png')}/>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.columnContainer} onPress={() => {this.props.navigation.navigate('Gossip');}}>
+          <TouchableOpacity style={styles.columnContainer} onPress={() => {
+            this.props.navigation.navigate('Gossip');
+          }}>
             <Text style={styles.text}>Gossip club</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/gossip_icon.png')}/>
           </TouchableOpacity>

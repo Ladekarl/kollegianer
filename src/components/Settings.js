@@ -31,18 +31,23 @@ export default class SettingsScreen extends Component {
 
     this.state = {
       user: {
+        name: '',
         birthday: '',
         duty: '',
         email: '',
         kitchenweek: false,
-        name: '',
         room: '',
         sheriff: false,
         uid: ''
       },
-      pickerItems: [],
+      dutyPickerItems: [],
+      userPickerItems: [],
       selectedDuty: '',
-      dutyModalVisible: false
+      selectedKitchenWeek: '',
+      selectedSheriff: '',
+      dutyModalVisible: false,
+      kitchenWeekModalVisible: false,
+      sheriffModalVisible: false
     };
     this._getUser();
     this._getDuties();
@@ -51,19 +56,17 @@ export default class SettingsScreen extends Component {
 
   componentDidMount() {
     Database.listenUsers(snapshot => {
-      let currentSheriff = null;
-      let currentKitchenWeek = null;
+      this.users = snapshot;
       snapshot.forEach(snap => {
         const user = snap.val();
         if (user.sheriff) {
-          currentSheriff = user;
+          this.currentSheriff = snap;
         }
         if (user.kitchenweek) {
-          currentKitchenWeek = user;
+          this.currentKitchenWeek = snap;
         }
       });
-      this.currentSheriff = currentSheriff;
-      this.currentKitchenWeek = currentKitchenWeek;
+      this._renderUserPickerItems(snapshot);
     });
   }
 
@@ -75,36 +78,87 @@ export default class SettingsScreen extends Component {
     if (this.state.selectedDuty) {
       let user = this.state.user;
       user.duty = this.state.selectedDuty;
-      this._updateUser(user);
+      this._updateUser(user, this.localUser.uid, true);
     }
   };
 
-  changeKitchenweek = (value) => {
-    if (value && this.currentKitchenWeek) {
-      Alert.alert(this.currentKitchenWeek.name + ' har allerede køkkenugen');
-    } else {
+  switchKitchenWeek = (value) => {
+    if (this.currentKitchenWeek) {
+      if (value && this.localUser.uid !== this.currentKitchenWeek.key) {
+        Alert.alert(this.currentKitchenWeek.val().name + ' har allerede køkkenugen');
+      } else if (!value && this.localUser.uid === this.currentKitchenWeek.key) {
+        this.setKitchenWeekModalVisible(true);
+      }
+    }
+  };
+
+  switchSheriff = (value) => {
+    if (this.currentSheriff) {
+      if (value && this.localUser.uid !== this.currentSheriff.key) {
+        Alert.alert(this.currentSheriff.val().name + ' er allerede sheriff');
+      } else if (!value && this.localUser.uid === this.currentSheriff.key) {
+        this.setSheriffModalVisible(true);
+      }
+    }
+  };
+
+  changeKitchenWeek = () => {
+    if (this.state.user) {
       let user = this.state.user;
-      user.kitchenweek = value;
-      this._updateUser(user);
+      user.kitchenweek = false;
+      let newKitchenWeekSnapshot = this._findSnapshotByName(this.state.selectedKitchenWeek);
+      if (newKitchenWeekSnapshot) {
+        let newKitchenWeekUser = newKitchenWeekSnapshot.val();
+        newKitchenWeekUser.kitchenweek = true;
+        this._updateUser(user, this.localUser.uid, true);
+        this._updateUser(newKitchenWeekUser, newKitchenWeekSnapshot.key, false);
+      }
     }
   };
 
-  changeSheriff = (value) => {
-    if (value && this.currentSheriff) {
-      Alert.alert(this.currentSheriff.name + ' er allerede sheriff');
-    } else {
+  changeSheriff = () => {
+    if (this.state.user) {
       let user = this.state.user;
-      user.sheriff = value;
-      this._updateUser(user);
+      user.sheriff = false;
+      let newSheriffSnapshot = this._findSnapshotByName(this.state.selectedSheriff);
+      if (newSheriffSnapshot) {
+        let newSheriffUser = newSheriffSnapshot.val();
+        newSheriffUser.sheriff = true;
+        this._updateUser(user, this.localUser.uid, true);
+        this._updateUser(newSheriffUser, newSheriffSnapshot.key, false);
+      }
     }
   };
 
-  _updateUser = (user) => {
-    this.setState({user: user});
-    Database.updateUser(user.uid, user).then(() => {
-      let passUser = Object.assign({password: this.localUser.password}, user);
-      LocalStorage.setUser(passUser);
+  _findSnapshotByName = (name) => {
+    let foundSnapshot = null;
+    this.users.forEach((snapshot) => {
+      const user = snapshot.val();
+      if (user.name === name) {
+        foundSnapshot = snapshot;
+      }
     });
+    return foundSnapshot;
+  };
+
+  _findSnapshotByRoom = (room) => {
+    let foundSnapshot = null;
+    this.users.forEach((snapshot) => {
+      const user = snapshot.val();
+      if (user.room === room) {
+        foundSnapshot = snapshot;
+      }
+    });
+    return foundSnapshot;
+  };
+
+  _updateUser = (user, uid, shouldSave) => {
+    Database.updateUser(uid, user);
+    if (shouldSave) {
+      this.setState({user: user});
+      let passUser = Object.assign({password: this.localUser.password, uid: uid}, user);
+      LocalStorage.setUser(passUser);
+    }
   };
 
   _getUser = () => {
@@ -119,22 +173,29 @@ export default class SettingsScreen extends Component {
 
   _getDuties = () => {
     Database.getDuties().then(snapshot => {
-      this._renderPickerItems(snapshot);
+      this._renderDutyPickerItems(snapshot);
     });
   };
 
-  _renderPickerItems = (snapshot) => {
-    let pickerItems = [];
+  _renderDutyPickerItems = (snapshot) => {
+    let dutyPickerItems = [];
     snapshot.forEach(child => {
-      pickerItems.push(
+      dutyPickerItems.push(
         <Picker.Item key={child.key} label={child.val()} value={child.val()}/>
       )
     });
-    this.setState({pickerItems})
+    this.setState({dutyPickerItems})
   };
 
-  setDutyModalVisible = (visible) => {
-    this.setState({selectedDuty: this.state.user.duty, dutyModalVisible: visible});
+  _renderUserPickerItems = (snapshot) => {
+    let userPickerItems = [];
+    snapshot.forEach(child => {
+      if (child.val().name !== this.localUser.name)
+        userPickerItems.push(
+          <Picker.Item key={child.key} label={child.val().name} value={child.val().name}/>
+        )
+    });
+    this.setState({userPickerItems})
   };
 
   changePasswordAlert = () => {
@@ -166,6 +227,49 @@ export default class SettingsScreen extends Component {
     this.setState({selectedDuty: itemValue});
   };
 
+  setDutyModalVisible = (visible) => {
+    this.setState({selectedDuty: this.state.user.duty, dutyModalVisible: visible});
+  };
+
+  onKitchenWeekCancel = () => {
+    this.setKitchenWeekModalVisible(false);
+  };
+
+  onKitchenWeekSubmit = () => {
+    this.changeKitchenWeek();
+    this.setKitchenWeekModalVisible(false);
+  };
+
+  onKitchenWeekChange = (itemValue) => {
+    this.setState({selectedKitchenWeek: itemValue});
+  };
+
+  setKitchenWeekModalVisible = (visible) => {
+    this.setState({selectedKitchenWeek: this.currentSheriff.val().name, kitchenWeekModalVisible: visible});
+  };
+
+  onSheriffCancel = () => {
+    this.setSheriffModalVisible(false);
+  };
+
+  onSheriffSubmit = () => {
+    this.changeSheriff();
+    this.setSheriffModalVisible(false);
+  };
+
+  onSheriffChange = (itemValue) => {
+    this.setState({selectedSheriff: itemValue});
+  };
+
+  setSheriffModalVisible = (visible) => {
+    let initialSheriffName = '';
+    if (visible) {
+      const initialSheriffRoom = '17' + (((this.currentSheriff.val().room.substr(2, 3) % 14) + 1));
+      initialSheriffName = this._findSnapshotByRoom(initialSheriffRoom).val().name;
+    }
+    this.setState({selectedSheriff: '' + initialSheriffName, sheriffModalVisible: visible});
+  };
+
   render() {
     return (
       <ScrollView style={styles.container}>
@@ -195,13 +299,13 @@ export default class SettingsScreen extends Component {
           <Text style={styles.leftText}>Køkkenuge:</Text>
           <Switch style={styles.rightText}
                   value={this.state.user.kitchenweek}
-                  onValueChange={this.changeKitchenweek}/>
+                  onValueChange={this.switchKitchenWeek}/>
         </View>
         <View style={styles.rowContainer}>
           <Text style={styles.leftText}>Sheriff:</Text>
           <Switch style={styles.rightText}
                   value={this.state.user.sheriff}
-                  onValueChange={this.changeSheriff}/>
+                  onValueChange={this.switchSheriff}/>
         </View>
         <View style={styles.changePasswordRowContainer}>
           <Button title='Skift Adgangskode'
@@ -211,11 +315,29 @@ export default class SettingsScreen extends Component {
         <ModalScreen
           onValueChange={this.onDutyChange}
           selectedValue={this.state.selectedDuty}
-          pickerItems={this.state.pickerItems}
+          pickerItems={this.state.dutyPickerItems}
           modalTitle='Vælg en tjans'
           visible={this.state.dutyModalVisible}
           onSubmit={this.onDutySubmit}
           onCancel={this.onDutyCancel}
+        />
+        <ModalScreen
+          onValueChange={this.onKitchenWeekChange}
+          selectedValue={this.state.selectedKitchenWeek}
+          pickerItems={this.state.userPickerItems}
+          modalTitle='Vælg næste køkkenuge'
+          visible={this.state.kitchenWeekModalVisible}
+          onSubmit={this.onKitchenWeekSubmit}
+          onCancel={this.onKitchenWeekCancel}
+        />
+        <ModalScreen
+          onValueChange={this.onSheriffChange}
+          selectedValue={this.state.selectedSheriff}
+          pickerItems={this.state.userPickerItems}
+          modalTitle='Vælg næste sheriff'
+          visible={this.state.sheriffModalVisible}
+          onSubmit={this.onSheriffSubmit}
+          onCancel={this.onSheriffCancel}
         />
       </ScrollView>
     )

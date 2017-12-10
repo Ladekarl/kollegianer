@@ -32,7 +32,7 @@ export default Stack = StackNavigator({
           </View>
         </TouchableOpacity>,
       headerTitleStyle: {
-        fontSize: 18
+        fontSize: 15
       }
     })
   },
@@ -45,7 +45,7 @@ export default Stack = StackNavigator({
     headerStyle: {
       elevation: 0,
       backgroundColor: colors.activeTabColor,
-      marginBottom: 0
+      marginBottom: 0,
     },
     headerTintColor: 'white'
   }
