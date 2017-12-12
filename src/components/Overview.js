@@ -5,7 +5,8 @@ import {
   StyleSheet,
   Picker,
   Text,
-  TouchableOpacity, Alert,
+  TouchableOpacity,
+  Alert,
 } from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
@@ -41,19 +42,26 @@ export default class OverviewScreen extends Component {
       pickerItems: []
     };
     Database.getUsers().then(snapshot => {
+      let kitchenWeek = '';
+      let sheriff = '';
       snapshot.forEach(snap => {
         let user = snap.val();
         if (user.kitchenweek) {
-          this.setState({kitchenWeek: user.name});
+          kitchenWeek = user.name;
         }
         if (user.sheriff) {
-          this.setState({sheriff: user.name});
+          sheriff = user.name;
         }
         if (user.kitchenweek && user.sheriff) {
           this.showAssignSheriffAlert();
         }
       });
-      this._renderPickerItems(snapshot);
+      let pickerItems = this._renderPickerItems(snapshot);
+      this.setState({
+        kitchenWeek,
+        sheriff,
+        pickerItems
+      });
     });
     LocalStorage.getUser().then(user => {
       this.localUser = user;
@@ -66,9 +74,11 @@ export default class OverviewScreen extends Component {
       this.currentShots = events.shots;
       this.currentMvp = events.mvp;
       this.setState({
-        events: events,
+        events,
         selectedMvp: events.mvp,
         selectedShots: events.shots
+      }, () => {
+        this.foxButton.style = this.columnContainerStyle(this.state.events.fox);
       });
     });
   }
@@ -99,7 +109,7 @@ export default class OverviewScreen extends Component {
         <Picker.Item key={child.key} label={child.val().name} value={child.val().name}/>
       )
     });
-    this.setState({pickerItems})
+    return pickerItems;
   };
 
   setMvpModalVisible = (visible) => {
@@ -165,7 +175,7 @@ export default class OverviewScreen extends Component {
         {text: 'Skift', onPress: this.updateBeerPongEvent},
       ],
       {cancelable: false}
-    )
+    );
   };
 
   showPartymodeAlert = () => {
@@ -177,13 +187,13 @@ export default class OverviewScreen extends Component {
           text: 'Fortryd', onPress: () => {
           }
         },
-        {text: 'Skift', onPress: this._togglePartyLights},
+        {text: 'Skift', onPress: this.updatePartmode},
       ],
       {cancelable: false}
     );
   };
 
-  showFoxAlert = () => {
+  showFoxAlert() {
     Alert.alert(
       'Skift status:',
       'Sikker på at vi har vundet øl-ræven eller har 700 gemt den på deres køkken igen?',
@@ -203,22 +213,26 @@ export default class OverviewScreen extends Component {
     Database.updateEvent('beerpong', beerpong);
   };
 
-  _togglePartyLights = () => {
+  updatePartmode = () => {
     let partymode = this.state.events.partymode;
-    fetch('https://se2-openhab04.compute.dtu.dk/rest/items/Dtu4Plug_Switch', {
+    this._togglePartyLights();
+    Database.updateEvent('partymode',partymode.length > 0 ? '' : this.localUser.name);
+  };
+
+  updateFoxEvent = () => {
+    Database.updateEvent('fox', !this.state.events.fox);
+  };
+
+  _togglePartyLights = () => {
+    return fetch('https://se2-openhab04.compute.dtu.dk/rest/items/Dtu4Plug_Switch', {
       method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'text/plain',
         Authorization: 'Basic ' + Base64.btoa('group-d:hunter2')
       },
-      body: partymode.length > 0 ? 'OFF' : 'ON'
+      body: this.state.events.partymode.length > 0 ? 'OFF' : 'ON'
     });
-    Database.updateEvent('partymode',partymode.length > 0 ? '' : this.localUser.name);
-  };
-
-  updateFoxEvent = () => {
-    Database.updateEvent('fox', !this.state.events.fox);
   };
 
   render() {
@@ -252,21 +266,22 @@ export default class OverviewScreen extends Component {
         <View style={styles.rowContainer}>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.beerpong)}
-            onPress={this.showBeerpongAlert}>
+            onPress={this.updateBeerPongEvent}>
             <Text style={styles.text}>Beer pong på coxk</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/beerpong.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={this.columnContainerStyle(this.state.events.partymode)}
-            onPress={this.showPartymodeAlert}>
+            style={this.columnContainerStyle(this.state.events.partymode.length > 0 )}
+            onPress={this.updatePartmode}>
             <Text style={styles.text}>PARTY MODE</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/party_mode.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
+            ref={component => this.foxButton = component}
             style={this.columnContainerStyle(this.state.events.fox)}
-            onPress={this.showFoxAlert}>
+            onPress={this.updateFoxEvent}>
             <Text style={styles.text}>Øl-ræven</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.fox ? 'ofc på 1700' : 'Nope, dsværd'}</Text>
