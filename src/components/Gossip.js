@@ -10,7 +10,8 @@ import {
   Text,
   ActivityIndicator,
   Keyboard,
-  Platform, Image
+  Platform,
+  Dimensions
 } from 'react-native';
 import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
@@ -20,6 +21,9 @@ import ImagePicker from 'react-native-image-picker';
 import Guid from '../shared/Guid';
 import FitImage from 'react-native-fit-image';
 import Lightbox from 'react-native-lightbox';
+
+const WINDOW_WIDTH = Dimensions.get('window').width;
+const WINDOW_HEIGHT = Dimensions.get('window').height;
 
 export default class GossipScreen extends Component {
 
@@ -109,16 +113,53 @@ export default class GossipScreen extends Component {
           <View
             style={styles.rowContainer}>
             <Icon name='user-circle' style={styles.rowImage}/>
-            <Lightbox>
-              <Image
-                style={styles.messageImage}
-                resizeMode='contain'
-                source={{uri: message.photo}}
-              />
+            <Lightbox navigator={null}
+                      activeProps={{style: this._renderLightBoxImageContainerStyle(message.photo)}}
+                      style={styles.lightBoxContainer}
+                      renderContent={() => (
+                        <ScrollView
+                          minimumZoomScale={1}
+                          maximumZoomScale={5}
+                          centerContent={true}>
+                          <FitImage
+                            style={styles.messageImage}
+                            originalWidth={message.photo.width}
+                            originalHeight={message.photo.height}
+                            resizeMode='contain'
+                            source={{uri: message.photo.url}}/>
+                        </ScrollView>)
+                      }>
+              <View style={this._messageImageContainerStyle(message.photo)}>
+                <FitImage
+                  style={styles.messageImage}
+                  originalWidth={message.photo.width}
+                  originalHeight={message.photo.height}
+                  resizeMode='contain'
+                  source={{uri: message.photo.url}}/>
+              </View>
             </Lightbox>
           </View>
         </View>
       );
+    }
+  };
+
+  _messageImageContainerStyle = (photo) => {
+    return {
+      aspectRatio: photo.width / photo.height,
+      maxHeight: (WINDOW_WIDTH / 2) - 20,
+      maxWidth: WINDOW_WIDTH - 20,
+      alignSelf: 'flex-start',
+      alignItems: 'flex-start',
+      justifyContent: 'flex-start'
+    };
+  };
+
+  _renderLightBoxImageContainerStyle = (photo) => {
+    return {
+      aspectRatio: photo.width / photo.height,
+      maxHeight: WINDOW_HEIGHT,
+      maxWidth: WINDOW_WIDTH
     }
   };
 
@@ -139,12 +180,12 @@ export default class GossipScreen extends Component {
     }
   };
 
-  submitPhotoMessage = (photoName) => {
+  submitPhotoMessage = (photo) => {
     let date = this._formatDate();
     let newMessage = {
       message: '',
       date: date,
-      photo: photoName
+      photo: photo
     };
     Keyboard.dismiss();
     Database.addGossip(newMessage).finally(() => {
@@ -162,10 +203,16 @@ export default class GossipScreen extends Component {
     ImagePicker.showImagePicker(options, (response) => {
       if (!response.error && !response.didCancel) {
         const photoPath = response.uri;
+        const width = response.width;
+        const height = response.height;
         const uploadUri = Platform.OS === 'ios' ? photoPath.replace('file://', '') : photoPath;
         this.setState({loading: true});
         Database.addGossipImage(uploadUri, Guid()).then((snapshot) => {
-          this.submitPhotoMessage(snapshot.downloadURL);
+          this.submitPhotoMessage({
+            url: snapshot.downloadURL,
+            width: width,
+            height: height
+          });
         }).catch(() => {
           this.setState({loading: false});
         });
@@ -380,12 +427,15 @@ const styles = StyleSheet.create({
   messageImage: {
     flex: 1,
     alignSelf: 'stretch',
-    width: 200,
-    height: 300,
+  },
+  lightBoxContainer: {
+    alignSelf: 'flex-start',
+    alignItems: 'flex-start',
+    justifyContent: 'flex-start',
     borderRadius: 20,
     marginLeft: 5,
     marginRight: 5,
-    marginBottom: 2,
+    marginBottom: 2
   },
   loadingContainer: {
     position: 'absolute',

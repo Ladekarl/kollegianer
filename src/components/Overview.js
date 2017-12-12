@@ -162,10 +162,11 @@ export default class OverviewScreen extends Component {
           text: 'Fortryd', onPress: () => {
           }
         },
-        {text: 'Bekræft', onPress: this.updateBeerPongEvent},
+        {text: 'Skift', onPress: this.updateBeerPongEvent},
       ],
       {cancelable: false}
-    );
+    )
+  };
 
   showPartymodeAlert = () => {
     Alert.alert(
@@ -180,6 +181,7 @@ export default class OverviewScreen extends Component {
       ],
       {cancelable: false}
     );
+  };
 
   showFoxAlert = () => {
     Alert.alert(
@@ -194,6 +196,7 @@ export default class OverviewScreen extends Component {
       ],
       {cancelable: false}
     );
+  };
 
   updateBeerPongEvent = () => {
     let beerpong = !this.state.events.beerpong;
@@ -221,7 +224,7 @@ export default class OverviewScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        <View style={styles.rowContainer}>
+          <View style={styles.rowContainer}>
           <View style={styles.headerContainer}>
             <Text style={styles.textHeader}>Velkommen til Køkken 1700 </Text>
             <FitImage
