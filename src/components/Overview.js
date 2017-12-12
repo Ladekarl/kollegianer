@@ -153,6 +153,48 @@ export default class OverviewScreen extends Component {
     };
   }
 
+  showBeerpongAlert = () => {
+    Alert.alert(
+      'Skift status:',
+      'Kan du bekræfte at du lige har købt for 1800kr - du skal bare sende de fire sidste cifre i dit cpr-nr',
+      [
+        {
+          text: 'Fortryd', onPress: () => {
+          }
+        },
+        {text: 'Bekræft', onPress: this.updateBeerPongEvent},
+      ],
+      {cancelable: false}
+    );
+
+  showPartymodeAlert = () => {
+    Alert.alert(
+      'Skift status:',
+      'Du skifter party mode nu <3',
+      [
+        {
+          text: 'Fortryd', onPress: () => {
+          }
+        },
+        {text: 'Skift', onPress: this._togglePartyLights},
+      ],
+      {cancelable: false}
+    );
+
+  showFoxAlert = () => {
+    Alert.alert(
+      'Skift status:',
+      'Sikker på at vi har vundet øl-ræven eller har 700 gemt den på deres køkken igen?',
+      [
+        {
+          text: 'Fortryd', onPress: () => {
+          }
+        },
+        {text: 'Skift', onPress: this.updateFoxEvent},
+      ],
+      {cancelable: false}
+    );
+
   updateBeerPongEvent = () => {
     let beerpong = !this.state.events.beerpong;
     Database.updateEvent('beerpong', beerpong);
@@ -207,24 +249,24 @@ export default class OverviewScreen extends Component {
         <View style={styles.rowContainer}>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.beerpong)}
-            onPress={this.updateBeerPongEvent}>
-            <Text style={styles.text}>Beer pong?</Text>
+            onPress={this.showBeerpongAlert}>
+            <Text style={styles.text}>Beer pong på coxk</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/beerpong.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.partymode)}
-            onPress={() => this._togglePartyLights()}>
-            <Text style={styles.text}>PARTY MODE?</Text>
+            onPress={this.showPartymodeAlert}>
+            <Text style={styles.text}>PARTY MODE</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/party_mode.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.fox)}
-            onPress={() => this.updateFoxEvent()}>
-            <Text style={styles.text}>Har vi ræv?</Text>
+            onPress={this.showFoxAlert}>
+            <Text style={styles.text}>Øl-ræven</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.fox ? 'ofc' : 'Næææh'}</Text>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.fox ? 'ofc på 1700' : 'Nope, dsværd'}</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.rowContainer}>
