@@ -283,12 +283,6 @@ export default class OverviewScreen extends Component {
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.columnContainer}
-            onPress={() => this.setShotsModalVisible(true)}>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
-          </TouchableOpacity>
         </View>
         <ModalScreen
           modalTitle='Vælg en person'
