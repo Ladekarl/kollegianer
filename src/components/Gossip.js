@@ -157,7 +157,6 @@ export default class GossipScreen extends Component {
       quality: 0
     };
     ImagePicker.showImagePicker(options, (response) => {
-      console.log('Response = ', response);
       if (!response.error && !response.didCancel) {
         const photoPath = response.uri;
         const uploadUri = Platform.OS === 'ios' ? photoPath.replace('file://', '') : photoPath;
