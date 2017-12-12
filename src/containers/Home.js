@@ -8,7 +8,7 @@ class HomeScreen extends Component {
     title: 'Hjem',
     drawerIcon: ({tintColor}) => (<Icon name='home' style={{fontSize: 15, color: tintColor}}/>),
     headerTitleStyle: {
-      fontSize: 15
+      fontSize: 18
     }
   };
 

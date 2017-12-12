@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import {
-  TextInput,
-  StyleSheet,
-  Alert
+  TextInput
 } from 'react-native';
 
 export default class AutoExpandingTextInput extends Component {
@@ -21,7 +19,7 @@ export default class AutoExpandingTextInput extends Component {
             height: event.nativeEvent.contentSize.height,
           })
         }}
-        style={[this.props.style, {height: Math.max(35, this.state.height)}]}
+        style={[this.props.style, {height: Math.max(32, this.state.height)}]}
       />
     );
   }

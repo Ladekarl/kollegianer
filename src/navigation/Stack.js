@@ -32,7 +32,7 @@ export default Stack = StackNavigator({
           </View>
         </TouchableOpacity>,
       headerTitleStyle: {
-        fontSize: 15
+        fontSize: 18
       }
     })
   },

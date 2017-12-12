@@ -8,12 +8,17 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Text,
-  Keyboard, Platform
+  ActivityIndicator,
+  Keyboard,
+  Platform
 } from 'react-native';
 import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
 import AutoExpandingTextInput from './AutoExpandingTextInput';
 import Database from '../storage/Database';
+import ImagePicker from 'react-native-image-picker';
+import Guid from '../shared/Guid';
+import FitImage from 'react-native-fit-image';
 
 export default class GossipScreen extends Component {
 
@@ -28,8 +33,12 @@ export default class GossipScreen extends Component {
       fetching: false,
       renderMessages: [],
       messages: [],
-      message: ''
+      message: '',
+      loading: false
     };
+    this.initialLimit = 20;
+    this.limit = this.initialLimit;
+    this.messagesUpdated = false;
   }
 
   componentWillMount() {
@@ -39,7 +48,7 @@ export default class GossipScreen extends Component {
 
   componentDidMount() {
     this.setState({fetching: true});
-    Database.listenGossip(snapshot => {
+    Database.listenGossip(this.initialLimit, snapshot => {
       this.messages = snapshot;
       this.setState({
         renderMessages: this.renderMessages(),
@@ -75,19 +84,39 @@ export default class GossipScreen extends Component {
 
   _renderMessage = (renderMessage) => {
     const message = renderMessage.val();
-    return (
-      <View
-        key={renderMessage.key}
-        style={styles.columnContainer}
-      >
-        <Text style={styles.dateText}>{message.date}</Text>
+    if(!message.photo) {
+      return (
         <View
-          style={styles.rowContainer}>
-          <Icon name='user-circle' style={styles.rowImage}/>
-          <Text style={styles.messageText}>{message.message}</Text>
+          key={renderMessage.key}
+          style={styles.columnContainer}
+        >
+          <Text style={styles.dateText}>{message.date}</Text>
+          <View
+            style={styles.rowContainer}>
+            <Icon name='user-circle' style={styles.rowImage}/>
+            <Text style={styles.messageText}>{message.message}</Text>
+          </View>
         </View>
-      </View>
-    );
+      );
+    } else {
+      return (
+        <View
+          key={renderMessage.key}
+          style={styles.columnContainer}
+        >
+          <Text style={styles.dateText}>{message.date}</Text>
+          <View
+            style={styles.rowContainer}>
+            <Icon name='user-circle' style={styles.rowImage}/>
+            <FitImage
+              resizeMode='contain'
+              style={styles.messageImage}
+              source={{uri: message.photo}}
+            />
+          </View>
+        </View>
+      );
+    }
   };
 
   onMessageChange = (message) => {
@@ -107,6 +136,41 @@ export default class GossipScreen extends Component {
     }
   };
 
+  submitPhotoMessage = (photoName) => {
+    let date = this._formatDate();
+    let newMessage = {
+      message: '',
+      date: date,
+      photo: photoName
+    };
+    Keyboard.dismiss();
+    Database.addGossip(newMessage).finally(() => {
+      this.setState({loading: false});
+    });
+  };
+
+  selectImage = () => {
+    Keyboard.dismiss();
+    const options = {
+      title: 'Vælg et billede',
+      mediaType: 'photo',
+      quality: 0
+    };
+    ImagePicker.showImagePicker(options, (response) => {
+      console.log('Response = ', response);
+      if (!response.error && !response.didCancel) {
+        const photoPath = response.uri;
+        const uploadUri = Platform.OS === 'ios' ? photoPath.replace('file://', '') : photoPath;
+        this.setState({loading: true});
+        Database.addGossipImage(uploadUri, Guid()).then((snapshot) => {
+          this.submitPhotoMessage(snapshot.downloadURL);
+        }).catch(() => {
+          this.setState({loading: false});
+        });
+      }
+    });
+  };
+
   _formatDate = () => {
     let d = new Date(),
       month = '' + (d.getMonth() + 1),
@@ -124,10 +188,15 @@ export default class GossipScreen extends Component {
 
   updateMessages = () => {
     this.setState({fetching: true});
-    Database.getGossip().then((snapshot) => {
+    this.limit = this.limit * 2;
+    Database.getGossip(this.limit).then((snapshot) => {
       this.messages = snapshot;
+      let renderMessages = this.renderMessages();
+      if(renderMessages.length > this.state.renderMessages.length) {
+        this.messagesUpdated = true;
+      }
       this.setState({
-        renderMessages: this.renderMessages(),
+        renderMessages: renderMessages,
         fetching: false
       });
     }).catch((error) => {
@@ -167,7 +236,11 @@ export default class GossipScreen extends Component {
           contentContainerStyle={styles.scrollContainer}
           ref={ref => this.scrollView = ref}
           onContentSizeChange={(contentWidth, contentHeight) => {
-            this.scrollView.scrollToEnd({animated: true});
+            if(!this.messagesUpdated) {
+              this.scrollView.scrollToEnd({animated: true});
+            } else {
+              this.messagesUpdated = false;
+            }
           }}>
           <View style={styles.messageContainer}>
             {this.state.renderMessages}
@@ -175,6 +248,9 @@ export default class GossipScreen extends Component {
         </ScrollView>
         <View style={styles.footerContainer}>
           <View style={styles.newMessageContainer}>
+            <TouchableOpacity style={styles.rowImageContainer} onPress={this.selectImage}>
+              <Icon name='plus-circle' style={{fontSize: 20, color: 'black'}}/>
+            </TouchableOpacity>
             <AutoExpandingTextInput
               style={styles.newMessageInput}
               placeholder='Aa'
@@ -188,6 +264,11 @@ export default class GossipScreen extends Component {
             <Icon name='send' style={{fontSize: 20, color: 'black'}}/>
           </TouchableOpacity>
         </View>
+        {this.state.loading &&
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size='large' color={colors.activeTabColor}/>
+        </View>
+        }
       </View>
     );
   }
@@ -222,13 +303,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between'
   },
   rowImageContainer: {
-    flex: 1,
     alignItems: 'center',
     alignSelf: 'flex-end',
-    marginBottom: 10,
+    paddingLeft: 10,
+    paddingRight: 10,
+    paddingBottom: 5,
     justifyContent: 'flex-end'
   },
   rowContainer: {
+    maxWidth: '90%',
     flexDirection: 'row',
     marginLeft: 5,
     marginRight: 5,
@@ -241,7 +324,7 @@ const styles = StyleSheet.create({
   },
   footerContainer: {
     borderTopWidth: StyleSheet.hairlineWidth,
-    minHeight: 60,
+    minHeight: 50,
     width: '100%',
     justifyContent: 'center',
     flexDirection: 'row',
@@ -249,8 +332,7 @@ const styles = StyleSheet.create({
     paddingLeft: 5,
     paddingRight: 5,
     paddingTop: 10,
-    paddingBottom: 5,
-    marginBottom: 5
+    paddingBottom: 7
   },
   newMessageContainer: {
     flex: 7,
@@ -259,7 +341,8 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end'
   },
   dateText: {
-    alignSelf: 'center'
+    alignSelf: 'center',
+    fontSize: 12
   },
   messageText: {
     padding: 5,
@@ -268,8 +351,8 @@ const styles = StyleSheet.create({
     marginRight: 5,
     fontSize: 16,
     marginBottom: 2,
-    maxWidth: '90%',
     textAlign: 'left',
+    color: 'black',
     backgroundColor: colors.modalBackgroundColor,
     borderWidth: StyleSheet.hairlineWidth
   },
@@ -291,5 +374,24 @@ const styles = StyleSheet.create({
     marginRight: 5,
     marginBottom: 3,
     alignSelf: 'flex-end'
+  },
+  messageImage: {
+    flex: 1,
+    alignSelf: 'stretch',
+    width: undefined,
+    height: undefined,
+    borderRadius: 20,
+    marginLeft: 5,
+    marginRight: 5,
+    marginBottom: 2,
+  },
+  loadingContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });

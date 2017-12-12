@@ -22,7 +22,7 @@ export default class SettingsScreen extends Component {
   static navigationOptions = {
     title: 'Indstillinger',
     headerTitleStyle: {
-      fontSize: 15
+      fontSize: 18
     }
   };
 

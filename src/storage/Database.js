@@ -1,4 +1,10 @@
 import * as firebase from 'firebase';
+import RNFetchBlob from 'react-native-fetch-blob'
+
+const polyfill = RNFetchBlob.polyfill;
+window.XMLHttpRequest = polyfill.XMLHttpRequest;
+window.Blob = polyfill.Blob;
+
 
 export default class Database {
 
@@ -64,12 +70,12 @@ export default class Database {
     return firebase.database().ref('/vimangler/' + key).update(item);
   }
 
-  static async getGossip() {
-    return firebase.database().ref('/gossip/').once('value');
+  static async getGossip(limit) {
+    return firebase.database().ref('/gossip/').limitToLast(limit).once('value');
   }
 
-  static async listenGossip(callback) {
-    return firebase.database().ref('/gossip/').on('value', (snapshot) => {
+  static async listenGossip(limit, callback) {
+    return firebase.database().ref('/gossip/').limitToLast(limit).on('value', (snapshot) => {
       callback(snapshot);
     });
   }
@@ -115,4 +121,13 @@ export default class Database {
     updates['/events/' + key] = value;
     return firebase.database().ref().update(updates);
   }
+
+  static async addGossipImage(image, imageName) {
+    RNFetchBlob.config({ fileCache : true, appendExt : 'jpg' });
+    let rnfbURI = RNFetchBlob.wrap(image);
+    return Blob.build(rnfbURI, { type: 'image/jpg;' }).then((blob) => {
+      return firebase.storage().ref('gossip').child(imageName).put(blob, {contentType: 'image/jpg'});
+    });
+  }
+
 }
