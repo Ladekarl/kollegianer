@@ -29,6 +29,7 @@ export default class OverviewScreen extends Component {
         fox: false,
         mvp: '',
         shots: '',
+        partymode: ''
       },
       kitchenWeek: '',
       sheriff: '',
@@ -53,6 +54,9 @@ export default class OverviewScreen extends Component {
       });
       this._renderPickerItems(snapshot);
     });
+    LocalStorage.getUser().then(user => {
+      this.localUser = user;
+    });
   }
 
   componentDidMount() {
@@ -74,7 +78,7 @@ export default class OverviewScreen extends Component {
 
   showAssignSheriffAlert = () => {
     Alert.alert(
-      'Vælg en ny sheroff',
+      'Vælg en ny sheriff',
       'Du har både køkkenugen og er sheriff',
       [
         {text: 'OK', onPress: this._navigateToSettings},
@@ -151,10 +155,10 @@ export default class OverviewScreen extends Component {
   updateBeerPongEvent = () => {
     let beerpong = !this.state.events.beerpong;
     Database.updateEvent('beerpong', beerpong);
-    this._togglePartyLights(beerpong);
   };
 
-  _togglePartyLights = (turnOn) => {
+  _togglePartyLights = () => {
+    let partymode = this.state.events.partymode;
     fetch('https://se2-openhab04.compute.dtu.dk/rest/items/Dtu4Plug_Switch', {
       method: 'POST',
       headers: {
@@ -162,8 +166,9 @@ export default class OverviewScreen extends Component {
         'Content-Type': 'text/plain',
         Authorization: 'Basic ' + Base64.btoa('group-d:hunter2')
       },
-      body: turnOn ? 'ON' : 'OFF',
+      body: partymode.length > 0 ? 'OFF' : 'ON'
     });
+    Database.updateEvent('partymode',partymode.length > 0 ? '' : this.localUser.name);
   };
 
   updateFoxEvent = () => {
@@ -200,17 +205,18 @@ export default class OverviewScreen extends Component {
         </View>
         <View style={styles.rowContainer}>
           <TouchableOpacity
-            style={styles.columnContainer}
-            onPress={() => this.setShotsModalVisible(true)}>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.beerpong)}
             onPress={this.updateBeerPongEvent}>
             <Text style={styles.text}>Beer pong?</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/beerpong.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={this.columnContainerStyle(this.state.events.partymode)}
+            onPress={() => this._togglePartyLights()}>
+            <Text style={styles.text}>PARTY MODE?</Text>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/party_mode.png')}/>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.fox)}
@@ -225,15 +231,17 @@ export default class OverviewScreen extends Component {
             <Text style={styles.text}>Ølregnskab</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/olregnskab.png')}/>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.columnContainer}>
-            <Text style={styles.text}>VIP club</Text>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/vip_logo2.png')}/>
+          <TouchableOpacity
+            style={styles.columnContainer}
+            onPress={() => this.setShotsModalVisible(true)}>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.columnContainer} onPress={() => {
-            this.props.navigation.navigate('Gossip');
-          }}>
-            <Text style={styles.text}>Gossip club</Text>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/gossip_icon.png')}/>
+          <TouchableOpacity
+            style={styles.columnContainer}
+            onPress={() => this.setShotsModalVisible(true)}>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
           </TouchableOpacity>
         </View>
         <ModalScreen
