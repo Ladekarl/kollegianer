@@ -10,7 +10,7 @@ import {
   Text,
   ActivityIndicator,
   Keyboard,
-  Platform
+  Platform, Image
 } from 'react-native';
 import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
@@ -19,6 +19,7 @@ import Database from '../storage/Database';
 import ImagePicker from 'react-native-image-picker';
 import Guid from '../shared/Guid';
 import FitImage from 'react-native-fit-image';
+import Lightbox from 'react-native-lightbox';
 
 export default class GossipScreen extends Component {
 
@@ -108,11 +109,13 @@ export default class GossipScreen extends Component {
           <View
             style={styles.rowContainer}>
             <Icon name='user-circle' style={styles.rowImage}/>
-            <FitImage
-              resizeMode='contain'
-              style={styles.messageImage}
-              source={{uri: message.photo}}
-            />
+            <Lightbox>
+              <Image
+                style={styles.messageImage}
+                resizeMode='contain'
+                source={{uri: message.photo}}
+              />
+            </Lightbox>
           </View>
         </View>
       );
@@ -377,8 +380,8 @@ const styles = StyleSheet.create({
   messageImage: {
     flex: 1,
     alignSelf: 'stretch',
-    width: undefined,
-    height: undefined,
+    width: 200,
+    height: 300,
     borderRadius: 20,
     marginLeft: 5,
     marginRight: 5,

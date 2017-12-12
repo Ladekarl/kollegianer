@@ -13,6 +13,7 @@ import Icon from 'react-native-fa-icons';
 import FitImage from 'react-native-fit-image';
 import ModalScreen from './Modal';
 import Base64 from '../shared/Base64';
+import LocalStorage from '../storage/LocalStorage';
 
 export default class OverviewScreen extends Component {
 
