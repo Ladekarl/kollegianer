@@ -89,7 +89,7 @@ export default class GossipScreen extends Component {
 
   _renderMessage = (renderMessage) => {
     const message = renderMessage.val();
-    if(!message.photo) {
+    if (!message.photo) {
       return (
         <View
           key={renderMessage.key}
@@ -120,12 +120,17 @@ export default class GossipScreen extends Component {
                         <ScrollView
                           minimumZoomScale={1}
                           maximumZoomScale={5}
+                          contentContainerStyle={{
+                            flexGrow: 1,
+                            justifyContent: 'center'
+                          }}
                           centerContent={true}>
                           <FitImage
                             style={styles.messageImage}
                             originalWidth={message.photo.width}
                             originalHeight={message.photo.height}
                             resizeMode='contain'
+                            resizeMethod='resize'
                             source={{uri: message.photo.url}}/>
                         </ScrollView>)
                       }>
@@ -135,6 +140,7 @@ export default class GossipScreen extends Component {
                   originalWidth={message.photo.width}
                   originalHeight={message.photo.height}
                   resizeMode='contain'
+                  resizeMethod='resize'
                   source={{uri: message.photo.url}}/>
               </View>
             </Lightbox>
@@ -147,8 +153,8 @@ export default class GossipScreen extends Component {
   _messageImageContainerStyle = (photo) => {
     return {
       aspectRatio: photo.width / photo.height,
-      maxHeight: (WINDOW_WIDTH / 2) - 20,
-      maxWidth: WINDOW_WIDTH - 20,
+      maxHeight: (Dimensions.get('window').width / 2) - 20,
+      maxWidth: Dimensions.get('window').width - 20,
       alignSelf: 'flex-start',
       alignItems: 'flex-start',
       justifyContent: 'flex-start'
@@ -158,8 +164,8 @@ export default class GossipScreen extends Component {
   _renderLightBoxImageContainerStyle = (photo) => {
     return {
       aspectRatio: photo.width / photo.height,
-      maxHeight: WINDOW_HEIGHT,
-      maxWidth: WINDOW_WIDTH
+      maxHeight: Dimensions.get('window').height,
+      maxWidth: Dimensions.get('window').width
     }
   };
 
@@ -198,7 +204,17 @@ export default class GossipScreen extends Component {
     const options = {
       title: 'Vælg et billede',
       mediaType: 'photo',
-      quality: 0
+      quality: 0.1,
+      noData: true,
+      storageOption: {
+        skipBackup: true
+      },
+      permissionDenied: {
+        reTryTitle: 'Prøv igen',
+        okTitle: 'Helt sikkert',
+        title: 'Tilladelse afvist',
+        text: 'For at kunne tage billeder med dit kamera og vælge billeder fra dit bibliotek.'
+      }
     };
     ImagePicker.showImagePicker(options, (response) => {
       if (!response.error && !response.didCancel) {
@@ -241,7 +257,7 @@ export default class GossipScreen extends Component {
     Database.getGossip(this.limit).then((snapshot) => {
       this.messages = snapshot;
       let renderMessages = this.renderMessages();
-      if(renderMessages.length > this.state.renderMessages.length) {
+      if (renderMessages.length > this.state.renderMessages.length) {
         this.messagesUpdated = true;
       }
       this.setState({
@@ -285,7 +301,7 @@ export default class GossipScreen extends Component {
           contentContainerStyle={styles.scrollContainer}
           ref={ref => this.scrollView = ref}
           onContentSizeChange={(contentWidth, contentHeight) => {
-            if(!this.messagesUpdated) {
+            if (!this.messagesUpdated) {
               this.scrollView.scrollToEnd({animated: true});
             } else {
               this.messagesUpdated = false;
@@ -357,6 +373,7 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     paddingRight: 10,
     paddingBottom: 5,
+    marginBottom: 5,
     justifyContent: 'flex-end'
   },
   rowContainer: {
@@ -380,7 +397,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: 5,
     paddingRight: 5,
-    paddingTop: 10,
+    paddingTop: 7,
     paddingBottom: 7
   },
   newMessageContainer: {
@@ -397,6 +414,7 @@ const styles = StyleSheet.create({
     padding: 5,
     borderRadius: 10,
     marginLeft: 5,
+    maxWidth: Platform.OS === 'ios' ? '100%' : '90%',
     marginRight: 5,
     fontSize: 16,
     marginBottom: 2,
