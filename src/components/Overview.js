@@ -187,7 +187,7 @@ export default class OverviewScreen extends Component {
           text: 'Fortryd', onPress: () => {
           }
         },
-        {text: 'Skift', onPress: this.updatePartmode},
+        {text: 'Skift', onPress: this.updatePartyMode},
       ],
       {cancelable: false}
     );
@@ -213,7 +213,7 @@ export default class OverviewScreen extends Component {
     Database.updateEvent('beerpong', beerpong);
   };
 
-  updatePartmode = () => {
+  updatePartyMode = () => {
     let partymode = this.state.events.partymode;
     this._togglePartyLights();
     Database.updateEvent('partymode',partymode.length > 0 ? '' : this.localUser.name);
@@ -273,7 +273,7 @@ export default class OverviewScreen extends Component {
           </TouchableOpacity>
           <TouchableOpacity
             style={this.columnContainerStyle(this.state.events.partymode.length > 0 )}
-            onPress={this.updatePartmode}>
+            onPress={this.updatePartyMode}>
             <Text style={styles.text}>PARTY MODE</Text>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/party_mode.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
