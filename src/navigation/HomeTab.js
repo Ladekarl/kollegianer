@@ -2,10 +2,10 @@ import React from 'react';
 import {StyleSheet} from 'react-native';
 import {TabNavigator} from 'react-navigation';
 import ViManglerScreen from '../components/ViMangler';
-import DutiesScreen from '../components/Duties';
 import OverviewScreen from '../components/Overview';
 import colors from '../shared/colors';
 import GossipScreen from '../components/Gossip';
+import AccountingScreen from '../components/Accounting';
 
 export default HomeTab = TabNavigator({
   Home: {
@@ -14,8 +14,8 @@ export default HomeTab = TabNavigator({
   ViMangler: {
     screen: ViManglerScreen
   },
-  Duties: {
-    screen: DutiesScreen
+  Regnskab: {
+    screen: AccountingScreen
   },
   Gossip: {
     screen: GossipScreen

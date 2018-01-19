@@ -67,6 +67,34 @@ exports.sendUserUpdatedNotification = functions.database.ref('/user/{userUid}').
   });
 });
 
+exports.sendGossipMessageNotification = functions.database.ref('/gossip/{gossipUid}').onWrite(event => {
+  const gossipUid = event.params.gossipUid;
+  const gossip = event.data.val();
+  const uid = event.auth.variable ? event.auth.variable.uid : '';
+  let notificationTokens = [];
+
+  // Notification details.
+  const messageUpdated = {
+    notification: {
+      title: 'Ny besked i Gossip',
+      body: `${committingUser.room} gav dig køkkenugen`,
+      click_action: 'fcm.KITCHEN_WEEK'
+    }
+  };
+
+  return admin.messaging().sendToDevice(notificationTokens, user.kitchenweek ? kitchenWeekUpdated : sheriffUpdated)
+    .then(response => {
+      // For each message check if there was an error.
+      response.results.forEach((result, index) => {
+        const error = result.error;
+        if (error) {
+          console.error('Failure sending notification to', notificationTokens[index], error);
+          // Should remove the failed tokens and return them.
+        }
+      });
+      return Promise
+});
+
 exports.sendViManglerNotification = functions.database.ref('/vimangler/{viManglerUid}').onWrite(event => {
   const viManglerUid = event.params.viManglerUid;
   const viMangler = event.data.val();

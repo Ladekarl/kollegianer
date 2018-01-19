@@ -3,12 +3,18 @@ import {DrawerNavigator} from 'react-navigation';
 import LogoutScreen from '../components/Logout';
 import HomeScreen from '../containers/Home';
 import colors from '../shared/colors';
+import DutiesScreen from '../components/Duties';
 
 export default Drawer = DrawerNavigator({
   Home: {
     screen: HomeScreen
   },
-  Logout: {screen: LogoutScreen}
+  Duties: {
+    screen: DutiesScreen
+  },
+  Logout: {
+    screen: LogoutScreen
+  }
 }, {
   contentOptions: {
     activeBackgroundColor: colors.modalBackgroundColor,
