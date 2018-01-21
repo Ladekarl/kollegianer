@@ -12,14 +12,14 @@ exports.sendGossipMessageNotification = notifyOn('/gossip/{gossipUid}').onWrite(
   const newGossip = getValue(event);
   let message = newGossip.message;
 
-  if (message.length > 25) {
-    message = message.slice(0, 25) + '...'
+  if (message.length > 50) {
+    message = message.slice(0, 50) + ' ...';
   } else if (message.photo) {
     message = 'Nogen har posted et billede!';
   }
 
-  return publishNotification(event, (usersSnapshots) =>
-      getNotificationTokens(usersSnapshots, () => true),
+  return publishNotification(event, (usersSnapshots, committingUid) =>
+      getNotificationTokens(usersSnapshots, (userId) => committingUid !== userId),
     () =>
       buildNotification('Gossip!', message, 'fcm.GOSSIP')
   );

@@ -16,9 +16,9 @@ exports.sendViManglerNotification = notifyOn('/vimangler/{viManglerUid}').onWrit
     return console.log(viManglerUid, ' was deleted');
   }
 
-  return publishNotification(event, (usersSnapshots) =>
+  return publishNotification(event, (usersSnapshots, committingUid) =>
     getNotificationTokens(usersSnapshots,
-      (userId, user) => user.duty === 'Indkøber' && user.notificationToken
+      (userId, user) => user.duty === 'Indkøber' && user.notificationToken && userId !== committingUid
     ), (committingUser) => {
     const viManglerAdded = buildNotification('Der blev tilføjet en ting til Vi Mangler', `${viMangler.item} blev tilføjet af ${committingUser.room}`, 'fcm.VI_MANGLER');
     const viManglerChecked = buildNotification('Der blev købt en ting på Vi Mangler', `${viMangler.item} blev købt af ${committingUser.room}`, 'fcm.VI_MANGLER');

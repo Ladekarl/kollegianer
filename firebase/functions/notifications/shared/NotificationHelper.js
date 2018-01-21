@@ -69,7 +69,7 @@ const publishNotification = (event, notificationTokenFn, notificationFn) => {
   return readDatabase(`/user/`).then(results => {
     const usersSnapshots = results[0];
     let committingUser = findUser(committingUid, usersSnapshots);
-    let notificationTokens = notificationTokenFn(usersSnapshots);
+    let notificationTokens = notificationTokenFn(usersSnapshots, committingUid);
 
     if (notificationTokens.length === 0) {
       return console.log('There are no notification tokens to send to.');
