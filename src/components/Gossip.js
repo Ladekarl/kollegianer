@@ -1,17 +1,17 @@
 import React, {Component} from 'react';
 
 import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
+  ActivityIndicator,
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   RefreshControl,
   ScrollView,
-  KeyboardAvoidingView,
+  StyleSheet,
   Text,
-  ActivityIndicator,
-  Keyboard,
-  Platform,
-  Dimensions
+  TouchableOpacity,
+  View
 } from 'react-native';
 import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
@@ -21,9 +21,6 @@ import ImagePicker from 'react-native-image-picker';
 import Guid from '../shared/Guid';
 import FitImage from 'react-native-fit-image';
 import Lightbox from 'react-native-lightbox';
-
-const WINDOW_WIDTH = Dimensions.get('window').width;
-const WINDOW_HEIGHT = Dimensions.get('window').height;
 
 export default class GossipScreen extends Component {
 
