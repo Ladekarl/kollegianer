@@ -256,12 +256,6 @@ export default class OverviewScreen extends Component {
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/sheriff.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
           </View>
-          <TouchableOpacity style={styles.columnContainer}
-                            onPress={() => this.setMvpModalVisible(true)
-                            }>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
-          </TouchableOpacity>
         </View>
         <View style={styles.rowContainer}>
           <TouchableOpacity
@@ -288,15 +282,17 @@ export default class OverviewScreen extends Component {
           </TouchableOpacity>
         </View>
         <View style={styles.rowContainer}>
-          <TouchableOpacity style={styles.columnContainer}>
-            <Text style={styles.text}>Ølregnskab</Text>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/olregnskab.png')}/>
-          </TouchableOpacity>
           <TouchableOpacity
             style={styles.columnContainer}
             onPress={() => this.setShotsModalVisible(true)}>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.columnContainer}
+                            onPress={() => this.setMvpModalVisible(true)
+                            }>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
           </TouchableOpacity>
         </View>
         <ModalScreen
