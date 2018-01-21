@@ -14,7 +14,7 @@ exports.sendGossipMessageNotification = notifyOn('/gossip/{gossipUid}').onWrite(
 
   if (message.length > 50) {
     message = message.slice(0, 50) + ' ...';
-  } else if (message.photo) {
+  } else if (newGossip.photo) {
     message = 'Nogen har posted et billede!';
   }
 
