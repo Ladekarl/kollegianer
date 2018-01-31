@@ -2,28 +2,23 @@ import React, {Component} from 'react';
 import firebase from 'firebase';
 import {
   FIREBASE_API_KEY,
-  FIREBASE_DOMAIN,
   FIREBASE_DATABASE_URL,
+  FIREBASE_DOMAIN,
+  FIREBASE_MESSAGE_SENDER_ID,
   FIREBASE_PROJECT_ID,
-  FIREBASE_STORAGE_BUCKET,
-  FIREBASE_MESSAGE_SENDER_ID
+  FIREBASE_STORAGE_BUCKET
 } from 'react-native-dotenv';
-import {
-  Platform,
-  Alert,
-  View,
-  StyleSheet,
-  AppState
-} from 'react-native';
+import {Alert, AppState, Platform, StyleSheet, View} from 'react-native';
 import Stack from './navigation/Stack';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
-import {NavigationActions} from 'react-navigation'
+import {NavigationActions} from 'react-navigation';
+import colors from './shared/colors';
 import FCM, {
   FCMEvent,
+  NotificationType,
   RemoteNotificationResult,
-  WillPresentNotificationResult,
-  NotificationType
+  WillPresentNotificationResult
 } from 'react-native-fcm';
 
 let initialNotification;
@@ -56,7 +51,13 @@ FCM.on(FCMEvent.RefreshToken, (token) => {
   const user = firebase.auth().currentUser;
   LocalStorage.setFcmToken(token);
   if (user && token) {
-    Database.updateNotificationToken(user.uid);
+    Database.getNotificationTokens(user.uid).then(snapshot => {
+      let tokens = snapshot.val();
+      if (tokens.indexOf(token) === -1) {
+        tokens.push(token);
+        Database.updateNotificationTokens(user.uid, tokens);
+      }
+    });
   }
 });
 
@@ -153,6 +154,6 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundColor,
   }
 });

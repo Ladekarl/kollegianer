@@ -7,14 +7,37 @@ const sendNotification = (notificationTokens, payload) => {
   return admin.messaging().sendToDevice(notificationTokens, payload)
     .then(response => {
       // For each message check if there was an error.
+      let failedTokens = [];
       response.results.forEach((result, index) => {
         const error = result.error;
         if (error) {
           console.error('Failure sending notification to', notificationTokens[index], error);
-          // Should remove the failed tokens and return them.
+          failedTokens.push(notificationTokens[index]);
         }
       });
-      return Promise.all([]);
+      let removePromise = new Promise(resolve => {
+        let tokensToRemove = [];
+        if (failedTokens.length > 0) {
+          console.log('Removing failed notification tokens');
+          readDatabase(`/user/`).then(results => {
+            const userSnapshots = results[0];
+            userSnapshots.forEach(snapshot => {
+              let user = snapshot.val();
+              for (const token in failedTokens) {
+                const tokenIndex = user.notificationTokens.indexOf(token);
+                if (tokenIndex !== -1) {
+                  user.notificationTokens.splice(tokenIndex, 1);
+                }
+              }
+              tokensToRemove.push(snapshot.set(user));
+            });
+            Promise.all(tokensToRemove).then(() => {
+              resolve();
+            });
+          });
+        }
+      });
+      return Promise.all([removePromise]);
     });
 };
 
@@ -26,12 +49,12 @@ const findUser = (uid, userSnapshots) => {
   });
 };
 
-const getNotificationTokens = (userSnapshots, condition) => {
+const getNotificationTokens = (userSnapshots, conditionFn) => {
   let notificationTokens = [];
   userSnapshots.forEach(snapshot => {
     const user = snapshot.val();
-    if (condition(snapshot.key, user) && user.notificationToken) {
-      notificationTokens.push(user.notificationToken);
+    if (conditionFn(snapshot.key, user) && user.notificationTokens) {
+      notificationTokens.concat(user.notificationTokens);
     }
   });
   return notificationTokens;

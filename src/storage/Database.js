@@ -17,8 +17,12 @@ export default class Database {
     return firebase.database().ref('/user/' + key).update(user);
   }
 
-  static async updateNotificationToken(key, value) {
-    return firebase.database().ref('/user/' + key + 'notificationToken').update(value);
+  static async getNotificationTokens(key) {
+    return firebase.database().ref('/user/' + key + 'notificationTokens').once('value');
+  }
+
+  static async updateNotificationTokens(key, value) {
+    return firebase.database().ref('/user/' + key + 'notificationTokens').update(value);
   }
 
   static async getUsers() {
@@ -28,9 +32,7 @@ export default class Database {
 
   static async listenUsers(callback) {
     let userPath = '/user/';
-    return firebase.database().ref(userPath).orderByChild('room').on('value', (snapshot) => {
-      callback(snapshot);
-    });
+    return firebase.database().ref(userPath).orderByChild('room').on('value', callback);
   }
 
   static async unListenUsers() {
@@ -75,9 +77,7 @@ export default class Database {
   }
 
   static async listenGossip(limit, callback) {
-    return firebase.database().ref('/gossip/').limitToLast(limit).on('value', (snapshot) => {
-      callback(snapshot);
-    });
+    return firebase.database().ref('/gossip/').limitToLast(limit).on('value', callback);
   }
 
   static async unListenGossip() {
@@ -106,9 +106,7 @@ export default class Database {
 
   static async listenEvents(callback) {
     let eventsPath = '/events/';
-    return firebase.database().ref(eventsPath).on('value', (snapshot) => {
-      callback(snapshot);
-    });
+    return firebase.database().ref(eventsPath).on('value', callback);
   }
 
   static async unListenEvents() {
@@ -123,9 +121,9 @@ export default class Database {
   }
 
   static async addGossipImage(image, imageName) {
-    RNFetchBlob.config({ fileCache : true, appendExt : 'jpg' });
+    RNFetchBlob.config({fileCache: true, appendExt: 'jpg'});
     let rnfbURI = RNFetchBlob.wrap(image);
-    return Blob.build(rnfbURI, { type: 'image/jpg;' }).then((blob) => {
+    return Blob.build(rnfbURI, {type: 'image/jpg;'}).then((blob) => {
       return firebase.storage().ref('gossip').child(imageName).put(blob, {contentType: 'image/jpg'});
     });
   }

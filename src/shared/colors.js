@@ -12,6 +12,7 @@ export default new ThemeManager({
     greenColor: '#c9fdaf',
     modalBackgroundColor: '#FAFAD2',
     logoutIconColor: '#dd1d00',
-    logoutTextColor: '#dd513d'
+    logoutTextColor: '#dd513d',
+    errorColor: 'red'
   },
 });

@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import {
-  StyleSheet,
-  View,
-  Button,
-  TextInput,
-  Text,
-  Platform,
   ActivityIndicator,
+  Button,
+  Keyboard,
   KeyboardAvoidingView,
-  Keyboard
+  Platform,
+  StyleSheet,
+  Text,
+  TextInput,
+  View
 } from 'react-native';
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
@@ -67,7 +67,12 @@ export default class LoginScreen extends Component {
           }
           LocalStorage.getFcmToken().then(token => {
             if (token) {
-              dbUser.notificationToken = token;
+              if (!dbUser.notificationTokens) {
+                dbUser.notificationTokens = [];
+              }
+              if (dbUser.notificationTokens.indexOf(token) === -1) {
+                dbUser.notificationTokens.push(token);
+              }
               Database.updateUser(user.uid, dbUser);
             }
           }).finally(() => {
@@ -181,7 +186,7 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: colors.backgroundColor,
     paddingLeft: 20,
     paddingRight: 20
   },
@@ -242,6 +247,6 @@ const styles = StyleSheet.create({
   },
   errorText: {
     textAlign: 'center',
-    color: 'red'
+    color: colors.errorColor
   }
 });
