@@ -1,20 +1,11 @@
 import React, {Component} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  Alert,
-  TouchableOpacity
-} from 'react-native';
+import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import LocalStorage from "../storage/LocalStorage";
 import FitImage from 'react-native-fit-image';
-import {
-  DocumentPicker,
-  DocumentPickerUtil
-} from 'react-native-document-picker';
+import {DocumentPicker, DocumentPickerUtil} from 'react-native-document-picker';
 import * as Papa from 'papaparse';
 import * as RNFS from 'react-native-fs';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -23,7 +14,8 @@ export default class AccountingScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Regnskab',
-    tabBarIcon: ({tintColor}) => (<Icon name='credit-card' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (
+      <Icon name='credit-card' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
 
   constructor(props) {
@@ -40,6 +32,9 @@ export default class AccountingScreen extends Component {
         uid: ''
       }
     };
+  }
+
+  componentDidMount() {
     this._getUser();
   }
 
@@ -47,7 +42,6 @@ export default class AccountingScreen extends Component {
     LocalStorage.getUser().then(user => {
       Database.getUser(user.uid).then(snapshot => {
         this.setState({user: snapshot.val()});
-        this.forceUpdate();
       });
     });
   };
@@ -55,8 +49,8 @@ export default class AccountingScreen extends Component {
   _uploadFile = (isKithen) => {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
-    },(error,res) => {
-      if(!error && res.type === 'text/comma-separated-values') {
+    }, (error, res) => {
+      if (!error && res.type === 'text/comma-separated-values') {
         this._loadFile(res.uri).then(content => {
           this._parseCsv(content);
         });
@@ -74,7 +68,7 @@ export default class AccountingScreen extends Component {
     const inbox = split.pop();
     const realPath = `${RNFS.ExternalStorageDirectoryPath}/download/FKK1700_Ølregnskab_template1.csv`;
 
-    const { fs, fetch, wrap } = RNFetchBlob;
+    const {fs, fetch, wrap} = RNFetchBlob;
     let rnfbURI = wrap(url);
     fetch('GET', rnfbURI).then(result => {
       console.log(result);
@@ -116,8 +110,9 @@ export default class AccountingScreen extends Component {
     return (
       <View style={styles.container}>
         {this.state.user && this.state.user.duty === "Regnskab" &&
-          this.renderUploadButtons()
+        this.renderUploadButtons()
         }
+        <Text style={{fontSize: 25, marginTop: 50, alignSelf: 'center', alignItems: 'center', justifyContent: 'center'}}>Kommer snart!</Text>
       </View>
     )
   };

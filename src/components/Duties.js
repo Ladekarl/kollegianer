@@ -1,10 +1,5 @@
 import React, {Component} from 'react';
-import {
-  Text,
-  View,
-  ScrollView,
-  StyleSheet
-} from 'react-native';
+import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -24,6 +19,9 @@ export default class DutiesScreen extends Component {
     this.state = {
       renderUsers: []
     };
+  }
+
+  componentDidMount() {
     Database.getUsers().then(snapshot => {
       this.users = snapshot;
       this.setState({renderUsers: this.renderUsers()});

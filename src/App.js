@@ -8,7 +8,7 @@ import {
   FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET
 } from 'react-native-dotenv';
-import {Alert, AppState, Platform, StyleSheet, View} from 'react-native';
+import {Alert, Platform, StyleSheet, View} from 'react-native';
 import Stack from './navigation/Stack';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
@@ -20,15 +20,14 @@ import FCM, {
   RemoteNotificationResult,
   WillPresentNotificationResult
 } from 'react-native-fcm';
+import {navigateTo} from './containers/Home';
 
 let initialNotification;
-let openedFromTray = false;
 
 FCM.on(FCMEvent.Notification, async (notif) => {
   if (notif.local_notification) {
   }
   if (notif.opened_from_tray) {
-    openedFromTray = true;
     initialNotification = notif;
   }
 
@@ -63,10 +62,6 @@ FCM.on(FCMEvent.RefreshToken, (token) => {
 
 export default class App extends Component {
 
-  state = {
-    appState: AppState.currentState
-  };
-
   componentWillMount() {
     if (!firebase.apps.length) {
       firebase.initializeApp({
@@ -81,8 +76,6 @@ export default class App extends Component {
   }
 
   componentDidMount() {
-    AppState.addEventListener('change', this._handleAppStateChange);
-
     FCM.requestPermissions()
       .catch(() => Alert.alert('Tilladelse afvist',
         'Du afviste tilladelsen. Prøv lige igen.'));
@@ -93,59 +86,101 @@ export default class App extends Component {
       }
     });
 
-    if (openedFromTray) {
-      this._openedFromTray();
-    }
+    FCM.on(FCMEvent.Notification, async (notification) => {
+      this._navigateOnNotification(notification);
+      const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+      switch (action) {
+        case 'fcm.VI_MANGLER':
+          navigateTo('ViMangler');
+          break;
+        case 'fcm.GOSSIP':
+          navigateTo('Gossip');
+          break;
+      }
+    });
 
-    // Not always triggered. Only if Android killed background activity and boots up from notification click.
-    FCM.getInitialNotification().then(notif => {
-      initialNotification = notif;
-      this._openedFromTray();
+    this.getInitialNotification().then(notification => {
+      this._navigateOnNotification(notification);
     });
   }
 
-  componentWillUnmount() {
-    AppState.removeEventListener('change', this._handleAppStateChange);
-  }
-
-  _handleAppStateChange = (nextAppState) => {
-    // Check if app was opened by clicking notification
-    if (this.state.appState.match(/inactive|background/)
-      && nextAppState === 'active'
-      && openedFromTray) {
-      this._openedFromTray();
-    }
-    this.setState({appState: nextAppState});
-  };
-
-  _openedFromTray() {
-    openedFromTray = false;
-    this._navigateOnInitialNotification(initialNotification);
-  };
-
-  _navigateOnInitialNotification(notification) {
-    const user = firebase.auth().currentUser;
-    if (!user || (Platform.OS === 'ios' && !notification.apns)) {
+  _navigateOnNotification(notification) {
+    if (Platform.OS === 'ios' && !notification.apns) {
       return;
     }
     const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
     switch (action) {
       // Switch on current_action from FCM payload
-      case 'fcm.VI_MANGLER': {
-        const navigateAction = NavigationActions.navigate({
-          routeName: 'Home',
+      case 'fcm.VI_MANGLER':
+        this.navigator.dispatch(NavigationActions.navigate({
+          routeName: 'Drawer',
           // Nested navigation param
-          action: NavigationActions.navigate({routeName: 'ViMangler'})
-        });
-        this.props.navigation.dispatch(navigateAction);
-      }
+          action: NavigationActions.navigate({
+            routeName: 'Home',
+            params: {
+              action: 'ViMangler'
+            }
+          })
+        }));
+        break;
+      case 'fcm.GOSSIP':
+        this.navigator.dispatch(NavigationActions.navigate({
+          routeName: 'Drawer',
+          // Nested navigation param
+          action: NavigationActions.navigate({
+            routeName: 'Home',
+            params: {
+              action: 'Gossip'
+            }
+          })
+        }));
+        break;
     }
   }
+
+  setRef = (navigator) => {
+    this.navigator = navigator;
+  };
+
+  getInitialNotification = () => {
+    return new Promise((resolve, reject) => {
+      if (initialNotification) {
+        const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+        if (this.supportedNotifications.indexOf(action) !== -1) {
+          resolve(initialNotification);
+        } else {
+          reject();
+        }
+      } else {
+        FCM.getInitialNotification().then(notification => {
+          if (notification) {
+            const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+            if (this.supportedNotifications.indexOf(action) !== -1) {
+              resolve(notification);
+            } else {
+              reject();
+            }
+          } else {
+            reject();
+          }
+        }).catch(() => reject());
+      }
+    });
+  };
+
+  supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP'];
+
+  setInitialNotification = (notification) => {
+    initialNotification = notification;
+  };
 
   render() {
     return (
       <View style={styles.container}>
-        <Stack/>
+        <Stack ref={this.setRef} screenProps={{
+          getInitialNotification: () => this.getInitialNotification(),
+          setInitialNotification: (notification) => this.setInitialNotification(notification)
+        }}/>
       </View>
     );
   }

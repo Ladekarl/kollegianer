@@ -104,7 +104,7 @@ export default class LoginScreen extends Component {
   _navigateAndReset = () => {
     const resetAction = NavigationActions.reset({
       index: 0,
-      actions: [NavigationActions.navigate({routeName: 'Home'})],
+      actions: [NavigationActions.navigate({routeName: 'Drawer'})],
     });
     this.props.navigation.dispatch(resetAction);
   };

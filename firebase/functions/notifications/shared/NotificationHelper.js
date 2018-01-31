@@ -4,7 +4,7 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 const sendNotification = (notificationTokens, payload) => {
-  return admin.messaging().sendToDevice(notificationTokens, payload)
+  return admin.messaging().sendToDevice(notificationTokens, payload, {priority: 'high'})
     .then(response => {
       // For each message check if there was an error.
       let failedTokens = [];
@@ -66,10 +66,14 @@ const getNotificationTokens = (userSnapshots, conditionFn) => {
 
 const buildNotification = (title, body, clickAction) => {
   return {
-    notification: {
-      title: title,
-      body: body,
-      click_action: clickAction
+    data: {
+      custom_notification: JSON.stringify({
+        title: title,
+        body: body,
+        priority: "high",
+        click_action: clickAction,
+        show_in_foreground: true
+      })
     }
   };
 };

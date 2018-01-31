@@ -3,20 +3,20 @@ import {StackNavigator} from 'react-navigation'
 import LoginScreen from '../components/Login';
 import Drawer from './Drawer';
 
-import {
-  TouchableOpacity,
-  View,
-  StyleSheet
-} from 'react-native';
+import {TouchableOpacity, View} from 'react-native';
 import SettingsScreen from '../components/Settings';
 import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
+import SplashScreen from '../components/SplashScreen';
 
 export default Stack = StackNavigator({
-  Login: {
-    screen: LoginScreen,
+  SplashScreen: {
+    screen: SplashScreen
   },
-  Home: {
+  Login: {
+    screen: LoginScreen
+  },
+  Drawer: {
     screen: Drawer,
     navigationOptions: ({navigation}) => ({
       headerLeft:
@@ -39,7 +39,7 @@ export default Stack = StackNavigator({
   Settings: {
     screen: SettingsScreen,
   },
-  initialRouteName: {screen: LoginScreen},
+  initialRouteName: {screen: SplashScreen}
 }, {
   navigationOptions: {
     headerStyle: {

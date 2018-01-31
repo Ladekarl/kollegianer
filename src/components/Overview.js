@@ -1,13 +1,6 @@
 import React, {Component} from 'react';
 
-import {
-  View,
-  StyleSheet,
-  Picker,
-  Text,
-  TouchableOpacity,
-  Alert,
-} from 'react-native';
+import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -20,7 +13,8 @@ export default class OverviewScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Oversigt',
-    tabBarIcon: ({tintColor}) => (<Icon name='home' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (
+      <Icon name='home' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
 
   constructor(props) {
@@ -52,7 +46,7 @@ export default class OverviewScreen extends Component {
         if (user.sheriff) {
           sheriff = user.name;
         }
-        if (user.kitchenweek && user.sheriff) {
+        if (user.kitchenweek && user.sheriff && snap.key === this.localUser.uid) {
           this.showAssignSheriffAlert();
         }
       });
@@ -216,7 +210,7 @@ export default class OverviewScreen extends Component {
   updatePartyMode = () => {
     let partymode = this.state.events.partymode;
     this._togglePartyLights();
-    Database.updateEvent('partymode',partymode.length > 0 ? '' : this.localUser.name);
+    Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name);
   };
 
   updateFoxEvent = () => {
@@ -238,7 +232,7 @@ export default class OverviewScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-          <View style={styles.rowContainer}>
+        <View style={styles.rowContainer}>
           <View style={styles.headerContainer}>
             <Text style={styles.textHeader}>Velkommen til Køkken 1700 </Text>
             <FitImage
@@ -259,30 +253,6 @@ export default class OverviewScreen extends Component {
         </View>
         <View style={styles.rowContainer}>
           <TouchableOpacity
-            style={this.columnContainerStyle(this.state.events.beerpong)}
-            onPress={this.updateBeerPongEvent}>
-            <Text style={styles.text}>Beer pong på coxk</Text>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/beerpong.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={this.columnContainerStyle(this.state.events.partymode.length > 0 )}
-            onPress={this.updatePartyMode}>
-            <Text style={styles.text}>PARTY MODE</Text>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/party_mode.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            ref={component => this.foxButton = component}
-            style={this.columnContainerStyle(this.state.events.fox)}
-            onPress={this.updateFoxEvent}>
-            <Text style={styles.text}>Øl-ræven</Text>
-            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
-            <Text numberOfLines={2} style={styles.text}>{this.state.events.fox ? 'ofc på 1700' : 'Nope, dsværd'}</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={styles.rowContainer}>
-          <TouchableOpacity
             style={styles.columnContainer}
             onPress={() => this.setShotsModalVisible(true)}>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/keep_calm_and_shots.png')}/>
@@ -293,6 +263,31 @@ export default class OverviewScreen extends Component {
                             }>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={styles.rowContainer}>
+          <TouchableOpacity
+            style={this.columnContainerStyle(this.state.events.beerpong)}
+            onPress={this.updateBeerPongEvent}>
+            <Text style={styles.text}>Beer pong på coxk</Text>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/beerpong.png')}/>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={this.columnContainerStyle(this.state.events.partymode.length > 0)}
+            onPress={this.updatePartyMode}>
+            <Text style={styles.text}>PARTY MODE</Text>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/party_mode.png')}/>
+            <Text numberOfLines={2}
+                  style={styles.text}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            ref={component => this.foxButton = component}
+            style={this.columnContainerStyle(this.state.events.fox)}
+            onPress={this.updateFoxEvent}>
+            <Text style={styles.text}>Øl-ræven</Text>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
+            <Text numberOfLines={2} style={styles.text}>{this.state.events.fox ? 'ofc på 1700' : 'Nope, dsværd'}</Text>
           </TouchableOpacity>
         </View>
         <ModalScreen
