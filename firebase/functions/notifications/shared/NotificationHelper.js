@@ -54,7 +54,7 @@ const getNotificationTokens = (userSnapshots, conditionFn) => {
   userSnapshots.forEach(snapshot => {
     const user = snapshot.val();
     if (conditionFn(snapshot.key, user) && user.notificationTokens) {
-      notificationTokens.concat(user.notificationTokens);
+      notificationTokens = notificationTokens.concat(user.notificationTokens);
     }
   });
   return notificationTokens;
@@ -105,11 +105,11 @@ const publishNotification = (event, notificationTokenFn, notificationFn) => {
 };
 
 const notifyOnWrite = (path, fn) => {
-  return functions.database.ref(path).onWrite(fn);
+  return functions.database.ref(path).onWrite(event => fn(event));
 };
 
 const notifyOnUpdate = (path, fn) => {
-  return functions.database.ref(path).onUpdate(fn);
+  return functions.database.ref(path).onUpdate(event => fn(event));
 };
 
 module.exports = {

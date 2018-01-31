@@ -20,7 +20,7 @@ exports.sendUserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event =>
   return publishNotification(event, () => {
       let notificationTokens = [];
       if (user.notificationTokens && ((!previousUser.kitchenweek && user.kitchenweek) || (!previousUser.sheriff && user.sheriff))) {
-        notificationTokens.concat(user.notificationTokens);
+        notificationTokens = notificationTokens.concat(user.notificationTokens);
       }
       return notificationTokens;
     }, (committingUser) => {
