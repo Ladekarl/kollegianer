@@ -35,7 +35,7 @@ const removeNotificationTokens = (failedTokens) => {
               user.notificationTokens.splice(tokenIndex, 1);
             }
           });
-          tokensToRemove.push(snapshot.child('notificationTokens').set(user.notificationTokens));
+          tokensToRemove.push(snapshot.ref.set(user));
         });
         Promise.all(tokensToRemove).then(() => {
           resolve();
