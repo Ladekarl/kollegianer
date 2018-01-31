@@ -15,30 +15,34 @@ const sendNotification = (notificationTokens, payload) => {
           failedTokens.push(notificationTokens[index]);
         }
       });
-      let removePromise = new Promise(resolve => {
-        let tokensToRemove = [];
-        if (failedTokens.length > 0) {
-          console.log('Removing failed notification tokens');
-          readDatabase(`/user/`).then(results => {
-            const userSnapshots = results[0];
-            userSnapshots.forEach(snapshot => {
-              let user = snapshot.val();
-              for (const token in failedTokens) {
-                const tokenIndex = user.notificationTokens.indexOf(token);
-                if (tokenIndex !== -1) {
-                  user.notificationTokens.splice(tokenIndex, 1);
-                }
-              }
-              tokensToRemove.push(snapshot.set(user));
-            });
-            Promise.all(tokensToRemove).then(() => {
-              resolve();
-            });
-          });
-        }
-      });
-      return Promise.all([removePromise]);
+      return Promise.all([removeNotificationTokens(failedTokens)]);
     });
+};
+
+const removeNotificationTokens = (failedTokens) => {
+  return new Promise(resolve => {
+    let tokensToRemove = [];
+    if (failedTokens.length > 0) {
+      console.log('Removing failed notification tokens');
+      readDatabase(`/user/`).then(results => {
+        const userSnapshots = results[0];
+        userSnapshots.forEach(snapshot => {
+          let user = snapshot.val();
+          failedTokens.forEach(token => {
+            const tokenIndex = user.notificationTokens && user.notificationTokens.length > 0 ?
+              user.notificationTokens.indexOf(token) : -1;
+            if (tokenIndex !== -1) {
+              user.notificationTokens.splice(tokenIndex, 1);
+            }
+          });
+          tokensToRemove.push(snapshot.child('notificationTokens').set(user.notificationTokens));
+        });
+        Promise.all(tokensToRemove).then(() => {
+          resolve();
+        });
+      });
+    }
+  });
 };
 
 const findUser = (uid, userSnapshots) => {
@@ -113,14 +117,10 @@ const notifyOnUpdate = (path, fn) => {
 };
 
 module.exports = {
-  sendNotification,
-  findUser,
   getNotificationTokens,
   buildNotification,
   getPreviousValue,
   getValue,
-  getCommittingId,
-  readDatabase,
   publishNotification,
   notifyOnWrite,
   notifyOnUpdate
