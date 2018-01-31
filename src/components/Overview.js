@@ -20,7 +20,7 @@ export default class OverviewScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Oversigt',
-    tabBarIcon: ({tintColor}) => (<Icon name='home' style={{fontSize: 25, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (<Icon name='home' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
 
   constructor(props) {

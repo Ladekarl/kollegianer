@@ -26,7 +26,7 @@ export default class GossipScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Gossip',
-    tabBarIcon: ({tintColor}) => (<Icon name='heartbeat' style={{fontSize: 25, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (<Icon name='heartbeat' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
 
   constructor(props) {

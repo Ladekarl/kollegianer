@@ -23,7 +23,7 @@ export default class AccountingScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Regnskab',
-    tabBarIcon: ({tintColor}) => (<Icon name='credit-card' style={{fontSize: 25, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (<Icon name='credit-card' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
 
   constructor(props) {

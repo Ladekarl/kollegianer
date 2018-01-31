@@ -18,7 +18,7 @@ export default class ViManglerScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Vi Mangler',
-    tabBarIcon: ({tintColor}) => (<Icon name='shopping-cart' style={{fontSize: 25, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (<Icon name='shopping-cart' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
 
   constructor(props) {
