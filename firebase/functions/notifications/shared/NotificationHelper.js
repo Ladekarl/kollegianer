@@ -81,8 +81,12 @@ const publishNotification = (event, notificationTokenFn, notificationFn) => {
   });
 };
 
-const notifyOn = (path) => {
-  return functions.database.ref(path);
+const notifyOnWrite = (path, fn) => {
+  return functions.database.ref(path).onWrite(fn);
+};
+
+const notifyOnUpdate = (path, fn) => {
+  return functions.database.ref(path).onUpdate(fn);
 };
 
 module.exports = {
@@ -95,5 +99,6 @@ module.exports = {
   getCommittingId,
   readDatabase,
   publishNotification,
-  notifyOn
+  notifyOnWrite,
+  notifyOnUpdate
 };

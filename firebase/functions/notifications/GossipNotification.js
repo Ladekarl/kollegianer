@@ -4,16 +4,16 @@ const {
   buildNotification,
   getNotificationTokens,
   getValue,
-  notifyOn,
+  notifyOnWrite,
   publishNotification
 } = require('./shared/NotificationHelper');
 
-exports.sendGossipMessageNotification = notifyOn('/gossip/{gossipUid}').onWrite(event => {
+exports.sendGossipMessageNotification = notifyOnWrite('/gossip/{gossipUid}', (event) => {
   const newGossip = getValue(event);
   let message = newGossip.message;
 
   if (message.length > 50) {
-    message = message.slice(0, 50) + ' ...';
+    message = message.slice(0, 50) + '...';
   } else if (newGossip.photo) {
     message = 'Nogen har posted et billede!';
   }

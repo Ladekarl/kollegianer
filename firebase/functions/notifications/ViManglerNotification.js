@@ -4,11 +4,11 @@ const {
   buildNotification,
   getNotificationTokens,
   getValue,
-  notifyOn,
+  notifyOnWrite,
   publishNotification
 } = require('./shared/NotificationHelper');
 
-exports.sendViManglerNotification = notifyOn('/vimangler/{viManglerUid}').onWrite(event => {
+exports.sendViManglerNotification = notifyOnWrite('/vimangler/{viManglerUid}', event => {
   const viManglerUid = event.params.viManglerUid;
   const viMangler = getValue(event);
 
