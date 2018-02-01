@@ -109,7 +109,7 @@ export default class AccountingScreen extends Component {
   render() {
     return (
       <View style={styles.container}>
-        {this.state.user && this.state.user.duty === "Regnskab" &&
+        {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
         this.renderUploadButtons()
         }
         <Text style={{fontSize: 25, marginTop: 50, alignSelf: 'center', alignItems: 'center', justifyContent: 'center'}}>Kommer snart!</Text>
