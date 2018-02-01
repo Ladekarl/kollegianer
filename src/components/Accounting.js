@@ -196,7 +196,7 @@ export default class AccountingScreen extends Component {
                 sodas: csv[column][sodaIndex],
                 ciders: csv[column][ciderIndex],
                 cocios: csv[column][cocioIndex],
-                consumption: csv[column][cocioIndex],
+                consumption: csv[column][consumptionIndex],
                 dept: csv[column][deptIndex],
                 deposit: csv[column][depositIndex],
                 payed: csv[column][payedIndex],
