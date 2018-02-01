@@ -28,7 +28,36 @@ export default class AccountingScreen extends Component {
         kitchenweek: false,
         room: '',
         sheriff: false,
-        uid: ''
+        uid: '',
+        kitchenAccount: {
+          deadline: '',
+          regNr: '',
+          accountNr: '',
+          sharedExpense: '',
+          other: '',
+          bought: '',
+          dept: '',
+          payed: '',
+          deposit: '',
+          punishmentBasis: '',
+          punishment: '',
+          toPay: '',
+        },
+        beerAccount: {
+          deadline: '',
+          regNr: '',
+          accountNr: '',
+          beers: '',
+          sodas: '',
+          ciders: '',
+          cocios: '',
+          consumption: '',
+          dept: '',
+          deposit: '',
+          payed: '',
+          punishment: '',
+          toPay: '',
+        }
       }
     };
   }
@@ -39,7 +68,7 @@ export default class AccountingScreen extends Component {
 
   _getUser = () => {
     LocalStorage.getUser().then(user => {
-      Database.getUser(user.uid).then(snapshot => {
+      Database.listenUser(user.uid, snapshot => {
         this.setState({user: snapshot.val()});
       });
     });
@@ -62,7 +91,7 @@ export default class AccountingScreen extends Component {
       } else if (!error) {
         Alert.alert('Filen skal være af typen CSV UTF-8');
       } else {
-        Alert.alert(error)
+        Alert.alert(error);
       }
     });
   };
@@ -70,7 +99,8 @@ export default class AccountingScreen extends Component {
   _updateUsersFromCsv = (csv, isKitchen) => {
     let index1701, index1702, index1703, index1704, index1705, index1706, index1707, index1708, index1709, index1710,
       index1711, index1712, index1713, index1714, accountNr, regNr, roomIndex, beerIndex, sodaIndex, ciderIndex,
-      cocioIndex, consumptionIndex, deptIndex, depositIndex, payedIndex, punishmentIndex, toPayIndex;
+      cocioIndex, consumptionIndex, deptIndex, depositIndex, payedIndex, punishmentIndex, toPayIndex,
+      sharedExpenseIndex, otherIndex, boughtIndex, punishmentBasisIndex, deadline;
 
     for (let i = 0; i < csv.length; i++) {
       let row = csv[i];
@@ -112,6 +142,8 @@ export default class AccountingScreen extends Component {
           accountNr = row[j + 1];
         } else if (entity.indexOf('reg nr') !== -1) {
           regNr = row[j + 1];
+        } else if (entity.indexOf('deadline') !== -1) {
+          deadline = row[j + 2];
         }
 
         if (entity.indexOf('værelse') !== -1) {
@@ -119,21 +151,29 @@ export default class AccountingScreen extends Component {
         }
         if (row[0].toLowerCase().indexOf('værelse') === -1) {
           // Skip
-        } else if (entity === 'øl') {
+        } else if (entity === 'øl' && !beerIndex) {
           beerIndex = j;
-        } else if (entity === 'sodavand') {
-          sodaIndex = j;
+        } else if (entity === 'fælles udgift') {
+          sharedExpenseIndex = j;
+        } else if (entity === 'andet') {
+          otherIndex = j;
+        } else if (entity === 'indkøbt') {
+          boughtIndex = j;
+        } else if (entity === 'straf grundlag') {
+          punishmentBasisIndex = j;
         } else if (entity === 'somersby') {
           ciderIndex = j;
         } else if (entity === 'cocio') {
           cocioIndex = j;
+        } else if (entity === 'sodavand') {
+          sodaIndex = j;
         } else if (entity.indexOf('forbrug') !== -1) {
           consumptionIndex = j;
         } else if (entity.indexOf('gammel gæld') !== -1) {
           deptIndex = j;
         } else if (entity.indexOf('depositum') !== -1) {
           depositIndex = j;
-        } else if (entity.indexOf('indbetalt') !== -1) {
+        } else if (entity === 'indbetalt' || entity === 'betalt') {
           payedIndex = j;
         } else if (entity.indexOf('straf') !== -1 && !punishmentIndex) {
           punishmentIndex = j;
@@ -181,28 +221,28 @@ export default class AccountingScreen extends Component {
     if (!isKitchen && index1701 !== undefined && index1702 !== undefined && index1703 !== undefined && index1704 !== undefined && index1705 !== undefined && index1706 !== undefined && index1707 !== undefined
       && index1708 !== undefined && index1709 !== undefined && index1710 !== undefined && index1711 !== undefined && index1712 !== undefined && index1713 !== undefined && index1714 !== undefined && accountNr !== undefined
       && regNr !== undefined && roomIndex !== undefined && beerIndex && sodaIndex && ciderIndex && cocioIndex && consumptionIndex && deptIndex
-      && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined) {
+      && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined && deadline !== undefined) {
       // SAVE User data
       Database.getUsers().then(snapshot => {
         snapshot.forEach(snap => {
           let user = snap.val();
-          let column = getColumn(user);
+          const column = getColumn(user);
           if (column) {
-            user.accounting = {
-              beerAccount: {
-                regNr: regNr,
-                accountNr: accountNr,
-                beers: csv[column][beerIndex],
-                sodas: csv[column][sodaIndex],
-                ciders: csv[column][ciderIndex],
-                cocios: csv[column][cocioIndex],
-                consumption: csv[column][consumptionIndex],
-                dept: csv[column][deptIndex],
-                deposit: csv[column][depositIndex],
-                payed: csv[column][payedIndex],
-                punishment: csv[column][punishmentIndex],
-                toPay: csv[column][toPayIndex],
-              }
+            const row = csv[column];
+            user.beerAccount = {
+              deadline: deadline,
+              regNr: regNr,
+              accountNr: accountNr,
+              beers: row[beerIndex],
+              sodas: row[sodaIndex],
+              ciders: row[ciderIndex],
+              cocios: row[cocioIndex],
+              consumption: row[consumptionIndex],
+              dept: row[deptIndex],
+              deposit: row[depositIndex],
+              payed: row[payedIndex],
+              punishment: row[punishmentIndex],
+              toPay: row[toPayIndex],
             };
             Database.updateUser(snap.key, user);
           }
@@ -212,22 +252,27 @@ export default class AccountingScreen extends Component {
     // Køkkenregnskab check
     else if (isKitchen !== undefined && index1701 !== undefined && index1702 !== undefined && index1703 !== undefined && index1704 !== undefined && index1705 !== undefined && index1706 !== undefined && index1707 !== undefined
       && index1708 !== undefined && index1709 !== undefined && index1710 !== undefined && index1711 !== undefined && index1712 !== undefined && index1713 !== undefined && index1714 !== undefined && accountNr !== undefined && regNr !== undefined
-      && roomIndex !== undefined && deptIndex !== undefined && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined) {
+      && roomIndex !== undefined && deptIndex !== undefined && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined
+      && sharedExpenseIndex !== undefined && otherIndex !== undefined && boughtIndex !== undefined && punishmentBasisIndex !== undefined) {
       Database.getUsers().then(snapshot => {
         snapshot.forEach(snap => {
           let user = snap.val();
           let column = getColumn(user);
           if (column) {
-            user.accounting = {
-              kitchenAccount: {
-                regNr: regNr,
-                accountNr: accountNr,
-                dept: csv[column][deptIndex],
-                deposit: csv[column][depositIndex],
-                payed: csv[column][payedIndex],
-                punishment: csv[column][punishmentIndex],
-                toPay: csv[column][toPayIndex],
-              }
+            let row = csv[column];
+            user.kitchenAccount = {
+              deadline: deadline,
+              regNr: regNr,
+              accountNr: accountNr,
+              sharedExpense: row[sharedExpenseIndex],
+              other: row[otherIndex],
+              bought: row[boughtIndex],
+              dept: row[deptIndex],
+              payed: row[payedIndex],
+              deposit: row[depositIndex],
+              punishmentBasis: row[punishmentBasisIndex],
+              punishment: row[punishmentIndex],
+              toPay: row[toPayIndex],
             };
             Database.updateUser(snap.key, user);
           }
@@ -236,9 +281,10 @@ export default class AccountingScreen extends Component {
     }
     else {
       Alert.alert('Noget gik galt', 'Er du sikker på filen er i CSV UTF-8 format?\n' +
-        'Er du sikker på at du uploadede det rigtige regnskab?')
+        'Er du sikker på at du uploadede det rigtige regnskab?');
     }
   };
+
   _loadFile = (url) => {
     const {fs} = RNFetchBlob;
     return fs.readFile(url, 'utf8');
@@ -260,15 +306,15 @@ export default class AccountingScreen extends Component {
 
   renderUploadButtons = () => {
     return (
-      <View style={styles.rowContainer}>
+      <View style={styles.buttonRowContainer}>
         <TouchableOpacity
-          style={styles.columnContainer}
+          style={styles.buttonColumnContainer}
           onPress={() => this._uploadFile(true)}>
           <Text style={styles.uploadText}>Upload Køkkenregnskab</Text>
           <FitImage resizeMode='contain' style={styles.uploadImage} source={require('../../img/olregnskab.png')}/>
         </TouchableOpacity>
         <TouchableOpacity
-          style={styles.columnContainer}
+          style={styles.buttonColumnContainer}
           onPress={() => this._uploadFile(false)}>
           <Text style={styles.uploadText}>Upload Ølregnskab</Text>
           <FitImage resizeMode='contain' style={styles.uploadImage} source={require('../../img/olregnskab.png')}/>
@@ -281,11 +327,21 @@ export default class AccountingScreen extends Component {
     return (
       <View style={styles.container}>
         {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
-        this.renderUploadButtons()
-        }
-        <Text
-          style={{fontSize: 25, marginTop: 50, alignSelf: 'center', alignItems: 'center', justifyContent: 'center'}}>Kommer
-          snart!</Text>
+        this.renderUploadButtons()}
+        <View style={styles.rowContainer}>
+          <View style={styles.columnContainer}>
+            <Text>Ølregnskab</Text>
+            <Text>{'Du skylder ' + this.state.user.beerAccount.toPay}</Text>
+            <Text>{'Deadline ' + this.state.user.beerAccount.deadline}</Text>
+          </View>
+        </View>
+        <View style={styles.rowContainer}>
+          <View style={styles.columnContainer}>
+            <Text>Køkkenregnskab</Text>
+            <Text>{'Du skylder ' + this.state.user.kitchenAccount.toPay}</Text>
+            <Text>{'Deadline ' + this.state.user.kitchenAccount.deadline}</Text>
+          </View>
+        </View>
       </View>
     )
   };
@@ -302,6 +358,22 @@ const styles = StyleSheet.create({
     height: '20%'
   },
   columnContainer: {
+    borderColor: colors.overviewIconColor,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 2,
+    flex: 1,
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'center',
+    margin: 5,
+    padding: 5
+  },
+  buttonRowContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: '20%'
+  },
+  buttonColumnContainer: {
     borderColor: colors.overviewIconColor,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 2,

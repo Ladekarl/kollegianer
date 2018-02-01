@@ -17,6 +17,10 @@ export default class Database {
     return firebase.database().ref('/user/' + key).update(user);
   }
 
+  static async listenUser(key, callback) {
+    return firebase.database().ref('/user/' + key).on('value', callback);
+  }
+
   static async getNotificationTokens(key) {
     return firebase.database().ref('/user/' + key + 'notificationTokens').once('value');
   }
@@ -30,8 +34,7 @@ export default class Database {
   }
 
   static async listenUsers(callback) {
-    let userPath = '/user/';
-    return firebase.database().ref(userPath).orderByChild('room').on('value', callback);
+    return firebase.database().ref('/user/').orderByChild('room').on('value', callback);
   }
 
   static async unListenUsers() {
