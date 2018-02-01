@@ -26,8 +26,7 @@ export default class Database {
   }
 
   static async getUsers() {
-    let userPath = '/user/';
-    return firebase.database().ref(userPath).orderByChild('room').once('value');
+    return firebase.database().ref('/user/').orderByChild('room').once('value');
   }
 
   static async listenUsers(callback) {
