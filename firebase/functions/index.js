@@ -3,14 +3,17 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-const {sendUserUpdatedNotification} = require('./notifications/UserNotification');
-const {sendGossipMessageNotification} = require('./notifications/GossipNotification');
-const {sendViManglerNotification} = require('./notifications/ViManglerNotification');
+const {UserUpdatedNotification} = require('./notifications/UserNotification');
+const {GossipMessageNotification} = require('./notifications/GossipNotification');
+const {ViManglerNotification} = require('./notifications/ViManglerNotification');
+const {BeerAccountNotification, KitchenAccountNotification} = require('./notifications/AccountingNotification');
 
 admin.initializeApp(functions.config().firebase);
 
 module.exports = {
-  sendUserUpdatedNotification,
-  sendGossipMessageNotification,
-  sendViManglerNotification
+  UserUpdatedNotification,
+  GossipMessageNotification,
+  ViManglerNotification,
+  BeerAccountNotification,
+  KitchenAccountNotification
 };

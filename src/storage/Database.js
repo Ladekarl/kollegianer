@@ -130,4 +130,20 @@ export default class Database {
     });
   }
 
+  static async updateBeerAccount(data) {
+    let beerAccount = {
+      data: data,
+      updatedOn: new Date()
+    };
+    return firebase.database().ref('/accounting/beerAccount').update(beerAccount);
+  }
+
+  static async updateKitchenAccount(data) {
+    let kitchenAccount = {
+      data: data,
+      updatedOn: new Date()
+    };
+    return firebase.database().ref('/accounting/kitchenAccount').update(kitchenAccount);
+  }
+
 }

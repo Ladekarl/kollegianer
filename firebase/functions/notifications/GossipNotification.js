@@ -8,7 +8,7 @@ const {
   publishNotification
 } = require('./shared/NotificationHelper');
 
-exports.sendGossipMessageNotification = notifyOnWrite('/gossip/{gossipUid}', (event) => {
+exports.GossipMessageNotification = notifyOnWrite('/gossip/{gossipUid}', (event) => {
   const newGossip = getValue(event);
   let message = newGossip.message;
 

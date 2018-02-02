@@ -135,6 +135,18 @@ export default class App extends Component {
           })
         }));
         break;
+      case 'fcm.ACCOUNTING':
+        this.navigator.dispatch(NavigationActions.navigate({
+          routeName: 'Drawer',
+          // Nested navigation param
+          action: NavigationActions.navigate({
+            routeName: 'Home',
+            params: {
+              action: 'Regnskab'
+            }
+          })
+        }));
+        break;
     }
   }
 
@@ -168,7 +180,7 @@ export default class App extends Component {
     });
   };
 
-  supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP'];
+  supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
 
   setInitialNotification = (notification) => {
     initialNotification = notification;

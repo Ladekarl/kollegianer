@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -19,6 +19,7 @@ export default class AccountingScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       user: {
         name: '',
         birthday: '',
@@ -146,6 +147,7 @@ export default class AccountingScreen extends Component {
   };
 
   _uploadFile = (isKitchen) => {
+    this._isLoading(true);
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     }, (error, res) => {
@@ -154,16 +156,23 @@ export default class AccountingScreen extends Component {
           this._parseCsv(content).then(result => {
             this._updateUsersFromCsv(result.data, isKitchen);
           }).catch(() => {
+            this._isLoading(false);
             Alert.alert('Noget gik galt');
           });
         }).catch(() => {
+          this._isLoading(false);
           Alert.alert('Noget gik galt');
         });
       } else if (!error) {
+        this._isLoading(false);
         Alert.alert('Filen skal være af typen CSV UTF-8');
       }
     });
   };
+
+  _isLoading(loading) {
+    this.setState({loading: loading});
+  }
 
   _updateUsersFromCsv = (csv, isKitchen) => {
     let index1701, index1702, index1703, index1704, index1705, index1706, index1707, index1708, index1709, index1710,
@@ -286,12 +295,14 @@ export default class AccountingScreen extends Component {
       return column;
     };
 
+    let updatePromises = [];
     // Ølregnskab check
     if (!isKitchen && index1701 !== undefined && index1702 !== undefined && index1703 !== undefined && index1704 !== undefined && index1705 !== undefined && index1706 !== undefined && index1707 !== undefined
       && index1708 !== undefined && index1709 !== undefined && index1710 !== undefined && index1711 !== undefined && index1712 !== undefined && index1713 !== undefined && index1714 !== undefined && accountNr !== undefined
       && regNr !== undefined && roomIndex !== undefined && beerIndex && sodaIndex && ciderIndex && cocioIndex && consumptionIndex && deptIndex
       && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined && deadline !== undefined) {
       // SAVE User data
+
       this.usersSnapshot.forEach(snap => {
         let user = snap.val();
         const column = getColumn(user);
@@ -312,9 +323,10 @@ export default class AccountingScreen extends Component {
             punishment: row[punishmentIndex],
             toPay: row[toPayIndex],
           };
-          Database.updateUser(snap.key, user);
+          updatePromises.push(Database.updateUser(snap.key, user));
         }
       });
+      updatePromises.push(Database.updateBeerAccount(csv));
     }
     // Køkkenregnskab check
     else if (isKitchen !== undefined && index1701 !== undefined && index1702 !== undefined && index1703 !== undefined && index1704 !== undefined && index1705 !== undefined && index1706 !== undefined && index1707 !== undefined
@@ -340,13 +352,21 @@ export default class AccountingScreen extends Component {
             punishment: row[punishmentIndex],
             toPay: row[toPayIndex],
           };
-          Database.updateUser(snap.key, user);
+          updatePromises.push(Database.updateUser(snap.key, user));
         }
       });
+      updatePromises.push(Database.updateKitchenAccount(csv));
     }
     else {
       Alert.alert('Noget gik galt', 'Er du sikker på filen er i CSV UTF-8 format?\n' +
         'Er du sikker på at du uploadede det rigtige regnskab?');
+    }
+    if (updatePromises.length > 0) {
+      Promise.all(updatePromises).finally(() => {
+        this._isLoading(false);
+      })
+    } else {
+      this._isLoading(false);
     }
   };
 
@@ -491,6 +511,11 @@ export default class AccountingScreen extends Component {
             </View>
           </View>
         </View>
+        {this.state.loading &&
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size='large' color={colors.activeTabColor}/>
+        </View>
+        }
       </View>
     )
   };
@@ -621,5 +646,14 @@ const styles = StyleSheet.create({
     height: undefined,
     width: undefined,
     color: 'white'
+  },
+  loadingContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 });

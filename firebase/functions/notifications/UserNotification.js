@@ -8,7 +8,7 @@ const {
   publishNotification
 } = require('./shared/NotificationHelper');
 
-exports.sendUserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event => {
+exports.UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event => {
   const userUid = event.params.userUid;
   const user = getValue(event);
   const previousUser = getPreviousValue(event);

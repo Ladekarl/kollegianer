@@ -201,7 +201,7 @@ export default class GossipScreen extends Component {
     const options = {
       title: 'Vælg et billede',
       mediaType: 'photo',
-      quality: 0.1,
+      quality: 0.3,
       noData: true,
       storageOption: {
         skipBackup: true
