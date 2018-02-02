@@ -1,16 +1,5 @@
 import React, {Component} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Switch,
-  Button,
-  Picker,
-  TouchableOpacity,
-  Alert,
-  ScrollView,
-  Modal
-} from 'react-native';
+import {Alert, Button, Picker, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from "../shared/colors";
@@ -49,25 +38,12 @@ export default class SettingsScreen extends Component {
       kitchenWeekModalVisible: false,
       sheriffModalVisible: false
     };
-    this._getUser();
-    this._getDuties();
     this.auth = firebase.auth();
   }
 
   componentDidMount() {
-    Database.listenUsers(snapshot => {
-      this.users = snapshot;
-      snapshot.forEach(snap => {
-        const user = snap.val();
-        if (user.sheriff) {
-          this.currentSheriff = snap;
-        }
-        if (user.kitchenweek) {
-          this.currentKitchenWeek = snap;
-        }
-      });
-      this._renderUserPickerItems(snapshot);
-    });
+    this._getUser();
+    this._getDuties();
   }
 
   componentWillUnmount() {
@@ -167,6 +143,19 @@ export default class SettingsScreen extends Component {
       Database.getUser(user.uid).then(snapshot => {
         this.setState({user: snapshot.val()});
         this.forceUpdate();
+      });
+      Database.listenUsers(snapshot => {
+        this.users = snapshot;
+        snapshot.forEach(snap => {
+          const user = snap.val();
+          if (user.sheriff) {
+            this.currentSheriff = snap;
+          }
+          if (user.kitchenweek) {
+            this.currentKitchenWeek = snap;
+          }
+        });
+        this._renderUserPickerItems(snapshot);
       });
     });
   };

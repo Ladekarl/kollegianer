@@ -7,6 +7,7 @@ export default new ThemeManager({
     blueColor: '#d8eafd',
     overviewIconColor: '#C5B358',
     activeTabColor: '#C5B358',
+    bottomAccountingBoxColor: '#dcd387',
     activeDrawerColor: '#c6a333',
     inactiveTabColor: '#414141',
     greenColor: '#c9fdaf',

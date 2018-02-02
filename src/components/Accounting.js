@@ -4,7 +4,6 @@ import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import LocalStorage from "../storage/LocalStorage";
-import FitImage from 'react-native-fit-image';
 import {DocumentPicker, DocumentPickerUtil} from 'react-native-document-picker';
 import * as Papa from 'papaparse';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -58,30 +57,102 @@ export default class AccountingScreen extends Component {
           punishment: '',
           toPay: '',
         }
-      }
+      },
     };
   }
+
+  usersSnapshot;
 
   componentDidMount() {
     this._getUser();
   }
 
   _getUser = () => {
-    LocalStorage.getUser().then(user => {
-      Database.listenUser(user.uid, snapshot => {
-        this.setState({user: snapshot.val()});
+    LocalStorage.getUser().then(localUser => {
+      Database.listenUsers(snapshot => {
+        this.usersSnapshot = snapshot;
+        let tiers = new Map();
+        tiers.set('beer', [undefined, undefined, undefined]);
+        tiers.set('soda', [undefined, undefined, undefined]);
+        tiers.set('total', [undefined, undefined, undefined]);
+        snapshot.forEach(snap => {
+          let user = snap.val();
+          if (!user.beerAccount) {
+            return;
+          }
+          tiers.forEach((item, key, mapObj) => {
+            for (let i = 0; i < item.length; i++) {
+              const takeSpot = (user, fromIndex) => {
+                if (fromIndex + 1 < item.length) {
+                  takeSpot(item[fromIndex], fromIndex + 1);
+                  item[fromIndex + 1] = item[fromIndex];
+                }
+                item[fromIndex] = user;
+              };
+
+              let userBeerAccount = user.beerAccount;
+              const userBeers = userBeerAccount.beers ? parseInt(userBeerAccount.beers) : 0;
+              const userSodas = userBeerAccount.sodas ? parseInt(userBeerAccount.sodas) : 0;
+              const userCiders = userBeerAccount.ciders ? parseInt(userBeerAccount.ciders) : 0;
+              user.beerAccount.beers = userBeers;
+              user.beerAccount.sodas = userSodas;
+              user.beerAccount.ciders = userCiders;
+
+              if (item[i]) {
+                let itemBeerAccount = item[i].beerAccount;
+                const topBeers = itemBeerAccount.beers ? parseInt(itemBeerAccount.beers) : 0;
+                const topSodas = itemBeerAccount.sodas ? parseInt(itemBeerAccount.sodas) : 0;
+                const topCiders = itemBeerAccount.ciders ? parseInt(itemBeerAccount.ciders) : 0;
+
+                if (key === 'beer') {
+                  if (topBeers < userBeers) {
+                    takeSpot(user, i);
+                    break;
+                  }
+                } else if (key === 'soda') {
+                  if (topSodas < userSodas) {
+                    takeSpot(user, i);
+                    break;
+                  }
+                } else if (key === 'total') {
+                  if (topBeers + topSodas + topCiders <
+                    userBeers + userSodas + userCiders) {
+                    takeSpot(user, i);
+                    break;
+                  }
+                }
+              }
+              else {
+                item[i] = user;
+                mapObj.set(key, item);
+                break;
+              }
+              mapObj.set(key, item);
+            }
+          });
+          if (snap.key === localUser.uid) {
+            if (!user.kitchenAccount) {
+              user.kitchenAccount = {
+                toPay: '',
+                deadline: ''
+              };
+            }
+            this.setState({user: user});
+          }
+        });
+        this.setState({tiers: tiers});
       });
     });
   };
 
-  _uploadFile = (isKithen) => {
+  _uploadFile = (isKitchen) => {
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     }, (error, res) => {
-      if (!error && res.type === 'text/comma-separated-values' || res.type === 'text/csv') {
+      if (!error && res && (res.type === 'text/comma-separated-values' || res.type === 'text/csv')) {
         this._loadFile(res.uri).then(content => {
           this._parseCsv(content).then(result => {
-            this._updateUsersFromCsv(result.data, isKithen);
+            this._updateUsersFromCsv(result.data, isKitchen);
           }).catch(() => {
             Alert.alert('Noget gik galt');
           });
@@ -90,8 +161,6 @@ export default class AccountingScreen extends Component {
         });
       } else if (!error) {
         Alert.alert('Filen skal være af typen CSV UTF-8');
-      } else {
-        Alert.alert(error);
       }
     });
   };
@@ -141,7 +210,7 @@ export default class AccountingScreen extends Component {
         if (entity.indexOf('konto nr') !== -1) {
           accountNr = row[j + 1];
         } else if (entity.indexOf('reg nr') !== -1) {
-          regNr = row[j + 1];
+          regNr = '0' + row[j + 1];
         } else if (entity.indexOf('deadline') !== -1) {
           deadline = row[j + 2];
         }
@@ -223,30 +292,28 @@ export default class AccountingScreen extends Component {
       && regNr !== undefined && roomIndex !== undefined && beerIndex && sodaIndex && ciderIndex && cocioIndex && consumptionIndex && deptIndex
       && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined && deadline !== undefined) {
       // SAVE User data
-      Database.getUsers().then(snapshot => {
-        snapshot.forEach(snap => {
-          let user = snap.val();
-          const column = getColumn(user);
-          if (column) {
-            const row = csv[column];
-            user.beerAccount = {
-              deadline: deadline,
-              regNr: regNr,
-              accountNr: accountNr,
-              beers: row[beerIndex],
-              sodas: row[sodaIndex],
-              ciders: row[ciderIndex],
-              cocios: row[cocioIndex],
-              consumption: row[consumptionIndex],
-              dept: row[deptIndex],
-              deposit: row[depositIndex],
-              payed: row[payedIndex],
-              punishment: row[punishmentIndex],
-              toPay: row[toPayIndex],
-            };
-            Database.updateUser(snap.key, user);
-          }
-        });
+      this.usersSnapshot.forEach(snap => {
+        let user = snap.val();
+        const column = getColumn(user);
+        if (column) {
+          const row = csv[column];
+          user.beerAccount = {
+            deadline: deadline,
+            regNr: regNr,
+            accountNr: accountNr,
+            beers: row[beerIndex],
+            sodas: row[sodaIndex],
+            ciders: row[ciderIndex],
+            cocios: row[cocioIndex],
+            consumption: row[consumptionIndex],
+            dept: row[deptIndex],
+            deposit: row[depositIndex],
+            payed: row[payedIndex],
+            punishment: row[punishmentIndex],
+            toPay: row[toPayIndex],
+          };
+          Database.updateUser(snap.key, user);
+        }
       });
     }
     // Køkkenregnskab check
@@ -254,29 +321,27 @@ export default class AccountingScreen extends Component {
       && index1708 !== undefined && index1709 !== undefined && index1710 !== undefined && index1711 !== undefined && index1712 !== undefined && index1713 !== undefined && index1714 !== undefined && accountNr !== undefined && regNr !== undefined
       && roomIndex !== undefined && deptIndex !== undefined && depositIndex !== undefined && payedIndex !== undefined && punishmentIndex !== undefined && toPayIndex !== undefined
       && sharedExpenseIndex !== undefined && otherIndex !== undefined && boughtIndex !== undefined && punishmentBasisIndex !== undefined) {
-      Database.getUsers().then(snapshot => {
-        snapshot.forEach(snap => {
-          let user = snap.val();
-          let column = getColumn(user);
-          if (column) {
-            let row = csv[column];
-            user.kitchenAccount = {
-              deadline: deadline,
-              regNr: regNr,
-              accountNr: accountNr,
-              sharedExpense: row[sharedExpenseIndex],
-              other: row[otherIndex],
-              bought: row[boughtIndex],
-              dept: row[deptIndex],
-              payed: row[payedIndex],
-              deposit: row[depositIndex],
-              punishmentBasis: row[punishmentBasisIndex],
-              punishment: row[punishmentIndex],
-              toPay: row[toPayIndex],
-            };
-            Database.updateUser(snap.key, user);
-          }
-        });
+      this.usersSnapshot.forEach(snap => {
+        let user = snap.val();
+        let column = getColumn(user);
+        if (column) {
+          let row = csv[column];
+          user.kitchenAccount = {
+            deadline: deadline,
+            regNr: regNr,
+            accountNr: accountNr,
+            sharedExpense: row[sharedExpenseIndex],
+            other: row[otherIndex],
+            bought: row[boughtIndex],
+            dept: row[deptIndex],
+            payed: row[payedIndex],
+            deposit: row[depositIndex],
+            punishmentBasis: row[punishmentBasisIndex],
+            punishment: row[punishmentIndex],
+            toPay: row[toPayIndex],
+          };
+          Database.updateUser(snap.key, user);
+        }
       });
     }
     else {
@@ -304,42 +369,126 @@ export default class AccountingScreen extends Component {
     });
   };
 
-  renderUploadButtons = () => {
-    return (
-      <View style={styles.buttonRowContainer}>
-        <TouchableOpacity
-          style={styles.buttonColumnContainer}
-          onPress={() => this._uploadFile(true)}>
-          <Text style={styles.uploadText}>Upload Køkkenregnskab</Text>
-          <FitImage resizeMode='contain' style={styles.uploadImage} source={require('../../img/olregnskab.png')}/>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.buttonColumnContainer}
-          onPress={() => this._uploadFile(false)}>
-          <Text style={styles.uploadText}>Upload Ølregnskab</Text>
-          <FitImage resizeMode='contain' style={styles.uploadImage} source={require('../../img/olregnskab.png')}/>
-        </TouchableOpacity>
-      </View>
-    )
-  };
-
   render() {
     return (
       <View style={styles.container}>
-        {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
-        this.renderUploadButtons()}
-        <View style={styles.rowContainer}>
-          <View style={styles.columnContainer}>
-            <Text>Ølregnskab</Text>
-            <Text>{'Du skylder ' + this.state.user.beerAccount.toPay}</Text>
-            <Text>{'Deadline ' + this.state.user.beerAccount.deadline}</Text>
+        <View style={styles.borderedInnerContainer}>
+          <View style={styles.innerTopContainer}>
+            <Text style={styles.innerTopText}>Ølregnskab</Text>
+            {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
+            <TouchableOpacity
+              style={styles.buttonContainer}
+              onPress={() => this._uploadFile(false)}>
+              <Icon name='cloud-upload' style={styles.uploadImage}/>
+            </TouchableOpacity>}
+          </View>
+          <View style={styles.rowContainer}>
+            <View style={styles.largeColumnContainer}>
+              <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
+              <Text style={styles.columnBigRedText}>{this.state.user.beerAccount.toPay}</Text>
+            </View>
+            <View style={styles.largeColumnContainer}>
+              <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
+              <Text style={styles.columnBigText}>{this.state.user.beerAccount.deadline}</Text>
+            </View>
+            <View style={styles.columnContainer}>
+              <View style={styles.innerRowContainer}>
+                <Text style={styles.columnHeadlineText}>{'Øl'}</Text>
+                <Text style={styles.innerRowText}>{this.state.user.beerAccount.beers}</Text>
+              </View>
+              <View style={styles.innerRowContainer}>
+                <Text style={styles.columnHeadlineText}>{'Sodavand'}</Text>
+                <Text style={styles.innerRowText}>{this.state.user.beerAccount.sodas}</Text>
+              </View>
+              <View style={styles.innerRowContainer}>
+                <Text style={styles.columnHeadlineText}>{'Cider'}</Text>
+                <Text style={styles.innerRowText}>{this.state.user.beerAccount.ciders}</Text>
+              </View>
+              <View style={styles.innerRowContainer}>
+                <Text style={styles.columnHeadlineText}>{'Straf'}</Text>
+                <Text style={styles.innerRowText}>{this.state.user.beerAccount.punishment}</Text>
+              </View>
+            </View>
+          </View>
+          <View style={styles.innerBottomContainer}>
+            <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
+            <Text style={styles.innerBottomText}>{this.state.user.beerAccount.regNr}</Text>
+            <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
+            <Text style={styles.innerBottomText}>{this.state.user.beerAccount.accountNr}</Text>
           </View>
         </View>
-        <View style={styles.rowContainer}>
-          <View style={styles.columnContainer}>
-            <Text>Køkkenregnskab</Text>
-            <Text>{'Du skylder ' + this.state.user.kitchenAccount.toPay}</Text>
-            <Text>{'Deadline ' + this.state.user.kitchenAccount.deadline}</Text>
+        <View style={styles.borderedInnerContainer}>
+          <View style={styles.innerTopContainer}>
+            <Text style={styles.innerTopText}>Køkkenregnskab</Text>
+            {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
+            <TouchableOpacity
+              style={styles.buttonContainer}
+              onPress={() => this._uploadFile(true)}>
+              <Icon name='cloud-upload' style={styles.uploadImage}/>
+            </TouchableOpacity>}
+          </View>
+          <View style={styles.rowContainer}>
+            <View style={styles.largeColumnContainer}>
+              <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
+              <Text style={styles.columnBigRedText}>{this.state.user.kitchenAccount.toPay}</Text>
+            </View>
+            <View style={styles.largeColumnContainer}>
+              <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
+              <Text style={styles.columnBigText}>{this.state.user.kitchenAccount.deadline}</Text>
+            </View>
+            <View style={styles.columnContainer}>
+              <Text style={styles.columnHeadlineText}>{'Straf'}</Text>
+              <Text style={styles.columnBigText}>{this.state.user.kitchenAccount.punishment}</Text>
+            </View>
+          </View>
+          <View style={styles.innerBottomContainer}>
+            <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
+            <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.regNr}</Text>
+            <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
+            <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.accountNr}</Text>
+          </View>
+        </View>
+        <View style={styles.innerContainer}>
+          <View style={styles.innerTopContainer}>
+            <Text style={styles.innerTopText}>Topscorere</Text>
+          </View>
+          <View style={styles.rowContainer}>
+            <View style={styles.borderedColumnContainer}>
+              <Text style={styles.columnHeadlineText}>Øl</Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('beer')[0].beerAccount.beers + ' ' + this.state.tiers.get('beer')[0].name}
+              </Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('beer')[1].beerAccount.beers + ' ' + this.state.tiers.get('beer')[1].name}
+              </Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('beer')[2].beerAccount.beers + ' ' + this.state.tiers.get('beer')[2].name}
+              </Text>
+            </View>
+            <View style={styles.borderedColumnContainer}>
+              <Text style={styles.columnHeadlineText}>Sodavand</Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('soda')[0].beerAccount.sodas + ' ' + this.state.tiers.get('soda')[0].name}
+              </Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('soda')[1].beerAccount.sodas + ' ' + this.state.tiers.get('soda')[1].name}
+              </Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('soda')[2].beerAccount.sodas + ' ' + this.state.tiers.get('soda')[2].name}
+              </Text>
+            </View>
+            <View style={styles.borderedColumnContainer}>
+              <Text style={styles.columnHeadlineText}>Total</Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('total')[0].beerAccount.sodas + this.state.tiers.get('total')[0].beerAccount.ciders
+                + this.state.tiers.get('total')[0].beerAccount.beers + ' ' + this.state.tiers.get('total')[0].name}</Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('total')[1].beerAccount.sodas + this.state.tiers.get('total')[1].beerAccount.ciders
+                + this.state.tiers.get('total')[1].beerAccount.beers + ' ' + this.state.tiers.get('total')[1].name}</Text>
+              <Text style={styles.columnText}>
+                {this.state.tiers && this.state.tiers.get('total')[2].beerAccount.sodas + this.state.tiers.get('total')[2].beerAccount.ciders
+                + this.state.tiers.get('total')[2].beerAccount.beers + ' ' + this.state.tiers.get('total')[2].name}</Text>
+            </View>
           </View>
         </View>
       </View>
@@ -349,49 +498,128 @@ export default class AccountingScreen extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flex: 3,
     backgroundColor: colors.backgroundColor,
   },
   rowContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    height: '20%'
+    justifyContent: 'center',
+    flex: 3
   },
-  columnContainer: {
+  innerRowContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingRight: 5,
+    alignItems: 'center',
+  },
+  innerContainer: {
+    flex: 3,
+    margin: 5
+  },
+  borderedInnerContainer: {
+    flex: 3,
+    borderColor: colors.overviewIconColor,
+    borderWidth: 1,
+    borderRadius: 2,
+    margin: 5
+  },
+  borderedColumnContainer: {
     borderColor: colors.overviewIconColor,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 2,
-    flex: 1,
+    flex: 3,
     justifyContent: 'space-between',
     flexDirection: 'column',
     alignItems: 'center',
     margin: 5,
     padding: 5
+  },
+  columnContainer: {
+    flex: 3,
+    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'stretch'
+  },
+  largeColumnContainer: {
+    flex: 4,
+    justifyContent: 'center',
+    flexDirection: 'column',
+    alignItems: 'center'
   },
   buttonRowContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    height: '20%'
-  },
-  buttonColumnContainer: {
-    borderColor: colors.overviewIconColor,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 2,
     flex: 1,
-    justifyContent: 'space-between',
-    flexDirection: 'column',
+  },
+  buttonContainer: {
+    justifyContent: 'center',
+    marginLeft: 10,
     alignItems: 'center',
-    margin: 5,
-    padding: 5
+  },
+  innerTopContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    padding: 2,
+    borderTopLeftRadius: 2,
+    borderTopRightRadius: 2,
+    backgroundColor: colors.overviewIconColor
+  },
+  innerBottomContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingTop: 2,
+    paddingBottom: 2,
+    paddingLeft: 10,
+    paddingRight: 10,
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
+    opacity: 0.8,
+    backgroundColor: colors.bottomAccountingBoxColor
+  },
+  innerTopText: {
+    fontWeight: 'bold',
+    fontSize: 16,
+    color: colors.backgroundColor
+  },
+  innerBottomText: {
+    marginLeft: 10,
+    marginRight: 10
   },
   uploadText: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: 'white'
+  },
+  columnHeadlineText: {
+    fontWeight: 'bold',
     textAlign: 'center'
   },
+  columnBigRedText: {
+    fontSize: 25,
+    color: colors.logoutTextColor,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  columnBigText: {
+    fontSize: 25,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  columnText: {
+    fontSize: 13,
+    alignSelf: 'flex-start',
+  },
+  innerRowText: {
+    alignSelf: 'center',
+    fontSize: 14
+  },
   uploadImage: {
-    flex: 1,
-    alignSelf: 'stretch',
+    fontSize: 20,
     height: undefined,
     width: undefined,
-    margin: 10
+    color: 'white'
   }
 });
