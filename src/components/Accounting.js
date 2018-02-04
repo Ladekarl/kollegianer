@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View, Platform} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -78,65 +78,64 @@ export default class AccountingScreen extends Component {
         tiers.set('total', [undefined, undefined, undefined]);
         snapshot.forEach(snap => {
           let user = snap.val();
-          if (!user.beerAccount) {
-            return;
-          }
-          tiers.forEach((item, key, mapObj) => {
-            for (let i = 0; i < item.length; i++) {
-              const takeSpot = (user, fromIndex) => {
-                if (fromIndex + 1 < item.length) {
-                  takeSpot(item[fromIndex], fromIndex + 1);
-                  item[fromIndex + 1] = item[fromIndex];
+          if (user.beerAccount) {
+            tiers.forEach((item, key, mapObj) => {
+              for (let i = 0; i < item.length; i++) {
+                const takeSpot = (user, fromIndex) => {
+                  if (fromIndex + 1 < item.length) {
+                    takeSpot(item[fromIndex], fromIndex + 1);
+                    item[fromIndex + 1] = item[fromIndex];
+                  }
+                  item[fromIndex] = user;
+                };
+
+                let userBeerAccount = user.beerAccount;
+                const userBeers = userBeerAccount.beers ? parseInt(userBeerAccount.beers) : 0;
+                const userSodas = userBeerAccount.sodas ? parseInt(userBeerAccount.sodas) : 0;
+                const userCiders = userBeerAccount.ciders ? parseInt(userBeerAccount.ciders) : 0;
+                user.beerAccount.beers = userBeers;
+                user.beerAccount.sodas = userSodas;
+                user.beerAccount.ciders = userCiders;
+
+                if (item[i]) {
+                  let itemBeerAccount = item[i].beerAccount;
+                  const topBeers = itemBeerAccount.beers ? parseInt(itemBeerAccount.beers) : 0;
+                  const topSodas = itemBeerAccount.sodas ? parseInt(itemBeerAccount.sodas) : 0;
+                  const topCiders = itemBeerAccount.ciders ? parseInt(itemBeerAccount.ciders) : 0;
+
+                  if (key === 'beer') {
+                    if (topBeers < userBeers) {
+                      takeSpot(user, i);
+                      break;
+                    }
+                  } else if (key === 'soda') {
+                    if (topSodas < userSodas) {
+                      takeSpot(user, i);
+                      break;
+                    }
+                  } else if (key === 'total') {
+                    if (topBeers + topSodas + topCiders <
+                      userBeers + userSodas + userCiders) {
+                      takeSpot(user, i);
+                      break;
+                    }
+                  }
                 }
-                item[fromIndex] = user;
-              };
-
-              let userBeerAccount = user.beerAccount;
-              const userBeers = userBeerAccount.beers ? parseInt(userBeerAccount.beers) : 0;
-              const userSodas = userBeerAccount.sodas ? parseInt(userBeerAccount.sodas) : 0;
-              const userCiders = userBeerAccount.ciders ? parseInt(userBeerAccount.ciders) : 0;
-              user.beerAccount.beers = userBeers;
-              user.beerAccount.sodas = userSodas;
-              user.beerAccount.ciders = userCiders;
-
-              if (item[i]) {
-                let itemBeerAccount = item[i].beerAccount;
-                const topBeers = itemBeerAccount.beers ? parseInt(itemBeerAccount.beers) : 0;
-                const topSodas = itemBeerAccount.sodas ? parseInt(itemBeerAccount.sodas) : 0;
-                const topCiders = itemBeerAccount.ciders ? parseInt(itemBeerAccount.ciders) : 0;
-
-                if (key === 'beer') {
-                  if (topBeers < userBeers) {
-                    takeSpot(user, i);
-                    break;
-                  }
-                } else if (key === 'soda') {
-                  if (topSodas < userSodas) {
-                    takeSpot(user, i);
-                    break;
-                  }
-                } else if (key === 'total') {
-                  if (topBeers + topSodas + topCiders <
-                    userBeers + userSodas + userCiders) {
-                    takeSpot(user, i);
-                    break;
-                  }
+                else {
+                  item[i] = user;
+                  mapObj.set(key, item);
+                  break;
                 }
-              }
-              else {
-                item[i] = user;
                 mapObj.set(key, item);
-                break;
               }
-              mapObj.set(key, item);
-            }
-          });
+            });
+          }
           if (snap.key === localUser.uid) {
             if (!user.kitchenAccount) {
-              user.kitchenAccount = {
-                toPay: '',
-                deadline: ''
-              };
+              user.kitchenAccount = this.state.user.kitchenAccount;
+            }
+            if(!user.beerAccount) {
+              user.beerAccount = this.state.user.beerAccount;
             }
             this.setState({user: user});
           }
@@ -147,20 +146,25 @@ export default class AccountingScreen extends Component {
   };
 
   _uploadFile = (isKitchen) => {
-    this._isLoading(true);
     DocumentPicker.show({
       filetype: [DocumentPickerUtil.allFiles()],
     }, (error, res) => {
-      if (!error && res && (res.type === 'text/comma-separated-values' || res.type === 'text/csv')) {
-        this._loadFile(res.uri).then(content => {
+      this._isLoading(true);
+      const correctFileType = res && res.type && (res.type === 'text/comma-separated-values' || res.type === 'text/csv');
+      const correctFileExtension = res && !res.type && res.fileName && res.fileName.split('.').pop() === 'csv';
+      if (!error && (correctFileType || correctFileExtension)) {
+        let filePath = Platform.OS === 'ios' ? decodeURI(res.uri.replace('file://', '')) : res.uri;
+        this._loadFile(filePath).then(content => {
           this._parseCsv(content).then(result => {
             this._updateUsersFromCsv(result.data, isKitchen);
-          }).catch(() => {
+          }).catch((error) => {
             this._isLoading(false);
+            console.log(error);
             Alert.alert('Noget gik galt');
           });
-        }).catch(() => {
+        }).catch((error) => {
           this._isLoading(false);
+          console.log(error);
           Alert.alert('Noget gik galt');
         });
       } else if (!error) {
