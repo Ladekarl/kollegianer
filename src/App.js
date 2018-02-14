@@ -8,7 +8,7 @@ import {
   FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET
 } from 'react-native-dotenv';
-import {Alert, Platform, StyleSheet, View} from 'react-native';
+import {Alert, Platform, StyleSheet, Text, View} from 'react-native';
 import Stack from './navigation/Stack';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
@@ -61,6 +61,11 @@ FCM.on(FCMEvent.RefreshToken, (token) => {
 });
 
 export default class App extends Component {
+
+  constructor(props) {
+    super(props);
+    Text.defaultProps.style = {fontFamily: 'Roboto'};
+  }
 
   componentWillMount() {
     if (!firebase.apps.length) {
