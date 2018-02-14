@@ -52,9 +52,8 @@ export default class OverviewScreen extends Component {
           const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
           if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
             if (nextBirthdayDate
-              && nextBirthdayDate.getDay() === userBirthday.getDay()
               && nextBirthdayDate.getMonth() === userBirthday.getMonth()
-              && nextBirthdayDate.getDay() === userBirthday.getDay()) {
+              && nextBirthdayDate.getDate() === userBirthday.getDate()) {
               nextBirthdayUsers.push(user);
             } else {
               nextBirthdayUsers = [user];
@@ -90,10 +89,10 @@ export default class OverviewScreen extends Component {
     b1Copy.setFullYear(today.getFullYear());
     b2Copy.setFullYear(today.getFullYear());
 
-    if (b1.getMonth() < today.getMonth() || (b1.getMonth() === today.getMonth() && b1.getDay() < today.getDay())) {
+    if (b1.getMonth() < today.getMonth() || (b1.getMonth() === today.getMonth() && b1.getDate() < today.getDate())) {
       b1Copy.setFullYear(today.getFullYear() - 1);
     }
-    if (b2.getMonth() < today.getMonth() || (b2.getMonth() === today.getMonth() && b2.getDay() < today.getDay())) {
+    if (b2.getMonth() < today.getMonth() || (b2.getMonth() === today.getMonth() && b2.getDate() < today.getDate())) {
       b2Copy.setFullYear(today.getFullYear() - 1);
     }
 
