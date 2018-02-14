@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Alert, StyleSheet, Text, TouchableOpacity, View, Platform} from 'react-native';
+import {ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -223,7 +223,10 @@ export default class AccountingScreen extends Component {
         if (entity.indexOf('konto nr') !== -1) {
           accountNr = row[j + 1];
         } else if (entity.indexOf('reg nr') !== -1) {
-          regNr = '0' + row[j + 1];
+          regNr = row[j + 1];
+          while (regNr.length < 4) {
+            regNr = '0' + regNr;
+          }
         } else if (entity.indexOf('deadline') !== -1) {
           deadline = row[j + 2];
         }
