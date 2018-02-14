@@ -396,6 +396,10 @@ export default class AccountingScreen extends Component {
     });
   };
 
+  _getToPayTextStyle() {
+    return parseFloat(parseFloat(this.state.user.beerAccount.toPay.trim().split(' ').pop())) > 0 ? styles.columnBigRedText : styles.columnBigGreenText;
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -413,7 +417,7 @@ export default class AccountingScreen extends Component {
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
               <Text
-                style={parseFloat(this.state.user.beerAccount.toPay) > 0 ? styles.columnBigRedText : styles.columnBigGreenText}>{this.state.user.beerAccount.toPay}</Text>
+                style={this._getToPayTextStyle()}>{this.state.user.beerAccount.toPay}</Text>
             </View>
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
@@ -459,7 +463,7 @@ export default class AccountingScreen extends Component {
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
               <Text
-                style={parseFloat(this.state.user.beerAccount.toPay) > 0 ? styles.columnBigRedText : styles.columnBigGreenText}>{this.state.user.kitchenAccount.toPay}</Text>
+                style={this._getToPayTextStyle()}>{this.state.user.kitchenAccount.toPay}</Text>
             </View>
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
@@ -646,7 +650,9 @@ const styles = StyleSheet.create({
   columnBigText: {
     fontSize: 25,
     marginTop: 10,
-    marginBottom: 10
+    marginBottom: 10,
+    alignSelf: 'center',
+    justifyContent: 'center'
   },
   columnMediumText: {
     fontSize: 20,

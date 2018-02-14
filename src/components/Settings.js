@@ -253,8 +253,9 @@ export default class SettingsScreen extends Component {
   setSheriffModalVisible = (visible) => {
     let initialSheriffName = '';
     if (visible) {
-      const initialSheriffRoom = '17' + (((this.currentSheriff.val().room.substr(2, 3) % 14) + 1));
-      initialSheriffName = this._findSnapshotByRoom(initialSheriffRoom).val().name;
+      const initialSheriffRoom = this.currentSheriff.val().room.substr(0, 1) + (((parseInt(this.currentSheriff.val().room.substr(2, 3)) % 14) + 1));
+      const userSnapshot = this._findSnapshotByRoom(initialSheriffRoom);
+      initialSheriffName = userSnapshot ? userSnapshot.val().name : '';
     }
     this.setState({selectedSheriff: '' + initialSheriffName, sheriffModalVisible: visible});
   };
