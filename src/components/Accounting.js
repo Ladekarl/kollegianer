@@ -41,7 +41,7 @@ export default class AccountingScreen extends Component {
           deposit: '',
           punishmentBasis: '',
           punishment: '',
-          toPay: '',
+          toPay: ''
         },
         beerAccount: {
           deadline: '',
@@ -56,9 +56,9 @@ export default class AccountingScreen extends Component {
           deposit: '',
           payed: '',
           punishment: '',
-          toPay: '',
+          toPay: ''
         }
-      },
+      }
     };
   }
 
@@ -134,7 +134,7 @@ export default class AccountingScreen extends Component {
             if (!user.kitchenAccount) {
               user.kitchenAccount = this.state.user.kitchenAccount;
             }
-            if(!user.beerAccount) {
+            if (!user.beerAccount) {
               user.beerAccount = this.state.user.beerAccount;
             }
             this.setState({user: user});

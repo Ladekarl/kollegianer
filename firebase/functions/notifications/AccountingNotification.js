@@ -18,7 +18,7 @@ exports.BeerAccountNotification = notifyOnUpdate('/accounting/beerAccount', even
 
 exports.KitchenAccountNotification = notifyOnUpdate('/accounting/kitchenAccount', event => {
   publishNotification(event, (usersSnapshots, committingUid) =>
-      getNotificationTokens(usersSnapshots, (userId) => committingUid !== userId),
+      getNotificationTokens(usersSnapshots, (userId) => String.valueOf(committingUid) !== String.valueOf(userId)),
     () => buildNotification(
       'Nyt regnskab', 'Køkkenregnskabet blev opdateret', 'fcm.ACCOUNTING'
     )

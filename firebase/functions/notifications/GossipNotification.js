@@ -19,7 +19,7 @@ exports.GossipMessageNotification = notifyOnWrite('/gossip/{gossipUid}', (event)
   }
 
   return publishNotification(event, (usersSnapshots, committingUid) =>
-      getNotificationTokens(usersSnapshots, (userId) => committingUid !== userId),
+      getNotificationTokens(usersSnapshots, (userId) => String.valueOf(committingUid) !== String.valueOf(userId)),
     () =>
       buildNotification('Gossip!', message, 'fcm.GOSSIP')
   );
