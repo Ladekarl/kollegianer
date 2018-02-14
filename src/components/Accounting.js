@@ -412,11 +412,12 @@ export default class AccountingScreen extends Component {
           <View style={styles.rowContainer}>
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
-              <Text style={styles.columnBigRedText}>{this.state.user.beerAccount.toPay}</Text>
+              <Text
+                style={parseFloat(this.state.user.beerAccount.toPay) > 0 ? styles.columnBigRedText : styles.columnBigGreenText}>{this.state.user.beerAccount.toPay}</Text>
             </View>
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
-              <Text style={styles.columnBigText}>{this.state.user.beerAccount.deadline}</Text>
+              <Text style={styles.columnMediumText}>{this.state.user.beerAccount.deadline}</Text>
             </View>
             <View style={styles.columnContainer}>
               <View style={styles.innerRowContainer}>
@@ -457,11 +458,12 @@ export default class AccountingScreen extends Component {
           <View style={styles.rowContainer}>
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
-              <Text style={styles.columnBigRedText}>{this.state.user.kitchenAccount.toPay}</Text>
+              <Text
+                style={parseFloat(this.state.user.beerAccount.toPay) > 0 ? styles.columnBigRedText : styles.columnBigGreenText}>{this.state.user.kitchenAccount.toPay}</Text>
             </View>
             <View style={styles.largeColumnContainer}>
               <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
-              <Text style={styles.columnBigText}>{this.state.user.kitchenAccount.deadline}</Text>
+              <Text style={styles.columnMediumText}>{this.state.user.kitchenAccount.deadline}</Text>
             </View>
             <View style={styles.columnContainer}>
               <Text style={styles.columnHeadlineText}>{'Straf'}</Text>
@@ -635,8 +637,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 10
   },
+  columnBigGreenText: {
+    fontSize: 25,
+    color: colors.darkGreenColor,
+    marginTop: 10,
+    marginBottom: 10
+  },
   columnBigText: {
     fontSize: 25,
+    marginTop: 10,
+    marginBottom: 10
+  },
+  columnMediumText: {
+    fontSize: 20,
     marginTop: 10,
     marginBottom: 10
   },
