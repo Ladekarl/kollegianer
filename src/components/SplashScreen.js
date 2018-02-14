@@ -10,24 +10,20 @@ import firebase from 'firebase';
 export default class SplashScreen extends Component {
 
   static navigationOptions = {
-    header: null,
+    header: null
   };
 
   componentDidMount() {
-    this.props.screenProps.getInitialNotification().then(() => {
+    this.props.screenProps.getInitialNotification().then(notification => {
       this.props.screenProps.setInitialNotification(undefined);
-      LocalStorage.getUser().then(user => {
-        firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(() => {
-          this._navigateAndReset('Login');
-        });
-      });
+      if (notification) {
+        this._signIn();
+      }
     }).catch(() => {
       LocalStorage.getUser().then(user => {
         if (user && user.email && user.password && user.uid) {
           this._navigateAndReset('Drawer');
-          firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(() => {
-            this._navigateAndReset('Login');
-          });
+          this._signIn();
         } else {
           this._navigateAndReset('Login');
         }
@@ -37,6 +33,14 @@ export default class SplashScreen extends Component {
       );
     });
   }
+
+  _signIn = () => {
+    LocalStorage.getUser().then(user => {
+      firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(() => {
+        this._navigateAndReset('Login');
+      });
+    });
+  };
 
   _navigateAndReset = (routeName) => {
     const resetAction = NavigationActions.reset({
