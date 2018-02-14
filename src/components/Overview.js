@@ -33,34 +33,82 @@ export default class OverviewScreen extends Component {
       selectedShots: '',
       mvpModalVisible: false,
       shotsModalVisible: false,
-      pickerItems: []
+      pickerItems: [],
+      nextBirthdayUsers: []
     };
-    Database.getUsers().then(snapshot => {
-      let kitchenWeek = '';
-      let sheriff = '';
-      snapshot.forEach(snap => {
-        let user = snap.val();
-        if (user.kitchenweek) {
-          kitchenWeek = user.name;
-        }
-        if (user.sheriff) {
-          sheriff = user.name;
-        }
-        if (user.kitchenweek && user.sheriff && snap.key === this.localUser.uid) {
-          this.showAssignSheriffAlert();
-        }
-      });
-      let pickerItems = this._renderPickerItems(snapshot);
-      this.setState({
-        kitchenWeek,
-        sheriff,
-        pickerItems
-      });
-    });
     LocalStorage.getUser().then(user => {
       this.localUser = user;
+      Database.getUsers().then(snapshot => {
+        let kitchenWeek = '';
+        let sheriff = '';
+        let nextBirthdayDate = '';
+        let nextBirthdayUsers = [];
+
+        snapshot.forEach(snap => {
+          let user = snap.val();
+          let birthdayYear = user.birthday.split('/').pop();
+          birthdayYear = parseInt(birthdayYear) > 50 ? '19' + birthdayYear : '20' + birthdayYear;
+
+          const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
+          if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
+            if (nextBirthdayDate
+              && nextBirthdayDate.getDay() === userBirthday.getDay()
+              && nextBirthdayDate.getMonth() === userBirthday.getMonth()
+              && nextBirthdayDate.getDay() === userBirthday.getDay()) {
+              nextBirthdayUsers.push(user);
+            } else {
+              nextBirthdayUsers = [user];
+            }
+            nextBirthdayDate = userBirthday;
+          }
+          if (user.kitchenweek) {
+            kitchenWeek = user.name;
+          }
+          if (user.sheriff) {
+            sheriff = user.name;
+          }
+          if (user.kitchenweek && user.sheriff && snap.key === this.localUser.uid) {
+            this.showAssignSheriffAlert();
+          }
+        });
+        let pickerItems = this._renderPickerItems(snapshot);
+        this.setState({
+          kitchenWeek,
+          sheriff,
+          pickerItems,
+          nextBirthdayUsers
+        });
+      });
     });
   }
+
+  _getNearestBirthday = (b1, b2) => {
+    const today = new Date();
+    let b1Copy = new Date(b1);
+    let b2Copy = new Date(b2);
+
+    b1Copy.setFullYear(today.getFullYear());
+    b2Copy.setFullYear(today.getFullYear());
+
+    if (b1.getMonth() < today.getMonth() || (b1.getMonth() === today.getMonth() && b1.getDay() < today.getDay())) {
+      b1Copy.setFullYear(today.getFullYear() - 1);
+    }
+    if (b2.getMonth() < today.getMonth() || (b2.getMonth() === today.getMonth() && b2.getDay() < today.getDay())) {
+      b2Copy.setFullYear(today.getFullYear() - 1);
+    }
+
+    let diffB1 = b1Copy - today;
+    let diffB2 = b2Copy - today;
+
+    if (diffB1 < 0 && diffB2 >= 0) {
+      return b2;
+    } else if (diffB1 >= 0 && diffB2 < 0) {
+      return b1;
+    } else if (diffB1 > 0 && diffB2 > 0) {
+      return diffB1 > diffB2 ? b2 : b1;
+    }
+  };
+
 
   componentDidMount() {
     Database.listenEvents(snapshot => {
@@ -208,9 +256,7 @@ export default class OverviewScreen extends Component {
   };
 
   updatePartyMode = () => {
-    let partymode = this.state.events.partymode;
     this._togglePartyLights();
-    Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name);
   };
 
   updateFoxEvent = () => {
@@ -226,7 +272,20 @@ export default class OverviewScreen extends Component {
         Authorization: 'Basic ' + Base64.btoa('group-d:hunter2')
       },
       body: this.state.events.partymode.length > 0 ? 'OFF' : 'ON'
+    }).then(() => {
+      const partymode = this.state.events.partymode;
+      Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name);
     });
+  };
+
+  _renderBirthdayNames = () => {
+    let birthdayNames = [];
+    for (let i = 0; i < this.state.nextBirthdayUsers.length; i++) {
+      const nextBirthDayUser = this.state.nextBirthdayUsers[i];
+      birthdayNames.push(<Text key={nextBirthDayUser.room} numberOfLines={1}
+                               style={styles.text}>{nextBirthDayUser.name}</Text>);
+    }
+    return birthdayNames;
   };
 
   render() {
@@ -242,13 +301,19 @@ export default class OverviewScreen extends Component {
           </View>
         </View>
         <View style={styles.rowContainer}>
-          <View style={styles.columnContainer}>
+          <View style={styles.borderlessColumnContainer}>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/køkkenuge.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.kitchenWeek}</Text>
           </View>
-          <View style={styles.columnContainer}>
+          <View style={styles.borderlessColumnContainer}>
             <FitImage resizeMode='contain' style={styles.image} source={require('../../img/sheriff.png')}/>
             <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
+          </View>
+          <View style={styles.borderlessColumnContainer}>
+            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/birthday.png')}/>
+            {this._renderBirthdayNames()}
+            <Text numberOfLines={1}
+                  style={styles.text}>{this.state.nextBirthdayUsers.length > 0 ? this.state.nextBirthdayUsers[0].birthday : ''}</Text>
           </View>
         </View>
         <View style={styles.rowContainer}>
@@ -324,6 +389,14 @@ const styles = StyleSheet.create({
     borderColor: colors.overviewIconColor,
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 2,
+    flex: 1,
+    justifyContent: 'space-between',
+    flexDirection: 'column',
+    alignItems: 'center',
+    margin: 5,
+    padding: 5
+  },
+  borderlessColumnContainer: {
     flex: 1,
     justifyContent: 'space-between',
     flexDirection: 'column',
