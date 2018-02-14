@@ -36,46 +36,49 @@ export default class OverviewScreen extends Component {
       pickerItems: [],
       nextBirthdayUsers: []
     };
-    LocalStorage.getUser().then(user => {
-      this.localUser = user;
-      Database.getUsers().then(snapshot => {
-        let kitchenWeek = '';
-        let sheriff = '';
-        let nextBirthdayDate = '';
-        let nextBirthdayUsers = [];
 
+    Database.getUsers().then(snapshot => {
+      let kitchenWeek = '';
+      let sheriff = '';
+      let nextBirthdayDate = '';
+      let nextBirthdayUsers = [];
+
+      snapshot.forEach(snap => {
+        let user = snap.val();
+        let birthdayYear = user.birthday.split('/').pop();
+        birthdayYear = parseInt(birthdayYear) > 50 ? '19' + birthdayYear : '20' + birthdayYear;
+
+        const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
+        if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
+          if (nextBirthdayDate
+            && nextBirthdayDate.getMonth() === userBirthday.getMonth()
+            && nextBirthdayDate.getDate() === userBirthday.getDate()) {
+            nextBirthdayUsers.push(user);
+          } else {
+            nextBirthdayUsers = [user];
+          }
+          nextBirthdayDate = userBirthday;
+        }
+        if (user.kitchenweek) {
+          kitchenWeek = user.name;
+        }
+        if (user.sheriff) {
+          sheriff = user.name;
+        }
+      });
+      let pickerItems = this._renderPickerItems(snapshot);
+      this.setState({
+        kitchenWeek,
+        sheriff,
+        pickerItems,
+        nextBirthdayUsers
+      });
+      LocalStorage.getUser().then(user => {
+        this.localUser = user;
         snapshot.forEach(snap => {
-          let user = snap.val();
-          let birthdayYear = user.birthday.split('/').pop();
-          birthdayYear = parseInt(birthdayYear) > 50 ? '19' + birthdayYear : '20' + birthdayYear;
-
-          const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
-          if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
-            if (nextBirthdayDate
-              && nextBirthdayDate.getMonth() === userBirthday.getMonth()
-              && nextBirthdayDate.getDate() === userBirthday.getDate()) {
-              nextBirthdayUsers.push(user);
-            } else {
-              nextBirthdayUsers = [user];
-            }
-            nextBirthdayDate = userBirthday;
-          }
-          if (user.kitchenweek) {
-            kitchenWeek = user.name;
-          }
-          if (user.sheriff) {
-            sheriff = user.name;
-          }
           if (user.kitchenweek && user.sheriff && snap.key === this.localUser.uid) {
             this.showAssignSheriffAlert();
           }
-        });
-        let pickerItems = this._renderPickerItems(snapshot);
-        this.setState({
-          kitchenWeek,
-          sheriff,
-          pickerItems,
-          nextBirthdayUsers
         });
       });
     });
