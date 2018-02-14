@@ -105,7 +105,9 @@ export default class App extends Component {
     });
 
     this.getInitialNotification().then(notification => {
-      this._navigateOnNotification(notification);
+      if (notification) {
+        this._navigateOnNotification(notification);
+      }
     });
   }
 
@@ -160,10 +162,12 @@ export default class App extends Component {
   };
 
   getInitialNotification = () => {
+    let resolved = false;
     return new Promise((resolve, reject) => {
       if (initialNotification) {
-        const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+        const action = Platform.OS === 'ios' ? initialNotification.apns.action_category : initialNotification.fcm.action;
         if (this.supportedNotifications.indexOf(action) !== -1) {
+          resolved = true;
           resolve(initialNotification);
         } else {
           reject();
@@ -171,8 +175,9 @@ export default class App extends Component {
       } else {
         FCM.getInitialNotification().then(notification => {
           if (notification) {
-            const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+            const action = Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action;
             if (this.supportedNotifications.indexOf(action) !== -1) {
+              resolved = true;
               resolve(notification);
             } else {
               reject();
@@ -180,7 +185,11 @@ export default class App extends Component {
           } else {
             reject();
           }
-        }).catch(() => reject());
+        }).finally(() => {
+          if (!resolved) {
+            reject();
+          }
+        });
       }
     });
   };
