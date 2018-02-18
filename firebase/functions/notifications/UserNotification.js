@@ -14,7 +14,8 @@ exports.UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event => {
   const previousUser = getPreviousValue(event);
 
   if (!user) {
-    return console.log(userUid, ' was deleted');
+    console.log(userUid, ' was deleted');
+    return 0;
   }
 
   return publishNotification(event, () => {
