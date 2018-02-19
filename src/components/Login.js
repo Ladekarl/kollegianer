@@ -52,7 +52,7 @@ export default class LoginScreen extends Component {
   onLoginPress = () => {
     Keyboard.dismiss();
     const {email, password} = this.state;
-    this._login(email, password);
+    this._login(email.trim(), password);
   };
 
   _login = (email, password) => {
@@ -146,6 +146,8 @@ export default class LoginScreen extends Component {
             <View style={styles.inputContainer}>
               <TextInput style={styles.usernameInput}
                          placeholder='Email'
+                         keyboardType='email-address'
+                         autoCapitalize='none'
                          editable={!this.state.loading}
                          underlineColorAndroid={colors.overviewIconColor}
                          selectionColor={colors.overviewIconColor}
@@ -154,6 +156,7 @@ export default class LoginScreen extends Component {
               <TextInput style={styles.passwordInput}
                          secureTextEntry={true}
                          editable={!this.state.loading}
+                         autoCapitalize='none'
                          underlineColorAndroid={colors.overviewIconColor}
                          selectionColor={colors.overviewIconColor}
                          placeholder='Password'

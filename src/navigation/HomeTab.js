@@ -26,17 +26,17 @@ export default HomeTab = TabNavigator({
     activeTintColor: colors.activeTabColor,
     inactiveTintColor: colors.inactiveTabColor,
     tabStyle: {
-      backgroundColor: 'white',
+      backgroundColor: colors.backgroundColor,
       elevation: 0
     },
     style: {
       paddingTop: 2,
-      backgroundColor: 'white',
+      backgroundColor: colors.backgroundColor,
       elevation: 0,
       borderBottomWidth: StyleSheet.hairlineWidth
     },
     labelStyle: {
-      fontSize: 10,
+      fontSize: 9,
       marginBottom: 2
     },
     indicatorStyle: {

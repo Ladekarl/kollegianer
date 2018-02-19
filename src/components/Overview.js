@@ -197,7 +197,7 @@ export default class OverviewScreen extends Component {
       backgroundColor: (value ? colors.greenColor : colors.redColor),
       borderColor: colors.overviewIconColor,
       borderWidth: StyleSheet.hairlineWidth,
-      borderRadius: 2,
+      borderRadius: 5,
       flex: 1,
       justifyContent: 'space-between',
       flexDirection: 'column',
@@ -392,7 +392,7 @@ const styles = StyleSheet.create({
   columnContainer: {
     borderColor: colors.overviewIconColor,
     borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 2,
+    borderRadius: 5,
     flex: 1,
     justifyContent: 'space-between',
     flexDirection: 'column',

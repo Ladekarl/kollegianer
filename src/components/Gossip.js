@@ -33,7 +33,8 @@ export default class GossipScreen extends Component {
 
   localUser;
   selectedMessage;
-  filter = [];
+  senderFilter = [];
+  messageFilter = [];
 
   constructor(props) {
     super(props);
@@ -61,7 +62,8 @@ export default class GossipScreen extends Component {
       this.localUser = localUser;
       Database.getUser(localUser.uid).then((snapshot) => {
         let user = snapshot.val();
-        this.filter = user.blocked ? user.blocked : [];
+        this.senderFilter = user.blockedUsers ? user.blockedUsers : [];
+        this.messageFilter = user.blockedMessages ? user.blockedMessages : [];
         Database.listenGossip(this.initialLimit, snapshot => {
           this.messages = snapshot;
           this.setState({
@@ -96,16 +98,19 @@ export default class GossipScreen extends Component {
 
   renderMessages = () => {
     let renderMessages = [];
-    this.messages.forEach(message => {
-      let senderId = message.val().id;
-      if (senderId) {
-        if (this.filter.indexOf(senderId) === -1) {
-          renderMessages.push(this._renderMessage(message))
+    this.messages
+      .forEach(message => {
+        if (this.messageFilter.indexOf(message.key) === -1) {
+          let senderId = message.val().id;
+          if (senderId) {
+            if (this.senderFilter.indexOf(senderId) === -1) {
+              renderMessages.push(this._renderMessage(message))
+            }
+          } else {
+            renderMessages.push(this._renderMessage(message))
+          }
         }
-      } else {
-        renderMessages.push(this._renderMessage(message))
-      }
-    });
+      });
     return renderMessages;
   };
 
@@ -121,27 +126,55 @@ export default class GossipScreen extends Component {
     this.setMessageModalVisible(true);
   };
 
-  _reportSender = () => {
-    // Not implemented
+  _reportContent = () => {
+    if (this.selectedMessage) {
+      let newMessage = this.selectedMessage.val();
+      newMessage.flagged = true;
+      Database.updateGossip(this.selectedMessage.key, newMessage);
+    }
+    this.setMessageModalVisible(false);
+    this.selectedMessage = undefined;
   };
 
   _blockSender = () => {
     Database.getUser(this.localUser.uid).then((snapshot) => {
       let user = snapshot.val();
-      if (!user.blocked) user.blocked = [];
-      user.blocked = user.blocked.push(this.selectedMessage.id);
+      if (!user.blockedUsers) user.blockedUsers = [];
+      user.blockedUsers.push(this.selectedMessage.val().id);
       Database.updateUser(snapshot.key, user).then(() => {
-        this.filter.push(this.selectedMessage.id);
-        this.forceUpdate();
+        this.messagesUpdated = true;
+        this.senderFilter = user.blockedUsers;
+        this.setState({renderMessages: this.renderMessages()});
       });
     });
   };
 
-  _deleteMessage = () => {
-    if (this.selectedMessage) {
-      Database.deleteGossip(this.selectedMessage.key);
-      this.setMessageModalVisible(false);
+  _blockOrDeleteMessage = () => {
+    if (this.selectedMessage && this.selectedMessage.isOwnMessage) {
+      this._deleteMessage(this.selectedMessage);
+    } else if (this.selectedMessage && !this.selectedMessage.isOwnMessage) {
+      this._blockMessage(this.selectedMessage);
     }
+    this.setMessageModalVisible(false);
+    this.selectedMessage = undefined;
+  };
+
+  _deleteMessage = (message) => {
+    this.messagesUpdated = true;
+    Database.deleteGossip(message.key);
+  };
+
+  _blockMessage = (message) => {
+    Database.getUser(this.localUser.uid).then((snapshot) => {
+      let user = snapshot.val();
+      if (!user.blockedMessages) user.blockedMessages = [];
+      user.blockedMessages.push(message.key);
+      Database.updateUser(snapshot.key, user).then(() => {
+        this.messageFilter = user.blockedMessages;
+        this.messagesUpdated = true;
+        this.setState({renderMessages: this.renderMessages()});
+      });
+    });
   };
 
   _renderMessage = (renderMessage) => {
@@ -150,7 +183,7 @@ export default class GossipScreen extends Component {
       return (
         <View
           key={renderMessage.key}
-          style={styles.columnContainer}>
+          style={message.flagged ? styles.flaggedColumnContainer : styles.columnContainer}>
           <Text style={styles.dateText}>{message.date}</Text>
           <View
             style={styles.rowContainer}>
@@ -165,7 +198,7 @@ export default class GossipScreen extends Component {
       return (
         <View
           key={renderMessage.key}
-          style={styles.columnContainer}>
+          style={message.flagged ? styles.flaggedColumnContainer : styles.columnContainer}>
           <Text style={styles.dateText}>{message.date}</Text>
           <View
             style={styles.rowContainer}>
@@ -395,12 +428,15 @@ export default class GossipScreen extends Component {
           </TouchableOpacity>
         </View>
         <ModalScreen
-          modalTitle={''}
+          modalTitle={'Foretag en handling'}
           visible={this.state.messageModalVisible}
-          onCancel={() => this.setMessageModalVisible(false)}
+          onCancel={() => {
+            this.setMessageModalVisible(false);
+            this.selectedMessage = undefined;
+          }}
           noSubmitButton={true}>
           <View style={styles.messageModalContainer}>
-            <TouchableOpacity style={styles.messageModalButton} onPress={this._deleteMessage}>
+            <TouchableOpacity style={styles.messageModalButton} onPress={this._blockOrDeleteMessage}>
               <Text style={styles.messageModalTextStyle}>
                 {this.selectedMessage && this.selectedMessage.isOwnMessage ?
                   'Slet besked' : 'Blokér besked'}
@@ -414,9 +450,9 @@ export default class GossipScreen extends Component {
             </TouchableOpacity>
             }
             {this.selectedMessage && !this.selectedMessage.isOwnMessage &&
-            <TouchableOpacity style={styles.messageModalButton} onPress={this._reportSender}>
+            <TouchableOpacity style={styles.messageModalButton} onPress={this._reportContent}>
               <Text style={styles.messageModalTextStyle}>
-                Anmeld afsender
+                Rapportér indhold
               </Text>
             </TouchableOpacity>
             }
@@ -480,7 +516,11 @@ const styles = StyleSheet.create({
     borderRadius: 5
   },
   columnContainer: {
-    flexDirection: 'column'
+    flexDirection: 'column',
+  },
+  flaggedColumnContainer: {
+    flexDirection: 'column',
+    backgroundColor: colors.redColor
   },
   footerContainer: {
     borderTopWidth: StyleSheet.hairlineWidth,
@@ -561,12 +601,10 @@ const styles = StyleSheet.create({
   },
   messageModalContainer: {
     justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 20
+    alignItems: 'stretch'
   },
   messageModalButton: {
-    borderRadius: 15,
-    width: '80%',
+    borderRadius: 5,
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: StyleSheet.hairlineWidth,
@@ -574,8 +612,9 @@ const styles = StyleSheet.create({
     margin: 10
   },
   messageModalTextStyle: {
-    fontSize: 20,
+    fontSize: 15,
+    marginTop: 15,
+    marginBottom: 15,
     color: colors.logoutTextColor,
-    margin: 10
   }
 });

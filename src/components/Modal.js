@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Modal, Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {BackHandler, Modal, Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import colors from '../shared/colors';
 
@@ -46,30 +46,36 @@ export default class ModalScreen extends Component {
         visible={visible}>
         <View style={styles.modalContainer}>
           <View style={[styles.modalInnerContainer]}>
-            <Text>{modalTitle}</Text>
-            {isPicker &&
-            <Picker
-              mode='dialog'
-              onValueChange={onPickerValueChange}
-              selectedValue={selectedPickerValue}>
-              {pickerItems}
-            </Picker>
-            }
-            {this.props.children}
-            {(!noCancelButton || !noSubmitButton) &&
-            <View style={styles.modalRowContainer}>
-              {!noCancelButton &&
-              <TouchableOpacity
-                style={styles.modalButton}
-                onPress={onCancel}>
-                <Text>Annullér</Text>
-              </TouchableOpacity>
+            <View style={styles.modalTopContainer}>
+              <Text style={styles.modalTitleText}>{modalTitle}</Text>
+            </View>
+            <View style={styles.modalCenterContainer}>
+              {isPicker &&
+              <View style={styles.modalPickerContainer}>
+                <Picker
+                  mode='dialog'
+                  onValueChange={onPickerValueChange}
+                  selectedValue={selectedPickerValue}>
+                  {pickerItems}
+                </Picker>
+              </View>
               }
+              {this.props.children}
+            </View>
+            {(!noCancelButton || !noSubmitButton) &&
+            <View style={styles.modalBottomContainer}>
               {!noSubmitButton &&
               <TouchableOpacity
-                style={styles.modalButton}
+                style={styles.modalSubmitButton}
                 onPress={onSubmit}>
-                <Text>OK</Text>
+                <Text style={styles.modalButtonText}>OK</Text>
+              </TouchableOpacity>
+              }
+              {!noCancelButton &&
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={onCancel}>
+                <Text style={styles.modalButtonText}>ANNULLER</Text>
               </TouchableOpacity>
               }
             </View>
@@ -90,22 +96,58 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
   },
   modalInnerContainer: {
     width: '80%',
-    padding: 20,
-    borderRadius: 2,
+    borderRadius: 15,
+    justifyContent: 'center',
     opacity: 1,
-    backgroundColor: colors.modalBackgroundColor,
+    backgroundColor: colors.backgroundColor,
     borderWidth: StyleSheet.hairlineWidth
   },
-  modalRowContainer: {
-    flexDirection: 'row',
-    margin: 5,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end'
+  modalTopContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 12
   },
-  modalButton: {
-    marginLeft: 40
+  modalCenterContainer: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    padding: 12
+  },
+  modalBottomContainer: {
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    padding: 12
+  },
+  modalPickerContainer: {
+    padding: 10,
+    margin: 5,
+    borderRadius: 5
+  },
+  modalCancelButton: {
+    backgroundColor: colors.cancelButtonColor,
+    borderRadius: 5,
+    alignItems: 'center',
+    margin: 5
+  },
+  modalSubmitButton: {
+    margin: 5,
+    alignItems: 'center',
+    backgroundColor: colors.submitButtonColor,
+    borderRadius: 5,
+    marginBottom: 10
+  },
+  modalButtonText: {
+    fontSize: 15,
+    marginTop: 15,
+    marginBottom: 15,
+    color: colors.backgroundColor,
+    fontWeight: 'bold'
+  },
+  modalTitleText: {
+    fontSize: 18,
+    fontWeight: 'bold'
   }
 });

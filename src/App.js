@@ -8,7 +8,7 @@ import {
   FIREBASE_PROJECT_ID,
   FIREBASE_STORAGE_BUCKET
 } from 'react-native-dotenv';
-import {Alert, Platform, StyleSheet, Text, View} from 'react-native';
+import {Alert, Platform, StyleSheet, View} from 'react-native';
 import Stack from './navigation/Stack';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
@@ -21,6 +21,7 @@ import FCM, {
   WillPresentNotificationResult
 } from 'react-native-fcm';
 import {navigateTo} from './containers/Home';
+import {setCustomActivityIndicator, setCustomText, setCustomTouchableOpacity} from 'react-native-global-props';
 
 let initialNotification;
 
@@ -71,7 +72,20 @@ export default class App extends Component {
 
   constructor(props) {
     super(props);
-    Text.defaultProps.style = {fontFamily: 'Roboto'};
+    const customTextProps = {
+      style: {
+        fontFamily: 'Lato'
+      }
+    };
+    const customTouchableOpacityProps = {
+      hitSlop: {top: 15, right: 15, left: 15, bottom: 15}
+    };
+    const customActivityIndicator = {
+      color: colors.activeTabColor
+    };
+    setCustomText(customTextProps);
+    setCustomTouchableOpacity(customTouchableOpacityProps);
+    setCustomActivityIndicator(customActivityIndicator);
   }
 
   componentWillMount() {

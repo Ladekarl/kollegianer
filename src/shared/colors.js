@@ -2,7 +2,7 @@ import ThemeManager from 'react-native-color-theme';
 
 export default new ThemeManager({
   bodegaTheme: {
-    backgroundColor: '#fff',
+    backgroundColor: '#faf7f7',
     redColor: '#fda497',
     blueColor: '#d8eafd',
     overviewIconColor: '#C5B358',
@@ -15,6 +15,8 @@ export default new ThemeManager({
     logoutIconColor: '#dd1d00',
     darkGreenColor: '#22ca0c',
     logoutTextColor: '#dd513d',
+    cancelButtonColor: '#fd8172',
+    submitButtonColor: '#a5ccfd',
     errorColor: 'red'
   },
 });
