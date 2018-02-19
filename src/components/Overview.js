@@ -361,19 +361,21 @@ export default class OverviewScreen extends Component {
           modalTitle='Vælg en person'
           onCancel={this.onMvpCancel}
           onSubmit={this.onMvpSubmit}
-          onValueChange={this.onMvpChange}
+          onPickerValueChange={this.onMvpChange}
           pickerItems={this.state.pickerItems}
-          selectedValue={this.state.selectedMvp}
+          selectedPickerValue={this.state.selectedMvp}
           visible={this.state.mvpModalVisible}
+          isPicker={true}
         />
         <ModalScreen
-          onValueChange={this.onShotsChange}
-          selectedValue={this.state.selectedShots}
+          onPickerValueChange={this.onShotsChange}
+          selectedPickerValue={this.state.selectedShots}
           pickerItems={this.state.pickerItems}
           modalTitle='Vælg en person'
           visible={this.state.shotsModalVisible}
           onSubmit={this.onShotsSubmit}
           onCancel={this.onShotsCancel}
+          isPicker={true}
         />
       </View>
     );
@@ -439,30 +441,5 @@ const styles = StyleSheet.create({
   textHeader: {
     textAlign: 'center',
     fontWeight: 'bold'
-  },
-  modalContainer: {
-    position: 'absolute',
-    right: 0,
-    left: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalPickerContainer: {
-    width: '80%',
-    padding: 20,
-    borderRadius: 5,
-    opacity: 1,
-    backgroundColor: colors.modalBackgroundColor
-  },
-  modalPickerRowContainer: {
-    flexDirection: 'row',
-    margin: 5,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end'
-  },
-  modalButton: {
-    marginLeft: 40
   }
 });

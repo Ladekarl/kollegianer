@@ -65,13 +65,19 @@ export default class LoginScreen extends Component {
             this._stopLoadingAndSetError('User did not exist in database');
             return;
           }
-          LocalStorage.getFcmToken().then(token => {
-            if (token) {
+          LocalStorage.getFcmToken().then(fcmToken => {
+            if (fcmToken && fcmToken.token) {
               if (!dbUser.notificationTokens) {
                 dbUser.notificationTokens = [];
               }
-              if (dbUser.notificationTokens.indexOf(token) === -1) {
-                dbUser.notificationTokens.push(token);
+              let tokenFound = false;
+              dbUser.notificationTokens.forEach(t => {
+                if (t.token && String(t.token).valueOf() == String(fcmToken.token).valueOf()) {
+                  tokenFound = true;
+                }
+              });
+              if (!tokenFound) {
+                dbUser.notificationTokens.push(fcmToken);
               }
               Database.updateUser(user.uid, dbUser);
             }

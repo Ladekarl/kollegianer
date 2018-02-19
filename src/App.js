@@ -48,12 +48,19 @@ FCM.on(FCMEvent.Notification, async (notif) => {
 
 FCM.on(FCMEvent.RefreshToken, (token) => {
   const user = firebase.auth().currentUser;
-  LocalStorage.setFcmToken(token);
   if (user && token) {
+    const newToken = {token: token, isIos: Platform.OS === 'ios'};
+    LocalStorage.setFcmToken(newToken);
     Database.getNotificationTokens(user.uid).then(snapshot => {
       let tokens = snapshot.val();
-      if (tokens.indexOf(token) === -1) {
-        tokens.push(token);
+      let tokenFound = false;
+      tokens.forEach(t => {
+        if (String(t.token).valueOf() == String(newToken.token).valueOf()) {
+          tokenFound = true;
+        }
+      });
+      if (!tokenFound) {
+        tokens.push(newToken);
         Database.updateNotificationTokens(user.uid, tokens);
       }
     });

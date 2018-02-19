@@ -1,5 +1,14 @@
 import React, {Component} from 'react';
-
+import Icon from 'react-native-fa-icons';
+import colors from '../shared/colors';
+import AutoExpandingTextInput from './AutoExpandingTextInput';
+import Database from '../storage/Database';
+import ImagePicker from 'react-native-image-picker';
+import Guid from '../shared/Guid';
+import FitImage from 'react-native-fit-image';
+import Lightbox from '../../lib/react-native-lightbox/Lightbox';
+import ModalScreen from './Modal';
+import LocalStorage from "../storage/LocalStorage";
 import {
   ActivityIndicator,
   Dimensions,
@@ -13,21 +22,18 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import Icon from 'react-native-fa-icons';
-import colors from '../shared/colors';
-import AutoExpandingTextInput from './AutoExpandingTextInput';
-import Database from '../storage/Database';
-import ImagePicker from 'react-native-image-picker';
-import Guid from '../shared/Guid';
-import FitImage from 'react-native-fit-image';
-import Lightbox from 'react-native-lightbox';
 
 export default class GossipScreen extends Component {
 
   static navigationOptions = {
     tabBarLabel: 'Gossip',
-    tabBarIcon: ({tintColor}) => (<Icon name='heartbeat' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
+    tabBarIcon: ({tintColor}) => (
+      <Icon name='heartbeat' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
   };
+
+  localUser;
+  selectedMessage;
+  filter = [];
 
   constructor(props) {
     super(props);
@@ -36,7 +42,8 @@ export default class GossipScreen extends Component {
       renderMessages: [],
       messages: [],
       message: '',
-      loading: false
+      loading: false,
+      messageModalVisible: false
     };
     this.initialLimit = 20;
     this.limit = this.initialLimit;
@@ -50,15 +57,22 @@ export default class GossipScreen extends Component {
 
   componentDidMount() {
     this.setState({fetching: true});
-    Database.listenGossip(this.initialLimit, snapshot => {
-      this.messages = snapshot;
-      this.setState({
-        renderMessages: this.renderMessages(),
-        fetching: false
+    LocalStorage.getUser().then(localUser => {
+      this.localUser = localUser;
+      Database.getUser(localUser.uid).then((snapshot) => {
+        let user = snapshot.val();
+        this.filter = user.blocked ? user.blocked : [];
+        Database.listenGossip(this.initialLimit, snapshot => {
+          this.messages = snapshot;
+          this.setState({
+            renderMessages: this.renderMessages(),
+            fetching: false
+          });
+          this.scrollView.scrollToEnd({animated: true});
+        }).catch(error => {
+          this.setState({fetching: false});
+        });
       });
-      this.scrollView.scrollToEnd({animated: true});
-    }).catch(error => {
-      this.setState({fetching: false});
     });
   }
 
@@ -67,6 +81,10 @@ export default class GossipScreen extends Component {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
   }
+
+  setMessageModalVisible = (visible) => {
+    this.setState({messageModalVisible: visible});
+  };
 
   _keyboardDidShow = () => {
     this.scrollView.scrollToEnd({animated: true});
@@ -79,9 +97,51 @@ export default class GossipScreen extends Component {
   renderMessages = () => {
     let renderMessages = [];
     this.messages.forEach(message => {
-      renderMessages.push(this._renderMessage(message));
+      let senderId = message.val().id;
+      if (senderId) {
+        if (this.filter.indexOf(senderId) === -1) {
+          renderMessages.push(this._renderMessage(message))
+        }
+      } else {
+        renderMessages.push(this._renderMessage(message))
+      }
     });
     return renderMessages;
+  };
+
+  showMessageOptions = (messageSnapshot) => {
+    this.selectedMessage = messageSnapshot;
+    this.selectedMessage.isOwnMessage =
+      this.selectedMessage
+      && this.localUser
+      && this.localUser.uid
+      && this.selectedMessage.val()
+      && this.selectedMessage.val().id
+      && String(this.selectedMessage.val().id).valueOf() == String(this.localUser.uid).valueOf();
+    this.setMessageModalVisible(true);
+  };
+
+  _reportSender = () => {
+    // Not implemented
+  };
+
+  _blockSender = () => {
+    Database.getUser(this.localUser.uid).then((snapshot) => {
+      let user = snapshot.val();
+      if (!user.blocked) user.blocked = [];
+      user.blocked = user.blocked.push(this.selectedMessage.id);
+      Database.updateUser(snapshot.key, user).then(() => {
+        this.filter.push(this.selectedMessage.id);
+        this.forceUpdate();
+      });
+    });
+  };
+
+  _deleteMessage = () => {
+    if (this.selectedMessage) {
+      Database.deleteGossip(this.selectedMessage.key);
+      this.setMessageModalVisible(false);
+    }
   };
 
   _renderMessage = (renderMessage) => {
@@ -90,13 +150,14 @@ export default class GossipScreen extends Component {
       return (
         <View
           key={renderMessage.key}
-          style={styles.columnContainer}
-        >
+          style={styles.columnContainer}>
           <Text style={styles.dateText}>{message.date}</Text>
           <View
             style={styles.rowContainer}>
             <Icon name='user-circle' style={styles.rowImage}/>
-            <Text style={styles.messageText}>{message.message}</Text>
+            <TouchableOpacity onLongPress={() => this.showMessageOptions(renderMessage)}>
+              <Text style={styles.messageText}>{message.message}</Text>
+            </TouchableOpacity>
           </View>
         </View>
       );
@@ -104,8 +165,7 @@ export default class GossipScreen extends Component {
       return (
         <View
           key={renderMessage.key}
-          style={styles.columnContainer}
-        >
+          style={styles.columnContainer}>
           <Text style={styles.dateText}>{message.date}</Text>
           <View
             style={styles.rowContainer}>
@@ -113,6 +173,7 @@ export default class GossipScreen extends Component {
             <Lightbox navigator={null}
                       activeProps={{style: this._renderLightBoxImageContainerStyle(message.photo)}}
                       style={styles.lightBoxContainer}
+                      onLongPress={() => this.showMessageOptions(renderMessage)}
                       renderContent={() => (
                         <ScrollView
                           minimumZoomScale={1}
@@ -175,7 +236,8 @@ export default class GossipScreen extends Component {
       let date = this._formatDate();
       let newMessage = {
         message: this.state.message,
-        date: date
+        date: date,
+        id: this.localUser.uid
       };
       Database.addGossip(newMessage);
       this.setState({message: ''});
@@ -188,7 +250,8 @@ export default class GossipScreen extends Component {
     let newMessage = {
       message: '',
       date: date,
-      photo: photo
+      photo: photo,
+      id: this.localUser.uid
     };
     Keyboard.dismiss();
     Database.addGossip(newMessage).finally(() => {
@@ -285,6 +348,14 @@ export default class GossipScreen extends Component {
     );
   };
 
+  _onContentSizeChanged = () => {
+    if (!this.messagesUpdated) {
+      this.scrollView.scrollToEnd({animated: true});
+    } else {
+      this.messagesUpdated = false;
+    }
+  };
+
   _renderShared() {
     return (
       <View style={styles.innerContainer}>
@@ -297,13 +368,7 @@ export default class GossipScreen extends Component {
           }
           contentContainerStyle={styles.scrollContainer}
           ref={ref => this.scrollView = ref}
-          onContentSizeChange={(contentWidth, contentHeight) => {
-            if (!this.messagesUpdated) {
-              this.scrollView.scrollToEnd({animated: true});
-            } else {
-              this.messagesUpdated = false;
-            }
-          }}>
+          onContentSizeChange={this._onContentSizeChanged}>
           <View style={styles.messageContainer}>
             {this.state.renderMessages}
           </View>
@@ -320,12 +385,44 @@ export default class GossipScreen extends Component {
               underlineColorAndroid='transparent'
               selectionColor={colors.overviewIconColor}
               textAlignVertical='bottom'
+              autoCapitalize='sentences'
+              returnKeyType='send'
+              onSubmitEditing={this.submitMessage}
               onChangeText={this.onMessageChange}/>
           </View>
           <TouchableOpacity style={styles.rowImageContainer} onPress={this.submitMessage}>
             <Icon name='send' style={{fontSize: 20, color: 'black'}}/>
           </TouchableOpacity>
         </View>
+        <ModalScreen
+          modalTitle={''}
+          visible={this.state.messageModalVisible}
+          onCancel={() => this.setMessageModalVisible(false)}
+          noSubmitButton={true}>
+          <View style={styles.messageModalContainer}>
+            <TouchableOpacity style={styles.messageModalButton} onPress={this._deleteMessage}>
+              <Text style={styles.messageModalTextStyle}>
+                {this.selectedMessage && this.selectedMessage.isOwnMessage ?
+                  'Slet besked' : 'Blokér besked'}
+              </Text>
+            </TouchableOpacity>
+            {this.selectedMessage && !this.selectedMessage.isOwnMessage &&
+            <TouchableOpacity style={styles.messageModalButton} onPress={this._blockSender}>
+              <Text style={styles.messageModalTextStyle}>
+                Blokér afsender
+              </Text>
+            </TouchableOpacity>
+            }
+            {this.selectedMessage && !this.selectedMessage.isOwnMessage &&
+            <TouchableOpacity style={styles.messageModalButton} onPress={this._reportSender}>
+              <Text style={styles.messageModalTextStyle}>
+                Anmeld afsender
+              </Text>
+            </TouchableOpacity>
+            }
+          </View>
+
+        </ModalScreen>
         {this.state.loading &&
         <View style={styles.loadingContainer}>
           <ActivityIndicator size='large' color={colors.activeTabColor}/>
@@ -442,6 +539,7 @@ const styles = StyleSheet.create({
   messageImage: {
     flex: 1,
     alignSelf: 'stretch',
+    borderRadius: 10,
   },
   lightBoxContainer: {
     alignSelf: 'flex-start',
@@ -460,5 +558,24 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'center'
+  },
+  messageModalContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  messageModalButton: {
+    borderRadius: 15,
+    width: '80%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: StyleSheet.hairlineWidth,
+    backgroundColor: colors.backgroundColor,
+    margin: 10
+  },
+  messageModalTextStyle: {
+    fontSize: 20,
+    color: colors.logoutTextColor,
+    margin: 10
   }
 });

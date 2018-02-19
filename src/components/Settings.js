@@ -305,31 +305,34 @@ export default class SettingsScreen extends Component {
                   onPress={this.changePasswordAlert}/>
         </View>
         <ModalScreen
-          onValueChange={this.onDutyChange}
-          selectedValue={this.state.selectedDuty}
+          onPickerValueChange={this.onDutyChange}
+          selectedPickerValue={this.state.selectedDuty}
           pickerItems={this.state.dutyPickerItems}
           modalTitle='Vælg en tjans'
           visible={this.state.dutyModalVisible}
           onSubmit={this.onDutySubmit}
           onCancel={this.onDutyCancel}
+          isPicker={true}
         />
         <ModalScreen
-          onValueChange={this.onKitchenWeekChange}
-          selectedValue={this.state.selectedKitchenWeek}
+          onPickerValueChange={this.onKitchenWeekChange}
+          selectedPickerValue={this.state.selectedKitchenWeek}
           pickerItems={this.state.userPickerItems}
           modalTitle='Vælg næste køkkenuge'
           visible={this.state.kitchenWeekModalVisible}
           onSubmit={this.onKitchenWeekSubmit}
           onCancel={this.onKitchenWeekCancel}
+          isPicker={true}
         />
         <ModalScreen
-          onValueChange={this.onSheriffChange}
-          selectedValue={this.state.selectedSheriff}
+          onPickerValueChange={this.onSheriffChange}
+          selectedPickerValue={this.state.selectedSheriff}
           pickerItems={this.state.userPickerItems}
           modalTitle='Vælg næste sheriff'
           visible={this.state.sheriffModalVisible}
           onSubmit={this.onSheriffSubmit}
           onCancel={this.onSheriffCancel}
+          isPicker={true}
         />
       </ScrollView>
     )
@@ -373,30 +376,5 @@ const styles = StyleSheet.create({
   },
   rightText: {
     marginRight: 10,
-  },
-  modalContainer: {
-    position: 'absolute',
-    right: 0,
-    left: 0,
-    top: 0,
-    bottom: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  modalPickerContainer: {
-    width: '80%',
-    padding: 20,
-    borderRadius: 5,
-    opacity: 1,
-    backgroundColor: colors.modalBackgroundColor
-  },
-  modalPickerRowContainer: {
-    flexDirection: 'row',
-    margin: 5,
-    justifyContent: 'flex-end',
-    alignItems: 'flex-end'
-  },
-  modalButton: {
-    marginLeft: 40
   }
 });

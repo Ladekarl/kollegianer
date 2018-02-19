@@ -1,27 +1,22 @@
-import React, {
-  Component
-} from 'react';
-import {
-  View,
-  Modal,
-  StyleSheet,
-  Text,
-  Picker,
-  TouchableOpacity
-} from 'react-native';
+import React, {Component} from 'react';
+import {Modal, Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import colors from '../shared/colors';
 
 export default class ModalScreen extends Component {
 
   static propTypes = {
-    onValueChange: PropTypes.func.isRequired,
-    selectedValue: PropTypes.string.isRequired,
-    pickerItems: PropTypes.array.isRequired,
+    onPickerValueChange: PropTypes.func,
+    selectedPickerValue: PropTypes.string,
+    isPicker: PropTypes.bool,
+    pickerItems: PropTypes.array,
     modalTitle: PropTypes.string.isRequired,
     visible: PropTypes.bool.isRequired,
-    onSubmit: PropTypes.func.isRequired,
-    onCancel: PropTypes.func.isRequired
+    onSubmit: PropTypes.func,
+    onCancel: PropTypes.func,
+    noCancelButton: PropTypes.bool,
+    noSubmitButton: PropTypes.bool,
+    containerStyle: PropTypes.array
   };
 
   constructor(props) {
@@ -30,13 +25,16 @@ export default class ModalScreen extends Component {
 
   render() {
     const {
-      onValueChange,
-      selectedValue,
+      onPickerValueChange,
+      selectedPickerValue,
+      isPicker,
       pickerItems,
       modalTitle,
       visible,
       onSubmit,
-      onCancel
+      onCancel,
+      noCancelButton,
+      noSubmitButton
     } = this.props;
 
     return (
@@ -47,26 +45,35 @@ export default class ModalScreen extends Component {
         }}
         visible={visible}>
         <View style={styles.modalContainer}>
-          <View style={styles.modalPickerContainer}>
+          <View style={[styles.modalInnerContainer]}>
             <Text>{modalTitle}</Text>
+            {isPicker &&
             <Picker
               mode='dialog'
-              onValueChange={onValueChange}
-              selectedValue={selectedValue}>
+              onValueChange={onPickerValueChange}
+              selectedValue={selectedPickerValue}>
               {pickerItems}
             </Picker>
-            <View style={styles.modalPickerRowContainer}>
+            }
+            {this.props.children}
+            {(!noCancelButton || !noSubmitButton) &&
+            <View style={styles.modalRowContainer}>
+              {!noCancelButton &&
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={onCancel}>
                 <Text>Annullér</Text>
               </TouchableOpacity>
+              }
+              {!noSubmitButton &&
               <TouchableOpacity
                 style={styles.modalButton}
                 onPress={onSubmit}>
                 <Text>OK</Text>
               </TouchableOpacity>
+              }
             </View>
+            }
           </View>
         </View>
       </Modal>
@@ -84,7 +91,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  modalPickerContainer: {
+  modalInnerContainer: {
     width: '80%',
     padding: 20,
     borderRadius: 2,
@@ -92,7 +99,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.modalBackgroundColor,
     borderWidth: StyleSheet.hairlineWidth
   },
-  modalPickerRowContainer: {
+  modalRowContainer: {
     flexDirection: 'row',
     margin: 5,
     justifyContent: 'flex-end',

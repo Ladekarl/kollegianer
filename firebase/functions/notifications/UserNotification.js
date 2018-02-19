@@ -25,9 +25,9 @@ exports.UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event => {
       }
       return notificationTokens;
     }, (committingUser) => {
-      const kitchenWeekUpdated = buildNotification('Du har nu køkkenugen', `${committingUser.room} gav dig køkkenugen`, 'fcm.KITCHEN_WEEK');
-      const sheriffUpdated = buildNotification('Du er nu sheriff', `${committingUser.room} gjorde dig til sheriff`, 'fcm.SHERIFF');
-      return user.kitchenweek ? kitchenWeekUpdated : sheriffUpdated;
+      return user.kitchenweek ?
+        buildNotification('Du har nu køkkenugen', `${committingUser.room} gav dig køkkenugen`, 'fcm.KITCHEN_WEEK') :
+        buildNotification('Du er nu sheriff', `${committingUser.room} gjorde dig til sheriff`, 'fcm.SHERIFF');
     }
   );
 });

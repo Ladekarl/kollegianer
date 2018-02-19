@@ -4,7 +4,8 @@ const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
 const sendNotification = (notificationTokens, payload) => {
-  return admin.messaging().sendToDevice(notificationTokens, payload, {priority: 'high'})
+  const options = {priority: 'high'};
+  return admin.messaging().sendToDevice(notificationTokens, payload, options)
     .then(response => {
       // For each message check if there was an error.
       let failedTokens = [];
@@ -20,27 +21,37 @@ const sendNotification = (notificationTokens, payload) => {
 };
 
 const removeNotificationTokens = (failedTokens) => {
-  return new Promise(resolve => {
-    let tokensToRemove = [];
+  return new Promise((resolve, reject) => {
     if (failedTokens.length > 0) {
       console.log('Removing failed notification tokens');
       readDatabase(`/user/`).then(results => {
         const userSnapshots = results[0];
+        let removeTokensPromises = [];
         userSnapshots.forEach(snapshot => {
           let user = snapshot.val();
           failedTokens.forEach(token => {
-            const tokenIndex = user.notificationTokens && user.notificationTokens.length > 0 ?
-              user.notificationTokens.indexOf(token) : -1;
-            if (tokenIndex !== -1) {
-              user.notificationTokens.splice(tokenIndex, 1);
+            for (let i = 0; i < user.notificationTokens.length; i++) {
+              let notifToken = user.notificationTokens[i];
+              if (notifToken.token && String(notifToken.token).valueOf() == String(token).valueOf()) {
+                user.notificationTokens.splice(i, 1);
+                removeTokensPromises.push(snapshot.ref.set(user));
+              }
             }
           });
-          tokensToRemove.push(snapshot.ref.set(user));
         });
-        Promise.all(tokensToRemove).then(() => {
+        Promise.all(removeTokensPromises).then(() => {
+          console.log('Removed', removeTokensPromises.length, 'tokens');
           resolve();
+        }).catch(error => {
+          console.error('Error when removing notification tokens', error,);
+          reject(error);
         });
+      }).catch(error => {
+        reject(error);
       });
+    }
+    else {
+      resolve();
     }
   });
 };
@@ -66,14 +77,25 @@ const getNotificationTokens = (userSnapshots, conditionFn) => {
 
 const buildNotification = (title, body, clickAction) => {
   return {
+    title: title,
+    body: body,
+    click_action: clickAction
+  }
+};
+
+const buildNotificationIos = (payload) => {
+  return {
+    notification: payload
+  }
+};
+
+const buildNotificationAndroid = (payload) => {
+  return {
     data: {
-      custom_notification: JSON.stringify({
-        title: title,
-        body: body,
-        priority: "high",
-        click_action: clickAction,
+      custom_notification: JSON.stringify(Object.assign({
+        priority: 'high',
         show_in_foreground: true
-      })
+      }, payload))
     }
   };
 };
@@ -108,7 +130,17 @@ const publishNotification = (event, notificationTokenFn, notificationFn) => {
 
     console.log('There are', notificationTokens.length, 'tokens to send notifications to.');
 
-    return sendNotification(notificationTokens, notificationFn(committingUser));
+    const iosNotifTokens = notificationTokens.filter(n => n.token && n.isIos).map(n => n.token);
+    const androidNotifTokens = notificationTokens.filter(n => n.token && !n.isIos).map(n => n.token);
+
+    console.log('There are', iosNotifTokens.length, 'iOS notifications');
+    console.log('There are', androidNotifTokens.length, 'android notifications');
+
+    const notificationPayload = notificationFn(committingUser);
+    return Promise.all([
+      sendNotification(iosNotifTokens, buildNotificationIos(notificationPayload)),
+      sendNotification(androidNotifTokens, buildNotificationAndroid(notificationPayload))
+    ]);
   });
 };
 
