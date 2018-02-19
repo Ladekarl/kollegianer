@@ -70,7 +70,9 @@ export default class GossipScreen extends Component {
             renderMessages: this.renderMessages(),
             fetching: false
           });
-          this.scrollView.scrollToEnd({animated: true});
+          if (this.scrollView) {
+            this.scrollView.scrollToEnd({animated: true});
+          }
         }).catch(error => {
           this.setState({fetching: false});
         });
@@ -89,11 +91,15 @@ export default class GossipScreen extends Component {
   };
 
   _keyboardDidShow = () => {
-    this.scrollView.scrollToEnd({animated: true});
+    if (this.scrollView) {
+      this.scrollView.scrollToEnd({animated: true});
+    }
   };
 
   _keyboardDidHide = () => {
-    this.scrollView.scrollToEnd({animated: true});
+    if (this.scrollView) {
+      this.scrollView.scrollToEnd({animated: true});
+    }
   };
 
   renderMessages = () => {
@@ -382,7 +388,7 @@ export default class GossipScreen extends Component {
   };
 
   _onContentSizeChanged = () => {
-    if (!this.messagesUpdated) {
+    if (!this.messagesUpdated && this.scrollView) {
       this.scrollView.scrollToEnd({animated: true});
     } else {
       this.messagesUpdated = false;

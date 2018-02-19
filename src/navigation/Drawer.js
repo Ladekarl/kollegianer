@@ -3,14 +3,14 @@ import {DrawerNavigator} from 'react-navigation';
 import LogoutScreen from '../components/Logout';
 import HomeScreen from '../containers/Home';
 import colors from '../shared/colors';
-import DutiesScreen from '../components/Duties';
+import ResidentsScreen from '../components/Residents';
 
 export default Drawer = DrawerNavigator({
   Home: {
     screen: HomeScreen
   },
-  Duties: {
-    screen: DutiesScreen
+  Residents: {
+    screen: ResidentsScreen
   },
   Logout: {
     screen: LogoutScreen

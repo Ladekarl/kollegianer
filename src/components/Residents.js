@@ -4,10 +4,10 @@ import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 
-export default class DutiesScreen extends Component {
+export default class ResidentsScreen extends Component {
 
   static navigationOptions = {
-    title: 'Tjanser',
+    title: 'Beboere',
     drawerIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 15, color: tintColor}}/>),
     headerTitleStyle: {
       fontSize: 18
@@ -40,8 +40,15 @@ export default class DutiesScreen extends Component {
     let user = renderUser.val();
     return (
       <View style={styles.rowContainer} key={renderUser.key}>
-        <Text style={styles.textRoom}>{user.room}</Text>
-        <Text style={styles.textDuty}>{user.duty}</Text>
+        <Text style={styles.titleText}>{user.room}</Text>
+        <View style={styles.innerRowContainer}>
+          <Text style={styles.text}>{user.name}</Text>
+          <Text style={styles.text}>{user.duty}</Text>
+        </View>
+        <View style={styles.innerRowContainer}>
+          <Text style={styles.text}>{user.birthday}</Text>
+          <Text style={styles.text}>{user.email}</Text>
+        </View>
       </View>
     );
   };
@@ -63,26 +70,30 @@ const styles = StyleSheet.create({
     paddingBottom: 5
   },
   rowContainer: {
-    flex: 1,
-    flexDirection: 'row',
     borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 2,
     borderColor: colors.overviewIconColor,
     marginBottom: 7,
     marginLeft: 5,
     marginRight: 5,
-    padding: 10,
-    alignItems: 'center'
+    padding: 10
   },
-  textRoom: {
-    textAlign: 'center',
+  innerRowContainer: {
+    margin: 5,
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  text: {
+    flex: 1,
+    alignSelf: 'center',
+    alignItems: 'center',
+    textAlign: 'center'
+  },
+  titleText: {
     fontWeight: 'bold',
-    flex: 1
-  },
-  textDuty: {
-    textAlign: 'left',
-    flex: 1
+    fontSize: 15,
+    alignSelf: 'center'
   }
-
-
 });
