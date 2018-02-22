@@ -1,28 +1,41 @@
 'use strict';
 
 const {
-  buildNotification,
-  getNotificationTokens,
-  getValue,
-  notifyOnWrite,
-  publishNotification
+    buildNotification,
+    getNotificationTokens,
+    getValue,
+    notifyOnCreate,
+    notifyOnUpdate,
+    publishNotification
 } = require('./shared/NotificationHelper');
 
-exports.ViManglerNotification = notifyOnWrite('/vimangler/{viManglerUid}', event => {
-  const viManglerUid = event.params.viManglerUid;
-  const viMangler = getValue(event);
-
-  if (!viMangler) {
-    console.log(viManglerUid, ' was deleted');
-    return 0;
-  }
-
-  return publishNotification(event, (usersSnapshots, committingUid) =>
-    getNotificationTokens(usersSnapshots,
-      (userId, user) => user.duty === 'Indkøber' && user.notificationTokens && String(committingUid).valueOf() != String(userId).valueOf()
-    ), (committingUser) => {
-    const viManglerAdded = buildNotification('Der blev tilføjet en ting til Vi Mangler', `${viMangler.item} blev tilføjet af ${committingUser.room}`, 'fcm.VI_MANGLER');
-    const viManglerChecked = buildNotification('Der blev købt en ting på Vi Mangler', `${viMangler.item} blev købt af ${committingUser.room}`, 'fcm.VI_MANGLER');
-    return viMangler.checked ? viManglerChecked : viManglerAdded;
-  });
+exports.ViManglerAddedNotification = notifyOnCreate('/vimangler/{viManglerUid}', event => {
+    const viMangler = getValue(event);
+    return publishNotification(event, getNotificationTokensForViMangler, () => buildViManglerAddedNotification(viMangler));
 });
+
+exports.ViManglerUpdatedNotification = notifyOnUpdate('/vimangler/{viManglerUid}', event => {
+    const viMangler = getValue(event);
+
+    const updatedNotification = (committingUser) => buildViManglerUpdatedNotification(committingUser, viMangler);
+    const addedNotification = () => buildViManglerAddedNotification(viMangler);
+    return publishNotification(event, getNotificationTokensForViMangler, viMangler.checked ? updatedNotification : addedNotification);
+});
+
+const userIsShopper = (user) => user.duty.toLowerCase().indexOf('indkøber') !== -1;
+
+const getNotificationTokensForViMangler = (usersSnapshots, committingUid) =>
+    getNotificationTokens(usersSnapshots, committingUid,
+        (userId, user) => userIsShopper(user)
+    );
+
+const buildViManglerAddedNotification = (viMangler) => buildNotification(
+    'Der blev tilføjet en ting til Vi Mangler',
+    `${viMangler.item} blev tilføjet af ${viMangler.room}`,
+    'fcm.VI_MANGLER'
+);
+
+const buildViManglerUpdatedNotification = (committingUser, viMangler) => buildNotification(
+    'Der blev købt en ting på Vi Mangler',
+    `${viMangler.item} blev købt af ${committingUser.room}`,
+    'fcm.VI_MANGLER');

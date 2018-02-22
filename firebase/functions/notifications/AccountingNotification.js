@@ -1,26 +1,24 @@
 'use strict';
 
 const {
-  buildNotification,
-  getNotificationTokens,
-  notifyOnUpdate,
-  publishNotification
+    buildNotification,
+    getNotificationTokens,
+    notifyOnUpdate,
+    publishNotification
 } = require('./shared/NotificationHelper');
 
 exports.BeerAccountNotification = notifyOnUpdate('/accounting/beerAccount', event => {
-  publishNotification(event, (usersSnapshots, committingUid) =>
-      getNotificationTokens(usersSnapshots, (userId) => committingUid !== userId),
-    () => buildNotification(
-      'Nyt regnskab', 'Ølregnskabet blev opdateret', 'fcm.ACCOUNTING'
-    )
-  );
+    publishNotification(event, getNotificationTokens, buildBeerAccountingNotification);
 });
 
 exports.KitchenAccountNotification = notifyOnUpdate('/accounting/kitchenAccount', event => {
-  publishNotification(event, (usersSnapshots, committingUid) =>
-      getNotificationTokens(usersSnapshots, (userId) => String(committingUid).valueOf() != String(userId).valueOf()),
-    () => buildNotification(
-      'Nyt regnskab', 'Køkkenregnskabet blev opdateret', 'fcm.ACCOUNTING'
-    )
-  );
+    publishNotification(event, getNotificationTokens, buildKitchenAccountingNotification);
 });
+
+const buildBeerAccountingNotification = () => buildAccountingNotification('Ølregnskabet');
+const buildKitchenAccountingNotification = () => buildAccountingNotification('Køkkenregnskabet');
+const buildAccountingNotification = (account) => buildNotification(
+    'Nyt regnskab',
+    `${account} blev opdateret`,
+    'fcm.ACCOUNTING'
+);

@@ -6,94 +6,104 @@ import Icon from 'react-native-fa-icons';
 
 export default class ResidentsScreen extends Component {
 
-  static navigationOptions = {
-    title: 'Beboere',
-    drawerIcon: ({tintColor}) => (<Icon name='tasks' style={{fontSize: 15, color: tintColor}}/>),
-    headerTitleStyle: {
-      fontSize: 18
-    }
-  };
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      renderUsers: []
+    static navigationOptions = {
+        title: 'Beboere',
+        drawerIcon: ({tintColor}) => (<Icon name='users' style={{fontSize: 15, color: tintColor}}/>),
+        headerTitleStyle: {
+            fontSize: 18
+        }
     };
-  }
 
-  componentDidMount() {
-    Database.getUsers().then(snapshot => {
-      this.users = snapshot;
-      this.setState({renderUsers: this.renderUsers()});
-    });
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            renderUsers: []
+        };
+    }
 
-  renderUsers = () => {
-    let renderUsers = [];
-    this.users.forEach(user => {
-      renderUsers.push(this._renderUser(user));
-    });
-    return renderUsers
-  };
+    componentDidMount() {
+        Database.getUsers().then(snapshot => {
+            this.users = snapshot;
+            this.setState({renderUsers: this.renderUsers()});
+        });
+    }
 
-  _renderUser = (renderUser) => {
-    let user = renderUser.val();
-    return (
-      <View style={styles.rowContainer} key={renderUser.key}>
-        <Text style={styles.titleText}>{user.room}</Text>
-        <View style={styles.innerRowContainer}>
-          <Text style={styles.text}>{user.name}</Text>
-          <Text style={styles.text}>{user.duty}</Text>
-        </View>
-        <View style={styles.innerRowContainer}>
-          <Text style={styles.text}>{user.birthday}</Text>
-          <Text style={styles.text}>{user.email}</Text>
-        </View>
-      </View>
-    );
-  };
+    renderUsers = () => {
+        let renderUsers = [];
+        this.users.forEach(user => {
+            renderUsers.push(this._renderUser(user));
+        });
+        return renderUsers
+    };
 
-  render() {
-    return (
-      <ScrollView style={styles.container}>
-        {this.state.renderUsers}
-      </ScrollView>
-    )
-  }
+    _renderUser = (renderUser) => {
+        let user = renderUser.val();
+        return (
+            <View key={renderUser.key}>
+                <View style={styles.sectionHeaderContainer}>
+                    <Text style={styles.sectionHeaderText}>{user.room}</Text>
+                </View>
+                <View style={styles.innerRowContainer}>
+                    <Text style={styles.leftText}>Navn:</Text>
+                    <Text style={styles.rightText}>{user.name}</Text>
+                </View>
+                <View style={styles.innerRowContainer}>
+                    <Text style={styles.leftText}>Tjans:</Text>
+                    <Text style={styles.rightText}>{user.duty}</Text>
+                </View>
+                <View style={styles.innerRowContainer}>
+                    <Text style={styles.leftText}>Fødselsdag:</Text>
+                    <Text style={styles.rightText}>{user.birthday}</Text>
+                </View>
+                <View style={styles.innerRowContainer}>
+                    <Text style={styles.leftText}>Email:</Text>
+                    <Text style={styles.rightText}>{user.email}</Text>
+                </View>
+            </View>
+        );
+    };
+
+    render() {
+        return (
+            <ScrollView style={styles.container}>
+                {this.state.renderUsers}
+            </ScrollView>
+        )
+    }
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.backgroundColor,
-    paddingTop: 5,
-    paddingBottom: 5
-  },
-  rowContainer: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderRadius: 2,
-    borderColor: colors.overviewIconColor,
-    marginBottom: 7,
-    marginLeft: 5,
-    marginRight: 5,
-    padding: 10
-  },
-  innerRowContainer: {
-    margin: 5,
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  text: {
-    flex: 1,
-    alignSelf: 'center',
-    alignItems: 'center',
-    textAlign: 'center'
-  },
-  titleText: {
-    fontWeight: 'bold',
-    fontSize: 15,
-    alignSelf: 'center'
-  }
+    container: {
+        flex: 1,
+        backgroundColor: colors.backgroundColor,
+        paddingTop: 15,
+        paddingBottom: 15
+    },
+    sectionHeaderContainer: {
+        backgroundColor: colors.backgroundColor,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15
+    },
+    innerRowContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 2,
+        marginTop: 2,
+        backgroundColor: colors.whiteColor,
+        padding: 15,
+    },
+    leftText: {
+        marginLeft: 10
+    },
+    sectionHeaderText: {
+        fontSize: 18,
+        marginLeft: 10
+    },
+    rightText: {
+        marginRight: 10,
+        color: colors.submitButtonColor
+    }
 });

@@ -1,26 +1,24 @@
 'use strict';
 
 const {
-  buildNotification,
-  getNotificationTokens,
-  getValue,
-  notifyOnWrite,
-  publishNotification
+    buildNotification,
+    getNotificationTokens,
+    getValue,
+    notifyOnCreate,
+    publishNotification
 } = require('./shared/NotificationHelper');
 
-exports.GossipMessageNotification = notifyOnWrite('/gossip/{gossipUid}', (event) => {
-  const newGossip = getValue(event);
-  let message = newGossip.message;
+exports.GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (event) => {
+    const newGossip = getValue(event);
+    let message = newGossip.message;
 
-  if (message.length > 50) {
-    message = message.slice(0, 50) + '...';
-  } else if (newGossip.photo) {
-    message = 'Nogen har posted et billede!';
-  }
+    if (message.length > 50) {
+        message = message.slice(0, 50) + '...';
+    } else if (newGossip.photo) {
+        message = 'Nogen har posted et billede!';
+    }
 
-  return publishNotification(event, (usersSnapshots, committingUid) =>
-      getNotificationTokens(usersSnapshots, (userId) => String(committingUid).valueOf() != String(userId).valueOf()),
-    () =>
-      buildNotification('Gossip!', message, 'fcm.GOSSIP')
-  );
+    const buildGossipNotification = () => buildNotification('Gossip!', message, 'fcm.GOSSIP');
+
+    return publishNotification(event, getNotificationTokens, buildGossipNotification);
 });
