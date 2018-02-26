@@ -656,7 +656,7 @@ const styles = StyleSheet.create({
         marginBottom: 2,
         textAlign: 'left',
         color: colors.messageTextColor,
-        backgroundColor: colors.messageTextBackgroundColor,
+        backgroundColor: colors.whiteColor,
         borderWidth: StyleSheet.hairlineWidth
     },
     newMessageInput: {

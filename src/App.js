@@ -9,7 +9,6 @@ import {
     FIREBASE_STORAGE_BUCKET
 } from 'react-native-dotenv';
 import {Alert, Platform, StyleSheet, View} from 'react-native';
-import Stack from './navigation/Stack';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation';
@@ -27,6 +26,7 @@ import {
     setCustomTextInput,
     setCustomTouchableOpacity,
 } from 'react-native-global-props';
+import AppNavigation from './navigation/AppNavigation';
 
 let initialNotification;
 
@@ -148,38 +148,26 @@ export default class App extends Component {
             // Switch on current_action from FCM payload
             case 'fcm.VI_MANGLER':
                 this.navigator.dispatch(NavigationActions.navigate({
-                    routeName: 'Drawer',
-                    // Nested navigation param
-                    action: NavigationActions.navigate({
-                        routeName: 'Home',
-                        params: {
-                            action: 'ViMangler'
-                        }
-                    })
+                    routeName: 'Home',
+                    params: {
+                        action: 'ViMangler'
+                    }
                 }));
                 break;
             case 'fcm.GOSSIP':
                 this.navigator.dispatch(NavigationActions.navigate({
-                    routeName: 'Drawer',
-                    // Nested navigation param
-                    action: NavigationActions.navigate({
-                        routeName: 'Home',
-                        params: {
-                            action: 'Gossip'
-                        }
-                    })
+                    routeName: 'Home',
+                    params: {
+                        action: 'Gossip'
+                    }
                 }));
                 break;
             case 'fcm.ACCOUNTING':
                 this.navigator.dispatch(NavigationActions.navigate({
-                    routeName: 'Drawer',
-                    // Nested navigation param
-                    action: NavigationActions.navigate({
-                        routeName: 'Home',
-                        params: {
-                            action: 'Regnskab'
-                        }
-                    })
+                    routeName: 'Home',
+                    params: {
+                        action: 'Regnskab'
+                    }
                 }));
                 break;
         }
@@ -226,9 +214,9 @@ export default class App extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <Stack ref={this.setRef} screenProps={{
+                <AppNavigation ref={this.setRef} screenProps={{
                     getInitialNotification: () => this.getInitialNotification(),
-                    setInitialNotification: (notification) => this.setInitialNotification(notification)
+                    setInitialNotification: (notification) => this.setInitialNotification(notification),
                 }}/>
             </View>
         );

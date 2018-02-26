@@ -76,8 +76,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: colors.backgroundColor,
-        paddingTop: 15,
-        paddingBottom: 15
     },
     sectionHeaderContainer: {
         backgroundColor: colors.backgroundColor,

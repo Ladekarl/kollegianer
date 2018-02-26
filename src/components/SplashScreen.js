@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import colors from '../shared/colors';
-import Drawer from '../navigation/Drawer';
 import {NavigationActions} from 'react-navigation';
 import firebase from 'firebase';
 
@@ -21,13 +20,13 @@ export default class SplashScreen extends Component {
         }).catch(() => {
             LocalStorage.getUser().then(user => {
                 if (user && user.email && user.password && user.uid) {
-                    this._navigateAndReset('Drawer');
+                    this._navigateAndReset('mainFlow');
                     this._signIn();
                 } else {
-                    this._navigateAndReset('Login');
+                    this._navigateAndReset('Login', true);
                 }
             }).catch(() => {
-                    this._navigateAndReset('Login');
+                    this._navigateAndReset('Login', true);
                 }
             );
         });
@@ -36,16 +35,19 @@ export default class SplashScreen extends Component {
     _signIn = () => {
         LocalStorage.getUser().then(user => {
             firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(() => {
-                this._navigateAndReset('Login');
+                this._navigateAndReset('Login', true);
             });
         });
     };
 
-    _navigateAndReset = (routeName) => {
-        const resetAction = NavigationActions.reset({
+    _navigateAndReset = (routeName, isNested) => {
+        let resetAction = NavigationActions.reset({
             index: 0,
             actions: [NavigationActions.navigate({routeName: routeName})],
         });
+        if (!isNested) {
+            resetAction.key = null
+        }
         this.props.navigation.dispatch(resetAction);
     };
 

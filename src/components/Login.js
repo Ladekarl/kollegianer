@@ -16,7 +16,8 @@ import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import FitImage from 'react-native-fit-image';
 import colors from '../shared/colors';
-import Icon from "react-native-fa-icons";
+import Icon from 'react-native-fa-icons';
+import {strings} from '../shared/i18n';
 
 export default class LoginScreen extends Component {
 
@@ -35,7 +36,7 @@ export default class LoginScreen extends Component {
 
         const user = firebase.auth().currentUser;
         if (user) {
-            this._navigateAndReset();
+            this._navigateAndReset('mainFlow');
         }
     }
 
@@ -98,7 +99,7 @@ export default class LoginScreen extends Component {
     _saveUserAndNavigate = (dbUser) => {
         LocalStorage.setUser(dbUser).then(() => {
             this.setState({error: '', loading: false});
-            this._navigateAndReset();
+            this._navigateAndReset('mainFlow');
         }).catch(error => {
             this._stopLoadingAndSetError(error);
         });
@@ -108,10 +109,11 @@ export default class LoginScreen extends Component {
         this.setState({error: error.message, loading: false});
     };
 
-    _navigateAndReset = () => {
+    _navigateAndReset = (routeName) => {
         const resetAction = NavigationActions.reset({
             index: 0,
-            actions: [NavigationActions.navigate({routeName: 'Drawer'})],
+            key: null,
+            actions: [NavigationActions.navigate({routeName: routeName})],
         });
         this.props.navigation.dispatch(resetAction);
     };
@@ -175,7 +177,7 @@ export default class LoginScreen extends Component {
                         <TouchableOpacity style={styles.loginButton}
                                           onPress={this.onLoginPress}
                                           disabled={this.state.loading}>
-                            <Text style={styles.loginButtonText}>LOG IND</Text>
+                            <Text style={styles.loginButtonText}>{strings('login.login_button')}</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.errorContainer}>

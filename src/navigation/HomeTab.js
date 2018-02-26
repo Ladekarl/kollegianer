@@ -7,7 +7,7 @@ import GossipScreen from '../components/Gossip';
 import AccountingScreen from '../components/Accounting';
 
 export default HomeTab = TabNavigator({
-    Home: {
+    Overview: {
         screen: OverviewScreen
     },
     ViMangler: {

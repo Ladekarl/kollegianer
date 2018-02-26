@@ -72,12 +72,12 @@ export default class ViManglerScreen extends Component {
     _rowContainerStyle = (item) => {
         return {
             backgroundColor: item.checked ? colors.lightRedColor : colors.whiteColor,
-            borderColor: item.checked ? colors.cancelButtonColor : colors.submitButtonColor,
+            borderColor: colors.inactiveTabColor,
             borderTopWidth: StyleSheet.hairlineWidth,
             borderBottomWidth: StyleSheet.hairlineWidth,
             flexDirection: 'row',
             marginBottom: 5,
-            padding: 5,
+            padding: 10,
         }
     };
 
@@ -109,9 +109,7 @@ export default class ViManglerScreen extends Component {
                     <Text style={styles.dateItemText}>{item.date}</Text>
                 </View>
                 <TouchableOpacity style={styles.rowImageContainer} onPress={() => this.checkItem(renderItem.key, item)}>
-                    <Text style={{margin: 10, fontSize: 15, textAlign: 'left'}}>
-                        <Icon name='shopping-basket' style={styles.rowImage}/>
-                    </Text>
+                    <Icon name='shopping-basket' style={styles.rowImage}/>
                 </TouchableOpacity>
             </TouchableOpacity>
         );
@@ -163,8 +161,8 @@ export default class ViManglerScreen extends Component {
                                    value={this.state.item}
                                    onChangeText={this.onItemChange}/>
                     </View>
-                    <TouchableOpacity style={styles.rowImageContainer} onPress={this.submitItem}>
-                        <Icon name='plus-circle' style={{fontSize: 20, color: 'black'}}/>
+                    <TouchableOpacity style={styles.rowPlusImageContainer} onPress={this.submitItem}>
+                        <Icon name='plus' style={styles.icon}/>
                     </TouchableOpacity>
                 </View>
                 <ScrollView contentContainerStyle={styles.scrollContainer}
@@ -208,10 +206,25 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         marginRight: 10
     },
-    rowImageContainer: {
-        flex: 1,
+    rowPlusImageContainer: {
+        height: 35,
+        width: 35,
+        borderRadius: 100,
+        marginLeft: 5,
+        marginRight: 9,
+        justifyContent: 'center',
         alignItems: 'center',
-        justifyContent: 'center'
+        backgroundColor: colors.inactiveTabColor
+    },
+    rowImageContainer: {
+        height: 35,
+        width: 35,
+        borderRadius: 100,
+        marginLeft: 5,
+        marginRight: 14,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: colors.inactiveTabColor
     },
     descriptionContainer: {
         flex: 7,
@@ -244,8 +257,12 @@ const styles = StyleSheet.create({
     },
     rowImage: {
         textAlign: 'center',
-        color: colors.blackColor,
+        color: colors.backgroundColor,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    icon: {
+        fontSize: 15,
+        color: colors.backgroundColor
     }
 });
