@@ -129,6 +129,9 @@ export default class App extends Component {
                 case 'fcm.GOSSIP':
                     navigateTo('Gossip');
                     break;
+                case 'fcm.ACCOUNTING':
+                    navigateTo('Regnskab');
+                    break;
             }
         });
 
@@ -147,31 +150,25 @@ export default class App extends Component {
         switch (action) {
             // Switch on current_action from FCM payload
             case 'fcm.VI_MANGLER':
-                this.navigator.dispatch(NavigationActions.navigate({
-                    routeName: 'Home',
-                    params: {
-                        action: 'ViMangler'
-                    }
-                }));
+                this._navigate('Home', 'ViMangler');
                 break;
             case 'fcm.GOSSIP':
-                this.navigator.dispatch(NavigationActions.navigate({
-                    routeName: 'Home',
-                    params: {
-                        action: 'Gossip'
-                    }
-                }));
+                this._navigate('Home', 'Gossip');
                 break;
             case 'fcm.ACCOUNTING':
-                this.navigator.dispatch(NavigationActions.navigate({
-                    routeName: 'Home',
-                    params: {
-                        action: 'Regnskab'
-                    }
-                }));
+                this._navigate('Home', 'Regnskab');
                 break;
         }
     }
+
+    _navigate = (firstRouteName, secondRouteName) => {
+        this.navigator.dispatch(NavigationActions.navigate({
+            routeName: firstRouteName,
+            params: {
+                action: secondRouteName
+            }
+        }));
+    };
 
     setRef = (navigator) => {
         this.navigator = navigator;

@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {ActivityIndicator, Alert, Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {ActivityIndicator, Alert, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
-import LocalStorage from "../storage/LocalStorage";
+import LocalStorage from '../storage/LocalStorage';
 import {DocumentPicker, DocumentPickerUtil} from 'react-native-document-picker';
 import * as Papa from 'papaparse';
 import RNFetchBlob from 'react-native-fetch-blob';
@@ -20,6 +20,7 @@ export default class AccountingScreen extends Component {
         super(props);
         this.state = {
             loading: false,
+            componentHeight: 0,
             user: {
                 name: '',
                 birthday: '',
@@ -75,6 +76,7 @@ export default class AccountingScreen extends Component {
                 let tiers = new Map();
                 tiers.set('beer', [undefined, undefined, undefined]);
                 tiers.set('soda', [undefined, undefined, undefined]);
+                tiers.set('cider', [undefined, undefined, undefined]);
                 tiers.set('total', [undefined, undefined, undefined]);
                 snapshot.forEach(snap => {
                     let user = snap.val();
@@ -113,7 +115,14 @@ export default class AccountingScreen extends Component {
                                             takeSpot(user, i);
                                             break;
                                         }
-                                    } else if (key === 'total') {
+                                    }
+                                    else if (key === 'cider') {
+                                        if (topCiders < userCiders) {
+                                            takeSpot(user, i);
+                                            break;
+                                        }
+                                    }
+                                    else if (key === 'total') {
                                         if (topBeers + topSodas + topCiders <
                                             userBeers + userSodas + userCiders) {
                                             takeSpot(user, i);
@@ -401,135 +410,304 @@ export default class AccountingScreen extends Component {
         return parseFloat(parseFloat(this.state.user.beerAccount.toPay.trim().split(' ').pop())) > 0 ? styles.columnBigRedText : styles.columnBigGreenText;
     };
 
+    setComponentHeight = (event) => {
+        this.setState({componentHeight: event.nativeEvent.layout.height});
+    };
+
+    pageHeightStyle = () => {
+        return {
+            height: this.state.componentHeight
+        }
+    };
+
+    _onScrollBeginDrag = () => {
+        this.hasBegunScrolling = true;
+    };
+
+    _onScrollEndDrag = () => {
+        if (this.scrollView) {
+            const page = Math.floor(this.beginOffset / this.state.componentHeight) + 1;
+            let nextPage = this.isScrollingUp ? page - 1 : page;
+            let scrollY = this.state.componentHeight * nextPage;
+            this.scrollView.scrollTo({x: 0, y: scrollY, animated: true});
+        }
+    };
+
+    hasBegunScrolling = false;
+    isScrollingUp = false;
+    beginOffset = undefined;
+
+    _onScroll = event => {
+        const currentOffset = event.nativeEvent.contentOffset.y;
+        if (this.hasBegunScrolling) {
+            this.beginOffset = currentOffset;
+            this.hasBegunScrolling = false;
+        }
+        const dif = currentOffset - (this.offset || 0);
+
+        this.isScrollingUp = dif < 0;
+
+        this.offset = currentOffset;
+    };
+
     render() {
         return (
-            <View style={styles.container}>
-                <View style={styles.borderedInnerContainer}>
-                    <View style={styles.innerTopContainer}>
-                        <Text style={styles.innerTopText}>Ølregnskab</Text>
-                        {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
-                        <TouchableOpacity
-                            style={styles.buttonContainer}
-                            onPress={() => this._uploadFile(false)}>
-                            <Icon name='cloud-upload' style={styles.uploadImage}/>
-                        </TouchableOpacity>}
-                    </View>
-                    <View style={styles.rowContainer}>
-                        <View style={styles.largeColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
-                            <Text
-                                style={this._getToPayTextStyle()}>{this.state.user.beerAccount.toPay}</Text>
+            <View style={styles.container} onLayout={this.setComponentHeight}>
+                <ScrollView
+                    style={styles.container}
+                    ref={ref => this.scrollView = ref}
+                    onScroll={this._onScroll}
+                    onScrollBeginDrag={this._onScrollBeginDrag}
+                    onScrollEndDrag={this._onScrollEndDrag}>
+                    <View style={this.pageHeightStyle()}>
+                        <View style={styles.sectionHeaderContainer}>
+                            <Text style={styles.sectionHeaderText}>Ølregnskab</Text>
+                            {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
+                            <TouchableOpacity
+                                style={styles.buttonContainer}
+                                onPress={() => this._uploadFile(false)}>
+                                <Icon name='cloud-upload' style={styles.uploadImage}/>
+                            </TouchableOpacity>}
                         </View>
-                        <View style={styles.largeColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
-                            <Text style={styles.columnMediumText}>{this.state.user.beerAccount.deadline}</Text>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Forbrug</Text>
                         </View>
-                        <View style={styles.columnContainer}>
-                            <View style={styles.innerRowContainer}>
-                                <Text style={styles.columnHeadlineText}>{'Øl'}</Text>
-                                <Text style={styles.innerRowText}>{this.state.user.beerAccount.beers}</Text>
-                            </View>
-                            <View style={styles.innerRowContainer}>
-                                <Text style={styles.columnHeadlineText}>{'Sodavand'}</Text>
-                                <Text style={styles.innerRowText}>{this.state.user.beerAccount.sodas}</Text>
-                            </View>
-                            <View style={styles.innerRowContainer}>
-                                <Text style={styles.columnHeadlineText}>{'Cider'}</Text>
-                                <Text style={styles.innerRowText}>{this.state.user.beerAccount.ciders}</Text>
-                            </View>
-                            <View style={styles.innerRowContainer}>
-                                <Text style={styles.columnHeadlineText}>{'Straf'}</Text>
-                                <Text style={styles.innerRowText}>{this.state.user.beerAccount.punishment}</Text>
-                            </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Øl'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.beers}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Sodavand'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.sodas}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Cider'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.ciders}</Text>
+                        </View>
+                        {/*<View style={styles.rowContainer}>*/}
+                        {/*<Text style={styles.leftText}>{'I alt'}</Text>*/}
+                        {/*<Text style={styles.rightText}>{this.state.user.beerAccount.ciders +*/}
+                        {/*this.state.user.beerAccount.sodas + this.state.user.beerAccount.beers}</Text>*/}
+                        {/*</View>*/}
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Status</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Straf'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.punishment}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Depositum'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.deposit}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Gæld'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.dept}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Betalt'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.payed}</Text>
+                        </View>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Indeværende</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Deadline'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.deadline}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'At betale'}</Text>
+                            <Text style={this._getToPayTextStyle()}>{this.state.user.beerAccount.toPay}</Text>
+                        </View>
+                        <View style={styles.innerBottomContainer}>
+                            <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
+                            <Text style={styles.innerBottomText}>{this.state.user.beerAccount.regNr}</Text>
+                            <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
+                            <Text style={styles.innerBottomText}>{this.state.user.beerAccount.accountNr}</Text>
                         </View>
                     </View>
-                    <View style={styles.innerBottomContainer}>
-                        <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
-                        <Text style={styles.innerBottomText}>{this.state.user.beerAccount.regNr}</Text>
-                        <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
-                        <Text style={styles.innerBottomText}>{this.state.user.beerAccount.accountNr}</Text>
-                    </View>
-                </View>
-                <View style={styles.borderedInnerContainer}>
-                    <View style={styles.innerTopContainer}>
-                        <Text style={styles.innerTopText}>Køkkenregnskab</Text>
-                        {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
-                        <TouchableOpacity
-                            style={styles.buttonContainer}
-                            onPress={() => this._uploadFile(true)}>
-                            <Icon name='cloud-upload' style={styles.uploadImage}/>
-                        </TouchableOpacity>}
-                    </View>
-                    <View style={styles.rowContainer}>
-                        <View style={styles.largeColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Du skylder'}</Text>
+                    <View style={this.pageHeightStyle()}>
+                        <View style={styles.sectionHeaderContainer}>
+                            <Text style={styles.sectionHeaderText}>Køkkenregnskab</Text>
+                            {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
+                            <TouchableOpacity
+                                style={styles.buttonContainer}
+                                onPress={() => this._uploadFile(true)}>
+                                <Icon name='cloud-upload' style={styles.uploadImage}/>
+                            </TouchableOpacity>}
+                        </View>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Status</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Indkøbt'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.bought}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Fælles udgifter'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.sharedExpense}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Gæld'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.dept}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Betalt'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.payed}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Strafgrundlag'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.punishmentBasis}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Straf'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.punishment}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Depositum'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.deposit}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Andet'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.other}</Text>
+                        </View>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Indeværende</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Deadline'}</Text>
+                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.deadline}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{'Du skylder'}</Text>
                             <Text
                                 style={this._getToPayTextStyle()}>{this.state.user.kitchenAccount.toPay}</Text>
                         </View>
-                        <View style={styles.largeColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Deadline'}</Text>
-                            <Text style={styles.columnMediumText}>{this.state.user.kitchenAccount.deadline}</Text>
-                        </View>
-                        <View style={styles.columnContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Straf'}</Text>
-                            <Text style={styles.columnBigText}>{this.state.user.kitchenAccount.punishment}</Text>
+                        <View style={styles.innerBottomContainer}>
+                            <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
+                            <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.regNr}</Text>
+                            <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
+                            <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.accountNr}</Text>
                         </View>
                     </View>
-                    <View style={styles.innerBottomContainer}>
-                        <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
-                        <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.regNr}</Text>
-                        <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
-                        <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.accountNr}</Text>
-                    </View>
-                </View>
-                <View style={styles.innerContainer}>
-                    <View style={styles.innerTopContainer}>
-                        <Text style={styles.innerTopText}>Topscorere</Text>
-                    </View>
-                    <View style={styles.rowContainer}>
-                        <View style={styles.borderedColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>Øl</Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('beer')[0].beerAccount.beers + ' ' + this.state.tiers.get('beer')[0].name}
-                            </Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('beer')[1].beerAccount.beers + ' ' + this.state.tiers.get('beer')[1].name}
-                            </Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('beer')[2].beerAccount.beers + ' ' + this.state.tiers.get('beer')[2].name}
-                            </Text>
+                    {this.state.tiers &&
+                    <View style={this.pageHeightStyle()}>
+                        <View style={styles.sectionHeaderContainer}>
+                            <Text style={styles.sectionHeaderText}>Topscorere</Text>
                         </View>
-                        <View style={styles.borderedColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>Sodavand</Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('soda')[0].beerAccount.sodas + ' ' + this.state.tiers.get('soda')[0].name}
-                            </Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('soda')[1].beerAccount.sodas + ' ' + this.state.tiers.get('soda')[1].name}
-                            </Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('soda')[2].beerAccount.sodas + ' ' + this.state.tiers.get('soda')[2].name}
-                            </Text>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Øl</Text>
                         </View>
-                        <View style={styles.borderedColumnContainer}>
-                            <Text style={styles.columnHeadlineText}>Total</Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('total')[0].beerAccount.sodas + this.state.tiers.get('total')[0].beerAccount.ciders
-                                + this.state.tiers.get('total')[0].beerAccount.beers + ' ' + this.state.tiers.get('total')[0].name}</Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('total')[1].beerAccount.sodas + this.state.tiers.get('total')[1].beerAccount.ciders
-                                + this.state.tiers.get('total')[1].beerAccount.beers + ' ' + this.state.tiers.get('total')[1].name}</Text>
-                            <Text style={styles.columnText}>
-                                {this.state.tiers && this.state.tiers.get('total')[2].beerAccount.sodas + this.state.tiers.get('total')[2].beerAccount.ciders
-                                + this.state.tiers.get('total')[2].beerAccount.beers + ' ' + this.state.tiers.get('total')[2].name}</Text>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.goldIcon}/>
+                                <Text style={styles.leftText}>{this.state.tiers.get('beer')[0].beerAccount.beers}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('beer')[0].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.silverIcon}/>
+                                <Text style={styles.leftText}>{this.state.tiers.get('beer')[1].beerAccount.beers}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('beer')[1].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.bronzeIcon}/>
+                                <Text style={styles.leftText}>{this.state.tiers.get('beer')[2].beerAccount.beers}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('beer')[2].name}</Text>
+                        </View>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Sodavand</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.goldIcon}/>
+                                <Text style={styles.leftText}>{this.state.tiers.get('soda')[0].beerAccount.sodas}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('soda')[0].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.silverIcon}/>
+                                <Text style={styles.leftText}>{this.state.tiers.get('soda')[1].beerAccount.sodas}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('soda')[1].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.bronzeIcon}/>
+                                <Text style={styles.leftText}>{this.state.tiers.get('soda')[2].beerAccount.sodas}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('soda')[2].name}</Text>
+                        </View>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Cider</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.goldIcon}/>
+                                <Text
+                                    style={styles.leftText}>{this.state.tiers.get('cider')[0].beerAccount.ciders}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('cider')[0].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.silverIcon}/>
+                                <Text
+                                    style={styles.leftText}>{this.state.tiers.get('cider')[1].beerAccount.ciders}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('cider')[1].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.bronzeIcon}/>
+                                <Text
+                                    style={styles.leftText}>{this.state.tiers.get('cider')[2].beerAccount.ciders}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('cider')[2].name}</Text>
+                        </View>
+                        <View style={styles.innerSectionContainer}>
+                            <Text style={styles.innerSectionText}>Total</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.goldIcon}/>
+                                <Text
+                                    style={styles.leftText}>{this.state.tiers.get('total')[0].beerAccount.sodas + this.state.tiers.get('total')[0].beerAccount.ciders
+                                + this.state.tiers.get('total')[0].beerAccount.beers}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('total')[0].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.silverIcon}/>
+                                <Text
+                                    style={styles.leftText}>{this.state.tiers.get('total')[1].beerAccount.sodas + this.state.tiers.get('total')[1].beerAccount.ciders
+                                + this.state.tiers.get('total')[1].beerAccount.beers}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('total')[1].name}</Text>
+                        </View>
+                        <View style={styles.rowContainer}>
+                            <View style={styles.topscoreContainer}>
+                                <Icon name='trophy' style={styles.bronzeIcon}/>
+                                <Text
+                                    style={styles.leftText}>{this.state.tiers.get('total')[2].beerAccount.sodas + this.state.tiers.get('total')[2].beerAccount.ciders
+                                + this.state.tiers.get('total')[2].beerAccount.beers}</Text>
+                            </View>
+                            <Text style={styles.rightText}>{this.state.tiers.get('total')[2].name}</Text>
                         </View>
                     </View>
-                </View>
-                {this.state.loading &&
-                <View style={styles.loadingContainer}>
-                    <ActivityIndicator size='large' color={colors.inactiveTabColor}/>
-                </View>
-                }
+                    }
+                    {this.state.loading &&
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size='large' color={colors.inactiveTabColor}/>
+                    </View>
+                    }
+                </ScrollView>
             </View>
         )
     };
@@ -537,142 +715,97 @@ export default class AccountingScreen extends Component {
 
 const styles = StyleSheet.create({
     container: {
-        flex: 3,
+        flex: 1,
         backgroundColor: colors.backgroundColor,
     },
     rowContainer: {
         flexDirection: 'row',
-        justifyContent: 'center',
-        flex: 3
-    },
-    innerRowContainer: {
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 1,
         flex: 1,
+        marginTop: 1,
+        backgroundColor: colors.whiteColor,
+        paddingLeft: 15,
+        paddingRight: 15,
+    },
+    sectionHeaderContainer: {
+        flex: 1,
+        backgroundColor: colors.inactiveTabColor,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingRight: 5,
         alignItems: 'center',
+        paddingLeft: 15,
+        paddingRight: 15,
     },
-    innerContainer: {
-        flex: 3,
-        margin: 5
-    },
-    borderedInnerContainer: {
-        flex: 3,
-        borderColor: colors.overviewIconColor,
-        borderWidth: 1,
-        borderRadius: 2,
-        margin: 5
-    },
-    borderedColumnContainer: {
-        borderColor: colors.overviewIconColor,
-        borderWidth: StyleSheet.hairlineWidth,
-        borderRadius: 2,
-        flex: 3,
-        justifyContent: 'space-between',
-        flexDirection: 'column',
-        alignItems: 'center',
-        margin: 5,
-        padding: 5
-    },
-    columnContainer: {
-        flex: 3,
-        justifyContent: 'center',
-        flexDirection: 'column',
-        alignItems: 'stretch'
-    },
-    largeColumnContainer: {
-        flex: 4,
-        justifyContent: 'center',
-        flexDirection: 'column',
-        alignItems: 'center'
-    },
-    buttonRowContainer: {
+    innerSectionContainer: {
+        backgroundColor: colors.backgroundColor,
         flexDirection: 'row',
-        justifyContent: 'space-between',
         flex: 1,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingLeft: 15,
+        paddingRight: 15,
     },
     buttonContainer: {
         justifyContent: 'center',
         marginLeft: 10,
+        marginRight: 10,
         alignItems: 'center',
-    },
-    innerTopContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        flexDirection: 'row',
-        padding: 2,
-        borderTopLeftRadius: 2,
-        borderTopRightRadius: 2,
-        backgroundColor: colors.overviewIconColor
     },
     innerBottomContainer: {
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
         paddingTop: 2,
         paddingBottom: 2,
-        paddingLeft: 10,
-        paddingRight: 10,
-        borderBottomLeftRadius: 2,
-        borderBottomRightRadius: 2,
-        opacity: 0.8,
-        backgroundColor: colors.bottomAccountingBoxColor
+        paddingLeft: 15,
+        paddingRight: 15,
+        backgroundColor: colors.inactiveTabColor
     },
-    innerTopText: {
-        fontWeight: 'bold',
+    innerSectionText: {
         fontSize: 16,
-        color: colors.backgroundColor
+        marginLeft: 10
+    },
+    sectionHeaderText: {
+        fontSize: 18,
+        color: colors.backgroundColor,
+        marginLeft: 10
     },
     innerBottomText: {
         marginLeft: 10,
-        marginRight: 10
-    },
-    uploadText: {
-        textAlign: 'center',
-        fontSize: 12,
-        color: 'white'
+        marginRight: 10,
+        color: colors.backgroundColor
     },
     columnHeadlineText: {
         fontWeight: 'bold',
-        textAlign: 'center'
+        textAlign: 'center',
+        color: colors.backgroundColor,
+        marginLeft: 10,
+        marginRight: 10
     },
     columnBigRedText: {
-        fontSize: 25,
+        fontSize: 15,
         color: colors.logoutTextColor,
-        marginTop: 10,
-        marginBottom: 10
+        marginRight: 10,
     },
     columnBigGreenText: {
-        fontSize: 25,
+        fontSize: 15,
         color: colors.darkGreenColor,
-        marginTop: 10,
-        marginBottom: 10
+        marginRight: 10,
     },
-    columnBigText: {
-        fontSize: 25,
-        marginTop: 10,
-        marginBottom: 10,
-        alignSelf: 'center',
-        justifyContent: 'center'
+    leftText: {
+        marginLeft: 10
     },
-    columnMediumText: {
-        fontSize: 20,
-        marginTop: 10,
-        marginBottom: 10
-    },
-    columnText: {
-        fontSize: 13,
-        alignSelf: 'flex-start',
-    },
-    innerRowText: {
-        alignSelf: 'center',
-        fontSize: 14
+    rightText: {
+        marginRight: 10,
+        color: colors.submitButtonColor
     },
     uploadImage: {
         fontSize: 20,
         height: undefined,
         width: undefined,
-        color: 'white'
+        color: colors.backgroundColor
     },
     loadingContainer: {
         position: 'absolute',
@@ -682,5 +815,21 @@ const styles = StyleSheet.create({
         bottom: 0,
         alignItems: 'center',
         justifyContent: 'center'
+    },
+    goldIcon: {
+        marginRight: 10,
+        color: colors.goldColor
+    },
+    silverIcon: {
+        marginRight: 10,
+        color: colors.silverColor
+    },
+    bronzeIcon: {
+        marginRight: 10,
+        color: colors.bronzeColor
+    },
+    topscoreContainer: {
+        marginLeft: 10,
+        flexDirection: 'row'
     }
 });
