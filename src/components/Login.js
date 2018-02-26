@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {
     ActivityIndicator,
+    Dimensions,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
@@ -8,16 +9,20 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    Animated,
     View
 } from 'react-native';
 import firebase from 'firebase';
 import {NavigationActions} from 'react-navigation'
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
-import FitImage from 'react-native-fit-image';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import {strings} from '../shared/i18n';
+
+const window = Dimensions.get('window');
+const IMAGE_HEIGHT = window.width / 2;
+const IMAGE_HEIGHT_SMALL = window.width / 3;
 
 export default class LoginScreen extends Component {
 
@@ -34,10 +39,22 @@ export default class LoginScreen extends Component {
             loading: false,
         };
 
+        this.imageHeight = new Animated.Value(IMAGE_HEIGHT);
+
         const user = firebase.auth().currentUser;
         if (user) {
             this._navigateAndReset('mainFlow');
         }
+    }
+
+    componentWillMount() {
+        this.keyboardWillShowSub = Keyboard.addListener('keyboardWillShow', this.keyboardWillShow);
+        this.keyboardWillHideSub = Keyboard.addListener('keyboardWillHide', this.keyboardWillHide);
+    }
+
+    componentWillUnmount() {
+        this.keyboardWillShowSub.remove();
+        this.keyboardWillHideSub.remove();
     }
 
     componentDidMount() {
@@ -50,6 +67,20 @@ export default class LoginScreen extends Component {
             this.setState({error: error.message})
         });
     }
+
+    keyboardWillShow = (event) => {
+        Animated.timing(this.imageHeight, {
+            duration: event.duration,
+            toValue: IMAGE_HEIGHT_SMALL,
+        }).start();
+    };
+
+    keyboardWillHide = (event) => {
+        Animated.timing(this.imageHeight, {
+            duration: event.duration,
+            toValue: IMAGE_HEIGHT,
+        }).start();
+    };
 
     onLoginPress = () => {
         Keyboard.dismiss();
@@ -137,51 +168,50 @@ export default class LoginScreen extends Component {
     _renderShared = () => {
         return (
             <View style={styles.innerContainer}>
-                <View style={styles.topContainer}>
-                    <FitImage
-                        resizeMode='contain'
-                        style={styles.image}
-                        source={require('../../img/kollegianer.png')}
-                    />
-                </View>
-                <View style={styles.keyboardAvoidContainer}>
-                    <View style={styles.loginFormContainer}>
-                        <View style={styles.inputContainer}>
-                            <View style={styles.elevatedInputContainer}>
-                                <Icon name={'user'} style={styles.icon}/>
-                                <TextInput style={styles.usernameInput}
-                                           placeholder='Email'
-                                           keyboardType='email-address'
-                                           autoCapitalize='none'
-                                           textAlignVertical={'center'}
-                                           editable={!this.state.loading}
-                                           underlineColorAndroid='transparent'
-                                           selectionColor={colors.inactiveTabColor}
-                                           value={this.state.email}
-                                           onChangeText={email => this.setState({email})}/>
-                            </View>
-                            <View style={styles.elevatedInputContainer}>
-                                <Icon name={'lock'} style={styles.icon}/>
-                                <TextInput style={styles.passwordInput}
-                                           secureTextEntry={true}
-                                           textAlignVertical={'center'}
-                                           editable={!this.state.loading}
-                                           autoCapitalize='none'
-                                           underlineColorAndroid='transparent'
-                                           selectionColor={colors.inactiveTabColor}
-                                           placeholder='Password'
-                                           value={this.state.password}
-                                           onChangeText={password => this.setState({password})}/>
-                            </View>
+                <View style={styles.loginFormContainer}>
+                    <View style={styles.topContainer}>
+                        <Animated.Image
+                            style={[styles.image, {height: this.imageHeight}]}
+                            source={require('../../img/kollegianer.png')}
+                        />
+                    </View>
+                    <View style={styles.inputContainer}>
+                        <View style={styles.elevatedInputContainer}>
+                            <Icon name={'user'} style={styles.icon}/>
+                            <TextInput style={styles.usernameInput}
+                                       placeholder='Email'
+                                       keyboardType='email-address'
+                                       autoCapitalize='none'
+                                       textAlignVertical={'center'}
+                                       editable={!this.state.loading}
+                                       underlineColorAndroid='transparent'
+                                       selectionColor={colors.inactiveTabColor}
+                                       value={this.state.email}
+                                       onChangeText={email => this.setState({email})}/>
                         </View>
+                        <View style={styles.elevatedInputContainer}>
+                            <Icon name={'lock'} style={styles.icon}/>
+                            <TextInput style={styles.passwordInput}
+                                       secureTextEntry={true}
+                                       textAlignVertical={'center'}
+                                       editable={!this.state.loading}
+                                       autoCapitalize='none'
+                                       underlineColorAndroid='transparent'
+                                       selectionColor={colors.inactiveTabColor}
+                                       placeholder='Password'
+                                       value={this.state.password}
+                                       onChangeText={password => this.setState({password})}/>
+                        </View>
+                    </View>
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{this.state.error}</Text>
+                    </View>
+                    <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.loginButton}
                                           onPress={this.onLoginPress}
                                           disabled={this.state.loading}>
                             <Text style={styles.loginButtonText}>{strings('login.login_button')}</Text>
                         </TouchableOpacity>
-                    </View>
-                    <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{this.state.error}</Text>
                     </View>
                 </View>
                 {this.state.loading &&
@@ -203,42 +233,37 @@ export default class LoginScreen extends Component {
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1
+        flex: 1,
+        backgroundColor: colors.backgroundColor,
     },
     innerContainer: {
         flex: 1,
-        backgroundColor: colors.backgroundColor,
-        paddingLeft: 20,
-        paddingRight: 20
-    },
-    keyboardAvoidContainer: {
-        flex: 1
+        padding: 20
     },
     topContainer: {
-        marginTop: '40%',
-        marginLeft: '10%',
-        marginRight: '10%',
-        position: 'absolute',
-        width: '100%',
-        height: 200,
+        alignSelf: 'stretch',
+        flex: 12,
+        justifyContent: 'center',
+        alignItems: 'stretch'
+    },
+    loginFormContainer: {
+        flex: 1,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        alignSelf: 'stretch',
+        margin: 20
+    },
+    inputContainer: {
+        flex: 4,
         justifyContent: 'center',
         alignItems: 'center'
     },
-    loginFormContainer: {
-        flex: 5,
-        justifyContent: 'flex-end'
-    },
-    inputContainer: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: 40,
-    },
     elevatedInputContainer: {
-        width: '90%',
         backgroundColor: colors.whiteColor,
         borderRadius: 50,
         elevation: 5,
-        marginBottom: 20,
+        marginBottom: 10,
+        marginTop: 10,
         paddingLeft: 10,
         paddingRight: 10,
         paddingTop: 3,
@@ -250,7 +275,8 @@ const styles = StyleSheet.create({
     errorContainer: {
         flex: 1,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'center',
+        margin: 10
     },
     loadingContainer: {
         position: 'absolute',
@@ -262,11 +288,12 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     image: {
-        flex: 1,
-        alignSelf: 'stretch',
-        width: undefined,
-        height: undefined,
-        opacity: 0.8
+        height: IMAGE_HEIGHT,
+        alignSelf: 'center',
+        resizeMode: 'contain',
+        marginBottom: 20,
+        padding: 10,
+        marginTop: 20
     },
     usernameInput: {
         flex: 1,
@@ -284,16 +311,23 @@ const styles = StyleSheet.create({
     },
     errorText: {
         textAlign: 'center',
+        alignSelf: 'center',
         color: colors.errorColor
+    },
+    buttonContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'stretch',
+        marginBottom: 20
     },
     loginButton: {
         borderRadius: 50,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 18,
-        width: '90%',
         elevation: 5,
-        alignSelf: 'center',
+        alignSelf: 'stretch',
         backgroundColor: colors.submitButtonColor
     },
     loginButtonText: {
@@ -303,5 +337,6 @@ const styles = StyleSheet.create({
         fontSize: 20,
         marginLeft: 5,
         marginRight: 5,
+        color: colors.inactiveTabColor
     }
 });

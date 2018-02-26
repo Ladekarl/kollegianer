@@ -6,7 +6,7 @@ import SettingsScreen from '../components/Settings';
 import ResidentsScreen from '../components/Residents';
 import DrawerScreen from '../components/Drawer';
 import colors from '../shared/colors';
-import {TouchableOpacity} from 'react-native';
+import {TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from 'react-native-fa-icons';
 import React from 'react';
 import Header from '../components/Header';
@@ -36,6 +36,8 @@ const defaultPageNavigationOptions = ({navigation}) => ({
         elevation: 1,
         backgroundColor: colors.backgroundColor,
         margin: 0,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: colors.inactiveTabColor,
         padding: 0
     },
     headerTintColor: colors.inactiveTabColor

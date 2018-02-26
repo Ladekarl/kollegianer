@@ -427,8 +427,9 @@ export default class AccountingScreen extends Component {
     _onScrollEndDrag = () => {
         if (this.scrollView) {
             const page = Math.floor(this.beginOffset / this.state.componentHeight) + 1;
-            let nextPage = this.isScrollingUp ? page - 1 : page;
-            let scrollY = this.state.componentHeight * nextPage;
+            const nextPage = this.isScrollingUp ? page - 1 : page;
+            const factor =  nextPage > 2 ? 2 : nextPage < 0 ? 0 : nextPage;
+            const scrollY = this.state.componentHeight * factor;
             this.scrollView.scrollTo({x: 0, y: scrollY, animated: true});
         }
     };

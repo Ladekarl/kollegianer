@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, Platform} from 'react-native';
 import colors from '../shared/colors';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-fa-icons';
@@ -45,8 +45,8 @@ const styles = StyleSheet.create({
         backgroundColor: colors.backgroundColor,
         paddingLeft: 25,
         paddingRight: 25,
-        paddingTop: 20,
-        paddingBottom: 10
+        paddingTop: Platform.OS === 'ios' ? 40 : 20,
+        paddingBottom: Platform.OS === 'ios' ? 20 : 10
     },
     headerText: {
         fontSize: 20,
