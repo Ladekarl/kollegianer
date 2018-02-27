@@ -6,6 +6,7 @@ import Icon from 'react-native-fa-icons';
 import colors from '../shared/colors';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
+import {strings} from '../shared/i18n';
 
 export default class DrawerScreen extends Component {
 
@@ -63,20 +64,20 @@ export default class DrawerScreen extends Component {
                 <View style={styles.divider}/>
                 <ScrollView style={styles.drawerItemsContainer}>
                     <TouchableOpacity style={styles.drawerItemContainer} onPress={this.navigateToScreen('Home')}>
-                        <Text style={styles.drawerItemText}>Hjem</Text>
+                        <Text style={styles.drawerItemText}>{strings('drawer.home')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.drawerItemContainer} onPress={this.navigateToScreen('Residents')}>
-                        <Text style={styles.drawerItemText}>Beboere</Text>
+                        <Text style={styles.drawerItemText}>{strings('drawer.residents')}</Text>
                     </TouchableOpacity>
                 </ScrollView>
                 <View style={styles.footerContainer}>
                     <TouchableOpacity style={styles.footerIconContainer} onPress={this.navigateToScreen('Settings')}>
                         <Icon name='cog' style={styles.footerIcon}/>
-                        <Text>Indstillinger</Text>
+                        <Text>{strings('drawer.settings')}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity style={styles.footerIconContainer} onPress={this.navigateToScreen('Logout')}>
                         <Icon name='sign-out' style={styles.footerIcon}/>
-                        <Text>Log af</Text>
+                        <Text>{strings('drawer.logout')}</Text>
                     </TouchableOpacity>
                 </View>
             </View>

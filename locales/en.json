@@ -1,4 +1,26 @@
 {
+  "accounting": {
+  },
+  "drawer": {
+    "home": "Home",
+    "residents": "Residents",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "gossip": {
+  },
+  "logout": {
+  },
+  "modal": {
+  },
+  "overview": {
+  },
+  "residents": {
+  },
+  "settings": {
+  },
+  "viMangler": {
+  },
   "login": {
     "login_button": "LOGIN",
     "error_user_does_not_exist_in_database": "User does not exist in database",

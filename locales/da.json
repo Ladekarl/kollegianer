@@ -2,6 +2,10 @@
   "accounting": {
   },
   "drawer": {
+    "home": "Hjem",
+    "residents": "Beboere",
+    "settings": "Indstillinger",
+    "logout": "Log af"
   },
   "gossip": {
   },
@@ -14,8 +18,6 @@
   "residents": {
   },
   "settings": {
-  },
-  "splashScreen": {
   },
   "viMangler": {
   },
