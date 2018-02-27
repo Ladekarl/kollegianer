@@ -56,7 +56,7 @@ FCM.on(FCMEvent.RefreshToken, (token) => {
     const user = firebase.auth().currentUser;
     if (user && token) {
         const newToken = {token: token, isIos: Platform.OS === 'ios'};
-        LocalStorage.setFcmToken(newToken);
+        LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
         Database.getNotificationTokens(user.uid).then(snapshot => {
             let tokens = snapshot.val();
             let tokenFound = false;
@@ -67,9 +67,9 @@ FCM.on(FCMEvent.RefreshToken, (token) => {
             });
             if (!tokenFound) {
                 tokens.push(newToken);
-                Database.updateNotificationTokens(user.uid, tokens);
+                Database.updateNotificationTokens(user.uid, tokens).catch(error => console.log(error));
             }
-        });
+        }).catch(error => console.log(error));
     }
 });
 
@@ -115,9 +115,9 @@ export default class App extends Component {
         FCM.getFCMToken().then(token => {
             if (token) {
                 const newToken = {token: token, isIos: Platform.OS === 'ios'};
-                LocalStorage.setFcmToken(newToken);
+                LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
             }
-        });
+        }).catch(error => console.log(error));
 
         FCM.on(FCMEvent.Notification, async (notification) => {
             this._navigateOnNotification(notification);
@@ -139,7 +139,7 @@ export default class App extends Component {
             if (notification) {
                 this._navigateOnNotification(notification);
             }
-        });
+        }).catch(error => console.log(error));
     }
 
     _navigateOnNotification(notification) {

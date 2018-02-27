@@ -7,7 +7,7 @@ import ImagePicker from 'react-native-image-picker';
 import Guid from '../shared/Guid';
 import Lightbox from '../../lib/react-native-lightbox/Lightbox';
 import ModalScreen from './Modal';
-import LocalStorage from "../storage/LocalStorage";
+import LocalStorage from '../storage/LocalStorage';
 import {
     ActivityIndicator,
     Dimensions,
@@ -471,6 +471,7 @@ export default class GossipScreen extends Component {
                     }
                     contentContainerStyle={styles.scrollContainer}
                     ref={ref => this.scrollView = ref}
+                    keyboardDismissMode='interactive'
                     onContentSizeChange={this._onContentSizeChanged}>
                     <View style={styles.messageContainer}>
                         {this.state.renderMessages}

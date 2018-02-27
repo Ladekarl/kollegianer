@@ -32,7 +32,6 @@ export default HomeTab = TabNavigator({
             paddingTop: Platform.OS === 'ios' ? 20 : 2,
             paddingBottom: Platform.OS === 'ios' ? 20 : 2,
             backgroundColor: colors.backgroundColor,
-            alignItems: 'center',
             elevation: 1
         },
         labelStyle: {

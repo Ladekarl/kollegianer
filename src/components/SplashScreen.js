@@ -37,7 +37,7 @@ export default class SplashScreen extends Component {
             firebase.auth().signInWithEmailAndPassword(user.email, user.password).catch(() => {
                 this._navigateAndReset('Login', true);
             });
-        });
+        }).catch(error => console.log(error));
     };
 
     _navigateAndReset = (routeName, isNested) => {

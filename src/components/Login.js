@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {
     ActivityIndicator,
+    Animated,
     Dimensions,
     Keyboard,
     KeyboardAvoidingView,
@@ -9,7 +10,6 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
-    Animated,
     View
 } from 'react-native';
 import firebase from 'firebase';
@@ -22,6 +22,8 @@ import {strings} from '../shared/i18n';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
+const CONTAINER_HEIGHT = window.height / 2;
+const CONTAINER_HEIGHT_SMALL = window.height / 4;
 const IMAGE_HEIGHT_SMALL = window.width / 3;
 
 export default class LoginScreen extends Component {
@@ -37,9 +39,9 @@ export default class LoginScreen extends Component {
             password: '',
             error: '',
             loading: false,
+            imageHeight: new Animated.Value(IMAGE_HEIGHT),
+            containerHeight: new Animated.Value(CONTAINER_HEIGHT)
         };
-
-        this.imageHeight = new Animated.Value(IMAGE_HEIGHT);
 
         const user = firebase.auth().currentUser;
         if (user) {
@@ -48,8 +50,8 @@ export default class LoginScreen extends Component {
     }
 
     componentWillMount() {
-        this.keyboardWillShowSub = Keyboard.addListener('keyboardWillShow', this.keyboardWillShow);
-        this.keyboardWillHideSub = Keyboard.addListener('keyboardWillHide', this.keyboardWillHide);
+        this.keyboardWillShowSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', this.keyboardWillShow);
+        this.keyboardWillHideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', this.keyboardWillHide);
     }
 
     componentWillUnmount() {
@@ -69,16 +71,30 @@ export default class LoginScreen extends Component {
     }
 
     keyboardWillShow = (event) => {
-        Animated.timing(this.imageHeight, {
+        if (!event || !event.duration) {
+            event = {duration: 50};
+        }
+        Animated.timing(this.state.imageHeight, {
             duration: event.duration,
             toValue: IMAGE_HEIGHT_SMALL,
+        }).start();
+        Animated.timing(this.state.containerHeight, {
+            duration: event.duration,
+            toValue: CONTAINER_HEIGHT_SMALL,
         }).start();
     };
 
     keyboardWillHide = (event) => {
-        Animated.timing(this.imageHeight, {
+        if (!event || !event.duration) {
+            event = {duration: 50};
+        }
+        Animated.timing(this.state.imageHeight, {
             duration: event.duration,
             toValue: IMAGE_HEIGHT,
+        }).start();
+        Animated.timing(this.state.containerHeight, {
+            duration: event.duration,
+            toValue: CONTAINER_HEIGHT,
         }).start();
     };
 
@@ -112,7 +128,7 @@ export default class LoginScreen extends Component {
                             if (!tokenFound) {
                                 dbUser.notificationTokens.push(fcmToken);
                             }
-                            Database.updateUser(user.uid, dbUser);
+                            Database.updateUser(user.uid, dbUser).catch(error => console.log(error));
                         }
                     }).finally(() => {
                         dbUser.uid = user.uid;
@@ -169,14 +185,14 @@ export default class LoginScreen extends Component {
         return (
             <View style={styles.innerContainer}>
                 <View style={styles.loginFormContainer}>
-                    <View style={styles.topContainer}>
+                    <Animated.View style={[styles.topContainer, {height: this.state.containerHeight}]}>
                         <Animated.Image
-                            style={[styles.image, {height: this.imageHeight}]}
+                            style={[styles.image, {height: this.state.imageHeight}]}
                             source={require('../../img/kollegianer.png')}
                         />
-                    </View>
+                    </Animated.View>
                     <View style={styles.inputContainer}>
-                        <View style={styles.elevatedInputContainer}>
+                        <View style={[styles.elevatedInputContainer, {marginBottom: 20}]}>
                             <Icon name={'user'} style={styles.icon}/>
                             <TextInput style={styles.usernameInput}
                                        placeholder='Email'
@@ -238,20 +254,19 @@ const styles = StyleSheet.create({
     },
     innerContainer: {
         flex: 1,
-        padding: 20
+        justifyContent: 'center',
+        alignItems: 'center'
     },
     topContainer: {
-        alignSelf: 'stretch',
-        flex: 12,
+        alignSelf: 'center',
         justifyContent: 'center',
-        alignItems: 'stretch'
+        alignItems: 'center'
     },
     loginFormContainer: {
         flex: 1,
-        justifyContent: 'flex-end',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        alignSelf: 'stretch',
-        margin: 20
+        width: '80%'
     },
     inputContainer: {
         flex: 4,
@@ -262,8 +277,6 @@ const styles = StyleSheet.create({
         backgroundColor: colors.whiteColor,
         borderRadius: 50,
         elevation: 5,
-        marginBottom: 10,
-        marginTop: 10,
         paddingLeft: 10,
         paddingRight: 10,
         paddingTop: 3,
@@ -273,10 +286,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center'
     },
     errorContainer: {
-        flex: 1,
+        flex: 2,
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 10
+        margin: 10,
+        height: 30
     },
     loadingContainer: {
         position: 'absolute',
@@ -298,6 +312,7 @@ const styles = StyleSheet.create({
     usernameInput: {
         flex: 1,
         fontSize: 16,
+        height: 40,
         padding: 5,
         marginTop: 1,
         marginBottom: 1
@@ -305,6 +320,7 @@ const styles = StyleSheet.create({
     passwordInput: {
         flex: 1,
         fontSize: 16,
+        height: 40,
         padding: 5,
         marginTop: 1,
         marginBottom: 1
@@ -312,6 +328,8 @@ const styles = StyleSheet.create({
     errorText: {
         textAlign: 'center',
         alignSelf: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
         color: colors.errorColor
     },
     buttonContainer: {
@@ -319,10 +337,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'stretch',
-        marginBottom: 20
+        marginBottom: '10%'
     },
     loginButton: {
         borderRadius: 50,
+        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
         padding: 18,
