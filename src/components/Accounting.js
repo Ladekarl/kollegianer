@@ -7,11 +7,12 @@ import LocalStorage from '../storage/LocalStorage';
 import {DocumentPicker, DocumentPickerUtil} from 'react-native-document-picker';
 import * as Papa from 'papaparse';
 import RNFetchBlob from 'react-native-fetch-blob';
+import {strings} from '../shared/i18n';
 
 export default class AccountingScreen extends Component {
 
     static navigationOptions = {
-        tabBarLabel: 'Regnskab',
+        tabBarLabel: strings('accounting.accounting'),
         tabBarIcon: ({tintColor}) => (
             <Icon name='credit-card' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
     };
@@ -169,16 +170,16 @@ export default class AccountingScreen extends Component {
                     }).catch((error) => {
                         this._isLoading(false);
                         console.log(error);
-                        Alert.alert('Noget gik galt');
+                        Alert.alert(strings('accounting.something_went_wrong'));
                     });
                 }).catch((error) => {
                     this._isLoading(false);
                     console.log(error);
-                    Alert.alert('Noget gik galt');
+                    Alert.alert(strings('accounting.something_went_wrong'));
                 });
             } else if (!error) {
                 this._isLoading(false);
-                Alert.alert('Filen skal være af typen CSV UTF-8');
+                Alert.alert(strings('accounting.wrong_file_type'));
             }
         });
     };
@@ -375,8 +376,8 @@ export default class AccountingScreen extends Component {
             updatePromises.push(Database.updateKitchenAccount(csv));
         }
         else {
-            Alert.alert('Noget gik galt', 'Er du sikker på filen er i CSV UTF-8 format?\n' +
-                'Er du sikker på at du uploadede det rigtige regnskab?');
+            Alert.alert(strings('accounting.something_went_wrong'), strings('accounting.assert_file_type') + '\n' +
+                strings('accounting.assert_correct_account'));
         }
         if (updatePromises.length > 0) {
             Promise.all(updatePromises).finally(() => {
@@ -421,16 +422,16 @@ export default class AccountingScreen extends Component {
     };
 
     _onScrollBeginDrag = () => {
-        if(Platform.OS === 'ios') return;
+        if (Platform.OS === 'ios') return;
         this.hasBegunScrolling = true;
     };
 
     _onScrollEndDrag = () => {
-        if(Platform.OS === 'ios') return;
+        if (Platform.OS === 'ios') return;
         if (this.scrollView) {
             const page = Math.floor(this.beginOffset / this.state.componentHeight) + 1;
             const nextPage = this.isScrollingUp ? page - 1 : page;
-            const factor =  nextPage > 2 ? 2 : nextPage < 0 ? 0 : nextPage;
+            const factor = nextPage > 2 ? 2 : nextPage < 0 ? 0 : nextPage;
             const scrollY = this.state.componentHeight * factor;
             this.scrollView.scrollTo({x: 0, y: scrollY, animated: true});
         }
@@ -441,7 +442,7 @@ export default class AccountingScreen extends Component {
     beginOffset = undefined;
 
     _onScroll = event => {
-        if(Platform.OS === 'ios') return;
+        if (Platform.OS === 'ios') return;
         const currentOffset = event.nativeEvent.contentOffset.y;
         if (this.hasBegunScrolling) {
             this.beginOffset = currentOffset;
@@ -466,7 +467,7 @@ export default class AccountingScreen extends Component {
                     onScrollEndDrag={this._onScrollEndDrag}>
                     <View style={this.pageHeightStyle()}>
                         <View style={styles.sectionHeaderContainer}>
-                            <Text style={styles.sectionHeaderText}>Ølregnskab</Text>
+                            <Text style={styles.sectionHeaderText}>{strings('accounting.beer_account')}</Text>
                             {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
                             <TouchableOpacity
                                 style={styles.buttonContainer}
@@ -475,65 +476,65 @@ export default class AccountingScreen extends Component {
                             </TouchableOpacity>}
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Forbrug</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.consumption')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Øl'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.beer')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.beers}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Sodavand'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.soda')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.sodas}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Cider'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.cider')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.ciders}</Text>
                         </View>
                         {/*<View style={styles.rowContainer}>*/}
-                        {/*<Text style={styles.leftText}>{'I alt'}</Text>*/}
+                        {/*<Text style={styles.leftText}>{strings('accounting.withAll')}</Text>*/}
                         {/*<Text style={styles.rightText}>{this.state.user.beerAccount.ciders +*/}
                         {/*this.state.user.beerAccount.sodas + this.state.user.beerAccount.beers}</Text>*/}
                         {/*</View>*/}
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Status</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.status')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Straf'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.punishment')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.punishment}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Depositum'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.deposit')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.deposit}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Gæld'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.dept')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.dept}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Betalt'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.payed')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.payed}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Indeværende</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.current')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Deadline'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.deadline')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.deadline}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'At betale'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.to_pay')}</Text>
                             <Text style={this._getToPayTextStyle()}>{this.state.user.beerAccount.toPay}</Text>
                         </View>
                         <View style={styles.innerBottomContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
+                            <Text style={styles.columnHeadlineText}>{strings('accounting.reg_nr')}</Text>
                             <Text style={styles.innerBottomText}>{this.state.user.beerAccount.regNr}</Text>
-                            <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
+                            <Text style={styles.columnHeadlineText}>{strings('accounting.account_nr')}</Text>
                             <Text style={styles.innerBottomText}>{this.state.user.beerAccount.accountNr}</Text>
                         </View>
                     </View>
                     <View style={this.pageHeightStyle()}>
                         <View style={styles.sectionHeaderContainer}>
-                            <Text style={styles.sectionHeaderText}>Køkkenregnskab</Text>
+                            <Text style={styles.sectionHeaderText}>{strings('accounting.kitchen_account')}</Text>
                             {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
                             <TouchableOpacity
                                 style={styles.buttonContainer}
@@ -542,66 +543,66 @@ export default class AccountingScreen extends Component {
                             </TouchableOpacity>}
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Status</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.status')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Indkøbt'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.bought')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.bought}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Fælles udgifter'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.shared_expenses')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.sharedExpense}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Gæld'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.dept')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.dept}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Betalt'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.payed')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.payed}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Strafgrundlag'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.punishment_basis')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.punishmentBasis}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Straf'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.punishment')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.punishment}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Depositum'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.deposit')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.deposit}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Andet'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.other')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.other}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Indeværende</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.current')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Deadline'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.deadline')}</Text>
                             <Text style={styles.rightText}>{this.state.user.kitchenAccount.deadline}</Text>
                         </View>
                         <View style={styles.rowContainer}>
-                            <Text style={styles.leftText}>{'Du skylder'}</Text>
+                            <Text style={styles.leftText}>{strings('accounting.to_pay')}</Text>
                             <Text
                                 style={this._getToPayTextStyle()}>{this.state.user.kitchenAccount.toPay}</Text>
                         </View>
                         <View style={styles.innerBottomContainer}>
-                            <Text style={styles.columnHeadlineText}>{'Reg nr:'}</Text>
+                            <Text style={styles.columnHeadlineText}>{strings('accounting.reg_nr')}</Text>
                             <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.regNr}</Text>
-                            <Text style={styles.columnHeadlineText}>{'Konto nr:'}</Text>
+                            <Text style={styles.columnHeadlineText}>{strings('accounting.account_nr')}</Text>
                             <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.accountNr}</Text>
                         </View>
                     </View>
                     {this.state.tiers &&
                     <View style={this.pageHeightStyle()}>
                         <View style={styles.sectionHeaderContainer}>
-                            <Text style={styles.sectionHeaderText}>Topscorere</Text>
+                            <Text style={styles.sectionHeaderText}>{strings('accounting.topscorers')}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Øl</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.beer')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <View style={styles.topscoreContainer}>
@@ -625,7 +626,7 @@ export default class AccountingScreen extends Component {
                             <Text style={styles.rightText}>{this.state.tiers.get('beer')[2].name}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Sodavand</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.soda')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <View style={styles.topscoreContainer}>
@@ -649,7 +650,7 @@ export default class AccountingScreen extends Component {
                             <Text style={styles.rightText}>{this.state.tiers.get('soda')[2].name}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Cider</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.cider')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <View style={styles.topscoreContainer}>
@@ -676,7 +677,7 @@ export default class AccountingScreen extends Component {
                             <Text style={styles.rightText}>{this.state.tiers.get('cider')[2].name}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
-                            <Text style={styles.innerSectionText}>Total</Text>
+                            <Text style={styles.innerSectionText}>{strings('accounting.total')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <View style={styles.topscoreContainer}>

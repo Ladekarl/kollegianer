@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {BackHandler, Modal, Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Modal, Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import colors from '../shared/colors';
+import {strings} from '../shared/i18n';
 
 export default class ModalScreen extends Component {
 
@@ -68,14 +69,14 @@ export default class ModalScreen extends Component {
               <TouchableOpacity
                 style={styles.modalSubmitButton}
                 onPress={onSubmit}>
-                <Text style={styles.modalButtonText}>OK</Text>
+                <Text style={styles.modalButtonText}>{strings('modal.ok')}</Text>
               </TouchableOpacity>
               }
               {!noCancelButton &&
               <TouchableOpacity
                 style={styles.modalCancelButton}
                 onPress={onCancel}>
-                <Text style={styles.modalButtonText}>ANNULLER</Text>
+                <Text style={styles.modalButtonText}>{strings('modal.cancel')}</Text>
               </TouchableOpacity>
               }
             </View>

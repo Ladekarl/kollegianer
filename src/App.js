@@ -181,7 +181,7 @@ export default class App extends Component {
                 if (this.supportedNotifications.indexOf(action) !== -1) {
                     resolve(initialNotification);
                 } else {
-                    reject();
+                    reject('Initial notification not supported');
                 }
             } else {
                 FCM.getInitialNotification().then(notification => {
@@ -190,10 +190,10 @@ export default class App extends Component {
                         if (this.supportedNotifications.indexOf(action) !== -1) {
                             resolve(notification);
                         } else {
-                            reject();
+                            reject('Initial notification not supported');
                         }
                     } else {
-                        reject();
+                        reject('No initial notification');
                     }
                 }).catch(error => {
                     reject(error);

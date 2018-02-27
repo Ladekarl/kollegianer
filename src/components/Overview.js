@@ -4,10 +4,10 @@ import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View, Image} from 're
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
-import FitImage from 'react-native-fit-image';
 import ModalScreen from './Modal';
 import Base64 from '../shared/Base64';
 import LocalStorage from '../storage/LocalStorage';
+import {strings} from '../shared/i18n';
 
 export default class OverviewScreen extends Component {
 
@@ -80,8 +80,8 @@ export default class OverviewScreen extends Component {
                         this.showAssignSheriffAlert();
                     }
                 });
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     }
 
     _getNearestBirthday = (b1, b2) => {
@@ -111,7 +111,6 @@ export default class OverviewScreen extends Component {
         }
     };
 
-
     componentDidMount() {
         Database.listenEvents(snapshot => {
             let events = snapshot.val();
@@ -122,11 +121,11 @@ export default class OverviewScreen extends Component {
                 selectedMvp: events.mvp,
                 selectedShots: events.shots
             });
-        });
+        }).catch(error => console.log(error));
     }
 
     componentWillUnmount() {
-        Database.unListenEvents();
+        Database.unListenEvents().catch(error => console.log(error));
     }
 
     showAssignSheriffAlert = () => {
@@ -168,7 +167,7 @@ export default class OverviewScreen extends Component {
     };
 
     onMvpSubmit = () => {
-        Database.updateEvent('mvp', this.state.selectedMvp);
+        Database.updateEvent('mvp', this.state.selectedMvp).catch(error => console.log(error));
         this.setMvpModalVisible(false);
     };
 
@@ -182,7 +181,7 @@ export default class OverviewScreen extends Component {
     };
 
     onShotsSubmit = () => {
-        Database.updateEvent('shots', this.state.selectedShots);
+        Database.updateEvent('shots', this.state.selectedShots).catch(error => console.log(error));
         this.setShotsModalVisible(false);
     };
 
@@ -205,14 +204,14 @@ export default class OverviewScreen extends Component {
 
     showBeerpongAlert = () => {
         Alert.alert(
-            'Skift status:',
-            'Kan du bekræfte at du lige har købt for 1800kr - du skal bare sende de fire sidste cifre i dit cpr-nr',
+            strings('overview.change_status'),
+            strings('overview.change_beerpong_text'),
             [
                 {
-                    text: 'Fortryd', onPress: () => {
+                    text: strings('overview.modal_cancel'), onPress: () => {
                     }
                 },
-                {text: 'Skift', onPress: this.updateBeerPongEvent},
+                {text: strings('overview.modal_ok'), onPress: this.updateBeerPongEvent},
             ],
             {cancelable: false}
         );
@@ -220,14 +219,14 @@ export default class OverviewScreen extends Component {
 
     showPartymodeAlert = () => {
         Alert.alert(
-            'Skift status:',
-            'Du skifter party mode nu <3',
+            strings('overview.change_status'),
+            strings('overview.change_partymode_text'),
             [
                 {
-                    text: 'Fortryd', onPress: () => {
+                    text: strings('overview.modal_cancel'), onPress: () => {
                     }
                 },
-                {text: 'Skift', onPress: this.updatePartyMode},
+                {text: strings('overview.modal_ok'), onPress: this.updatePartyMode},
             ],
             {cancelable: false}
         );
@@ -235,14 +234,14 @@ export default class OverviewScreen extends Component {
 
     showFoxAlert() {
         Alert.alert(
-            'Skift status:',
-            'Sikker på at vi har vundet øl-ræven eller har 700 gemt den på deres køkken igen?',
+            strings('overview.change_status'),
+            strings('overview.change_fox_text'),
             [
                 {
-                    text: 'Fortryd', onPress: () => {
+                    text: strings('overview.modal_cancel'), onPress: () => {
                     }
                 },
-                {text: 'Skift', onPress: this.updateFoxEvent},
+                {text: strings('overview.modal_ok'), onPress: this.updateFoxEvent},
             ],
             {cancelable: false}
         );
@@ -250,7 +249,7 @@ export default class OverviewScreen extends Component {
 
     updateBeerPongEvent = () => {
         let beerpong = !this.state.events.beerpong;
-        Database.updateEvent('beerpong', beerpong);
+        Database.updateEvent('beerpong', beerpong).catch(error => console.log(error));
     };
 
     updatePartyMode = () => {
@@ -258,7 +257,7 @@ export default class OverviewScreen extends Component {
     };
 
     updateFoxEvent = () => {
-        Database.updateEvent('fox', !this.state.events.fox);
+        Database.updateEvent('fox', !this.state.events.fox).catch(error => console.log(error));
     };
 
     _togglePartyLights = () => {
@@ -300,19 +299,19 @@ export default class OverviewScreen extends Component {
                 <View style={styles.rowContainer}>
                     <View style={styles.borderlessColumnContainer}>
                         <Image resizeMode='contain' style={styles.image}
-                                  source={require('../../img/køkkenuge.png')}/>
+                               source={require('../../img/køkkenuge.png')}/>
                         <Text numberOfLines={2} style={styles.text}>{this.state.kitchenWeek}</Text>
                     </View>
                     <View style={styles.borderlessColumnContainer}>
                         <Image resizeMode='contain' style={styles.image}
-                                  source={require('../../img/sheriff.png')}/>
+                               source={require('../../img/sheriff.png')}/>
                         <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
                     </View>
                     <View style={styles.borderlessColumnContainer}>
                         <Text numberOfLines={1}
                               style={styles.text}>{this.state.nextBirthdayUsers.length > 0 ? this.state.nextBirthdayUsers[0].birthday : ''}</Text>
                         <Image resizeMode='contain' style={styles.image}
-                                  source={require('../../img/birthday.png')}/>
+                               source={require('../../img/birthday.png')}/>
                         {this._renderBirthdayNames()}
                     </View>
                 </View>
@@ -322,7 +321,7 @@ export default class OverviewScreen extends Component {
                             style={styles.leftColumnContainer}
                             onPress={() => this.setShotsModalVisible(true)}>
                             <Image resizeMode='contain' style={styles.image}
-                                      source={require('../../img/keep_calm_and_shots.png')}/>
+                                   source={require('../../img/keep_calm_and_shots.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.rightColumnContainer}
@@ -336,33 +335,33 @@ export default class OverviewScreen extends Component {
                         <TouchableOpacity
                             style={this.columnContainerStyle(this.state.events.beerpong, true)}
                             onPress={this.updateBeerPongEvent}>
-                            <Text style={styles.whiteText}>Beer pong på coxk</Text>
+                            <Text style={styles.whiteText}>{strings('overview.beerpong_button')}</Text>
                             <Image resizeMode='contain' style={styles.image}
-                                      source={require('../../img/beerpong.png')}/>
+                                   source={require('../../img/beerpong.png')}/>
                             <Text numberOfLines={2}
-                                  style={styles.whiteText}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
+                                  style={styles.whiteText}>{this.state.events.beerpong ? strings('overview.beerpong_button_true') : strings('overview.beerpong_button_false')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={this.columnContainerStyle(this.state.events.partymode.length > 0)}
                             onPress={this.updatePartyMode}>
-                            <Text style={styles.whiteText}>PARTY MODE</Text>
+                            <Text style={styles.whiteText}>{strings('overview.partymode_button')}</Text>
                             <Image resizeMode='contain' style={styles.image}
-                                      source={require('../../img/party_mode.png')}/>
+                                   source={require('../../img/party_mode.png')}/>
                             <Text numberOfLines={2}
-                                  style={styles.whiteText}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
+                                  style={styles.whiteText}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : strings('overview.partymode_button_true')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={this.columnContainerStyle(this.state.events.fox, false, true)}
                             onPress={this.updateFoxEvent}>
-                            <Text style={styles.whiteText}>Øl-ræven</Text>
+                            <Text style={styles.whiteText}>{strings('overview.fox_button')}</Text>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
                             <Text numberOfLines={2}
-                                  style={styles.whiteText}>{this.state.events.fox ? 'ofc på 1700' : 'Nope, dsværd'}</Text>
+                                  style={styles.whiteText}>{this.state.events.fox ? strings('overview.fox_button_true') : strings('overview.fox_button_false')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
                 <ModalScreen
-                    modalTitle='Vælg en person'
+                    modalTitle={strings('overview.modal_choose_person')}
                     onCancel={this.onMvpCancel}
                     onSubmit={this.onMvpSubmit}
                     onPickerValueChange={this.onMvpChange}
@@ -375,7 +374,7 @@ export default class OverviewScreen extends Component {
                     onPickerValueChange={this.onShotsChange}
                     selectedPickerValue={this.state.selectedShots}
                     pickerItems={this.state.pickerItems}
-                    modalTitle='Vælg en person'
+                    modalTitle={strings('overview.modal_choose_person')}
                     visible={this.state.shotsModalVisible}
                     onSubmit={this.onShotsSubmit}
                     onCancel={this.onShotsCancel}

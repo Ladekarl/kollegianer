@@ -14,11 +14,12 @@ import Icon from 'react-native-fa-icons';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
+import {strings} from '../shared/i18n';
 
 export default class ViManglerScreen extends Component {
 
     static navigationOptions = {
-        tabBarLabel: 'Vi Mangler',
+        tabBarLabel: strings('vi_mangler.vi_mangler'),
         tabBarIcon: ({tintColor}) => (
             <Icon name='shopping-cart' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
     };
@@ -93,14 +94,14 @@ export default class ViManglerScreen extends Component {
 
     showDeleteAlert = (renderItem, item) => {
         Alert.alert(
-            'Slet ' + item.item,
-            'Er du nu helt sikker på at du vil slette ' + item.item + '?',
+            strings('vi_mangler.delete_modal_title') + item.item,
+            strings('vi_mangler.delete_modal_text') + item.item + '?',
             [
                 {
-                    text: 'Annullér', onPress: () => {
+                    text: strings('vi_mangler.delete_modal_cancel'), onPress: () => {
                     }
                 },
-                {text: 'Slet', onPress: () => this.deleteItem(renderItem)},
+                {text: strings('vi_mangler.delete_model_ok'), onPress: () => this.deleteItem(renderItem)},
             ],
             {cancelable: false}
         );
@@ -133,13 +134,13 @@ export default class ViManglerScreen extends Component {
                 item: this.state.item,
                 date: date.getDate() + '/' + (date.getMonth() + 1),
             };
-            Database.addViMangler(newItem);
+            Database.addViMangler(newItem).catch(error => console.log(error));
             this.setState({item: ''});
         }
     };
 
     deleteItem = (item) => {
-        Database.deleteViMangler(item.key);
+        Database.deleteViMangler(item.key).catch(error => console.log(error));
     };
 
     updateItems = () => {
@@ -152,6 +153,7 @@ export default class ViManglerScreen extends Component {
             });
         }).catch((error) => {
             this.setState({fetching: false});
+            console.log(error);
         });
     };
 
@@ -165,7 +167,7 @@ export default class ViManglerScreen extends Component {
                 <View style={styles.newRowContainer}>
                     <View style={styles.descriptionContainer}>
                         <TextInput style={styles.newItemInput}
-                                   placeholder='Beskrivelse'
+                                   placeholder={strings('vi_mangler.description')}
                                    underlineColorAndroid={colors.inactiveTabColor}
                                    selectionColor={colors.inactiveTabColor}
                                    value={this.state.item}

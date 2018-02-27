@@ -1,7 +1,6 @@
 'use strict';
 
-import ReactNative from 'react-native';
-import I18n from 'react-native-i18n';
+import I18n, {getLanguages} from 'react-native-i18n';
 import en from '../../locales/en.json';
 import da from '../../locales/da.json';
 
@@ -14,10 +13,9 @@ I18n.translations = {
     da
 };
 
+I18n.fallbacks = true;
 const currentLocale = I18n.currentLocale();
-
-export const isRTL = false;
-ReactNative.I18nManager.allowRTL(isRTL);
+console.log(currentLocale);
 
 export function strings(name, params = {}) {
     return I18n.t(name, params);

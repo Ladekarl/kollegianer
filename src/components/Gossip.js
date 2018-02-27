@@ -22,11 +22,12 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
+import {strings} from '../shared/i18n';
 
 export default class GossipScreen extends Component {
 
     static navigationOptions = {
-        tabBarLabel: 'Gossip',
+        tabBarLabel: strings('gossip.gossip'),
         tabBarIcon: ({tintColor}) => (
             <Icon name='heartbeat' style={{fontSize: 20, height: undefined, width: undefined, color: tintColor}}/>),
     };
@@ -73,9 +74,10 @@ export default class GossipScreen extends Component {
                     this._onContentSizeChanged();
                 }).catch(error => {
                     this.setState({fetching: false});
+                    console.log(error);
                 });
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     }
 
     componentWillUnmount() {
@@ -137,7 +139,7 @@ export default class GossipScreen extends Component {
             newMessage.flaggedBy = this.localUser.uid;
             Database.updateGossip(this.selectedMessage.key, newMessage).then(() => {
                 this.messagesUpdated = true;
-            });
+            }).catch(error => console.log(error));
         }
         this.setMessageModalVisible(false);
         this.selectedMessage = undefined;
@@ -152,7 +154,7 @@ export default class GossipScreen extends Component {
             newMessage.flaggedBy = '';
             Database.updateGossip(this.selectedMessage.key, newMessage).then(() => {
                 this.messagesUpdated = true;
-            });
+            }).catch(error => console.log(error));
         }
         this.setMessageModalVisible(false);
         this.selectedMessage = undefined;
@@ -178,8 +180,8 @@ export default class GossipScreen extends Component {
                 this.messagesUpdated = true;
                 this.senderFilter = user.blockedUsers;
                 this.setState({renderMessages: this.renderMessages()});
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     };
 
     _unblockSender = () => {
@@ -193,8 +195,8 @@ export default class GossipScreen extends Component {
                 this.messagesUpdated = true;
                 this.senderFilter = user.blockedUsers;
                 this.setState({renderMessages: this.renderMessages()});
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     };
 
     _blockOrUnblockMessage = () => {
@@ -226,8 +228,8 @@ export default class GossipScreen extends Component {
                 this.messageFilter = user.blockedMessages;
                 this.messagesUpdated = true;
                 this.setState({renderMessages: this.renderMessages()});
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     };
 
     _unblockMessage = () => {
@@ -239,15 +241,15 @@ export default class GossipScreen extends Component {
                 this.messageFilter = user.blockedMessages;
                 this.messagesUpdated = true;
                 this.setState({renderMessages: this.renderMessages()});
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     };
 
     _renderMessage = (renderMessage, blocked) => {
         const message = renderMessage.val();
         if (blocked) {
             message.photo = undefined;
-            message.message = 'Blokeret';
+            message.message = strings('gossip.blocked');
         }
         if (!message.photo) {
             return (
@@ -365,7 +367,7 @@ export default class GossipScreen extends Component {
     selectImage = () => {
         Keyboard.dismiss();
         const options = {
-            title: 'Vælg et billede',
+            title: strings('gossip.choose_photo'),
             mediaType: 'photo',
             quality: 0.3,
             noData: true,
@@ -373,10 +375,10 @@ export default class GossipScreen extends Component {
                 skipBackup: true
             },
             permissionDenied: {
-                reTryTitle: 'Prøv igen',
-                okTitle: 'Helt sikkert',
-                title: 'Tilladelse afvist',
-                text: 'For at kunne tage billeder med dit kamera og vælge billeder fra dit bibliotek.'
+                reTryTitle: strings('gossip.permission_try_again'),
+                okTitle: strings('gossip.permission_ok'),
+                title: strings('gossip.permission_title'),
+                text: strings('gossip.permission_text')
             }
         };
         ImagePicker.showImagePicker(options, (response) => {
@@ -499,7 +501,7 @@ export default class GossipScreen extends Component {
                     </TouchableOpacity>
                 </View>
                 <ModalScreen
-                    modalTitle={'Besked indstillinger'}
+                    modalTitle={strings('gossip.message_settings')}
                     visible={this.state.messageModalVisible}
                     onCancel={() => {
                         this.setMessageModalVisible(false);
@@ -510,7 +512,7 @@ export default class GossipScreen extends Component {
                         {this.selectedMessage && this.selectedMessage.isOwnMessage &&
                         <TouchableOpacity style={styles.messageModalButton} onPress={this._deleteMessage}>
                             <Text style={styles.messageModalTextStyle}>
-                                Slet besked
+                                {strings('gossip.delete_message')}
                             </Text>
                         </TouchableOpacity>
                         }
@@ -518,7 +520,7 @@ export default class GossipScreen extends Component {
                         <TouchableOpacity style={styles.messageModalButton} onPress={this._blockOrUnblockMessage}>
                             <Text style={styles.messageModalTextStyle}>
                                 {this.messageFilter.indexOf(this.selectedMessage.key) === -1 ?
-                                    'Blokér besked' : 'Fjern blokering af besked'}
+                                    strings('gossip.block_message') : strings('gossip.undo_block_message')}
                             </Text>
                         </TouchableOpacity>
                         }
@@ -526,7 +528,7 @@ export default class GossipScreen extends Component {
                         <TouchableOpacity style={styles.messageModalButton} onPress={this._blockOrUnblockSender}>
                             <Text style={styles.messageModalTextStyle}>
                                 {this.senderFilter.indexOf(this.selectedMessage.val().id) === -1 ?
-                                    'Blokér afsender' : 'Fjern blokering af afsender'}
+                                    strings('gossip.block_sender') : strings('gossip.undo_block_sender')}
                             </Text>
                         </TouchableOpacity>
                         }
@@ -536,7 +538,7 @@ export default class GossipScreen extends Component {
                         !this.selectedMessage.val().flagged &&
                         <TouchableOpacity style={styles.messageModalButton} onPress={this._reportContent}>
                             <Text style={styles.messageModalTextStyle}>
-                                Rapportér
+                                {strings('gossip.report')}
                             </Text>
                         </TouchableOpacity>
                         }
@@ -549,7 +551,7 @@ export default class GossipScreen extends Component {
                         String(this.selectedMessage.val().flaggedBy).valueOf() == String(this.localUser.uid).valueOf() &&
                         <TouchableOpacity style={styles.messageModalButton} onPress={this._cancelReport}>
                             <Text style={styles.messageModalTextStyle}>
-                                Annullér rapportering
+                                {strings('gossip.undo_report')}
                             </Text>
                         </TouchableOpacity>
                         }

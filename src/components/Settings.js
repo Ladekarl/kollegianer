@@ -6,12 +6,12 @@ import colors from '../shared/colors';
 import firebase from 'firebase';
 import ModalScreen from './Modal';
 import Icon from 'react-native-fa-icons';
+import {strings} from '../shared/i18n';
 
 export default class SettingsScreen extends Component {
 
     static navigationOptions = {
-        title: 'Indstillinger',
-        drawerIcon: ({tintColor}) => (<Icon name='cog' style={{fontSize: 15, color: tintColor}}/>),
+        title: strings('settings.settings'),
         headerTitleStyle: {
             fontSize: 18
         }
@@ -49,7 +49,7 @@ export default class SettingsScreen extends Component {
     }
 
     componentWillUnmount() {
-        Database.unListenUsers();
+        Database.unListenUsers().catch(error => console.log(error));
     }
 
     changeDuty = () => {
@@ -63,7 +63,7 @@ export default class SettingsScreen extends Component {
     switchKitchenWeek = (value) => {
         if (this.currentKitchenWeek) {
             if (value && this.localUser.uid !== this.currentKitchenWeek.key) {
-                Alert.alert(this.currentKitchenWeek.val().name + ' har allerede køkkenugen');
+                Alert.alert(this.currentKitchenWeek.val().name + strings('settings.kitchen_week_taken'));
             } else if (!value && this.localUser.uid === this.currentKitchenWeek.key) {
                 this.setKitchenWeekModalVisible(true);
             }
@@ -73,7 +73,7 @@ export default class SettingsScreen extends Component {
     switchSheriff = (value) => {
         if (this.currentSheriff) {
             if (value && this.localUser.uid !== this.currentSheriff.key) {
-                Alert.alert(this.currentSheriff.val().name + ' er allerede sheriff');
+                Alert.alert(this.currentSheriff.val().name + strings('settings.sheriff_taken'));
             } else if (!value && this.localUser.uid === this.currentSheriff.key) {
                 this.setSheriffModalVisible(true);
             }
@@ -131,11 +131,11 @@ export default class SettingsScreen extends Component {
     };
 
     _updateUser = (user, uid, shouldSave) => {
-        Database.updateUser(uid, user);
+        Database.updateUser(uid, user).catch(error => console.log(error));
         if (shouldSave) {
             this.setState({user: user});
             let passUser = Object.assign({password: this.localUser.password, uid: uid}, user);
-            LocalStorage.setUser(passUser);
+            LocalStorage.setUser(passUser).catch(error => console.log(error));
         }
     };
 
@@ -145,7 +145,7 @@ export default class SettingsScreen extends Component {
             Database.getUser(user.uid).then(snapshot => {
                 this.setState({user: snapshot.val()});
                 this.forceUpdate();
-            });
+            }).catch(error => console.log(error));
             Database.listenUsers(snapshot => {
                 this.users = snapshot;
                 snapshot.forEach(snap => {
@@ -158,14 +158,14 @@ export default class SettingsScreen extends Component {
                     }
                 });
                 this._renderUserPickerItems(snapshot);
-            });
-        });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
     };
 
     _getDuties = () => {
         Database.getDuties().then(snapshot => {
             this._renderDutyPickerItems(snapshot);
-        });
+        }).catch(error => console.log(error));
     };
 
     _renderDutyPickerItems = (snapshot) => {
@@ -190,19 +190,19 @@ export default class SettingsScreen extends Component {
     };
 
     changePasswordAlert = () => {
-        Alert.alert('Er du sikker?',
-            'Du vil modtage en mail på ' + this.state.user.email,
+        Alert.alert(strings('settings.change_password_modal_title'),
+            strings('settings.change_password_modal_text') + this.state.user.email,
             [
                 {
-                    text: 'Annullér', onPress: () => {
+                    text: strings('settings.change_password_modal_cancel'), onPress: () => {
                     }
                 },
-                {text: 'OK', onPress: this._changePassword},
+                {text: strings('settings.change_password_modal_ok'), onPress: this._changePassword},
             ])
     };
 
     _changePassword = () => {
-        this.auth.sendPasswordResetEmail(this.state.user.email);
+        this.auth.sendPasswordResetEmail(this.state.user.email).catch(error => console.log(error));
     };
 
     onDutyCancel = () => {
@@ -268,38 +268,38 @@ export default class SettingsScreen extends Component {
         return (
             <ScrollView style={styles.container}>
                 <View style={styles.sectionHeaderContainer}>
-                    <Text style={styles.sectionHeaderText}>Profil</Text>
+                    <Text style={styles.sectionHeaderText}>{strings('settings.profile')}</Text>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Navn:</Text>
+                    <Text style={styles.leftText}>{strings('settings.name')}</Text>
                     <Text style={styles.rightText}>{this.state.user.name}</Text>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Email:</Text>
+                    <Text style={styles.leftText}>{strings('settings.email')}</Text>
                     <Text style={styles.rightText}>{this.state.user.email}</Text>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Fødselsdato:</Text>
+                    <Text style={styles.leftText}>{strings('settings.birthday')}</Text>
                     <Text style={styles.rightText}>{this.state.user.birthday}</Text>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Værelse:</Text>
+                    <Text style={styles.leftText}>{strings('settings.room')}</Text>
                     <Text style={styles.rightText}>{this.state.user.room}</Text>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Tjans:</Text>
+                    <Text style={styles.leftText}>{strings('settings.duty')}</Text>
                     <TouchableOpacity onPress={() => this.setDutyModalVisible(true)}>
                         <Text style={styles.rightText}>{this.state.user.duty}</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Køkkenuge:</Text>
+                    <Text style={styles.leftText}>{strings('settings.kitchen_week')}</Text>
                     <Switch style={styles.rightItem}
                             value={this.state.user.kitchenweek}
                             onValueChange={this.switchKitchenWeek}/>
                 </View>
                 <View style={styles.rowContainer}>
-                    <Text style={styles.leftText}>Sheriff:</Text>
+                    <Text style={styles.leftText}>{strings('settings.sheriff')}</Text>
                     <Switch style={styles.rightItem}
                             value={this.state.user.sheriff}
                             onValueChange={this.switchSheriff}/>
@@ -308,14 +308,14 @@ export default class SettingsScreen extends Component {
                     <TouchableOpacity
                         style={styles.changePasswordButton}
                         onPress={this.changePasswordAlert}>
-                        <Text style={styles.changePasswordText}>Skift adgangskode</Text>
+                        <Text style={styles.changePasswordText}>{strings('settings.change_password')}</Text>
                     </TouchableOpacity>
                 </View>
                 <ModalScreen
                     onPickerValueChange={this.onDutyChange}
                     selectedPickerValue={this.state.selectedDuty}
                     pickerItems={this.state.dutyPickerItems}
-                    modalTitle='Vælg en tjans'
+                    modalTitle={strings('settings.choose_duty_modal_title')}
                     visible={this.state.dutyModalVisible}
                     onSubmit={this.onDutySubmit}
                     onCancel={this.onDutyCancel}
@@ -325,7 +325,7 @@ export default class SettingsScreen extends Component {
                     onPickerValueChange={this.onKitchenWeekChange}
                     selectedPickerValue={this.state.selectedKitchenWeek}
                     pickerItems={this.state.userPickerItems}
-                    modalTitle='Vælg næste køkkenuge'
+                    modalTitle={strings('settings.choose_kitchen_week_modal_title')}
                     visible={this.state.kitchenWeekModalVisible}
                     onSubmit={this.onKitchenWeekSubmit}
                     onCancel={this.onKitchenWeekCancel}
@@ -335,7 +335,7 @@ export default class SettingsScreen extends Component {
                     onPickerValueChange={this.onSheriffChange}
                     selectedPickerValue={this.state.selectedSheriff}
                     pickerItems={this.state.userPickerItems}
-                    modalTitle='Vælg næste sheriff'
+                    modalTitle={strings('settings.choose_sheriff_modal_title')}
                     visible={this.state.sheriffModalVisible}
                     onSubmit={this.onSheriffSubmit}
                     onCancel={this.onSheriffCancel}

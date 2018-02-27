@@ -3,11 +3,12 @@ import {ScrollView, StyleSheet, Text, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
+import {strings} from '../shared/i18n';
 
 export default class ResidentsScreen extends Component {
 
     static navigationOptions = {
-        title: 'Beboere',
+        title: strings('residents.residents'),
         drawerIcon: ({tintColor}) => (<Icon name='users' style={{fontSize: 15, color: tintColor}}/>),
         headerTitleStyle: {
             fontSize: 18
@@ -44,19 +45,19 @@ export default class ResidentsScreen extends Component {
                     <Text style={styles.sectionHeaderText}>{user.room}</Text>
                 </View>
                 <View style={styles.innerRowContainer}>
-                    <Text style={styles.leftText}>Navn:</Text>
+                    <Text style={styles.leftText}>{strings('residents.name')}</Text>
                     <Text style={styles.rightText}>{user.name}</Text>
                 </View>
                 <View style={styles.innerRowContainer}>
-                    <Text style={styles.leftText}>Tjans:</Text>
+                    <Text style={styles.leftText}>{strings('residents.duty')}</Text>
                     <Text style={styles.rightText}>{user.duty}</Text>
                 </View>
                 <View style={styles.innerRowContainer}>
-                    <Text style={styles.leftText}>Fødselsdag:</Text>
+                    <Text style={styles.leftText}>{strings('residents.birthday')}</Text>
                     <Text style={styles.rightText}>{user.birthday}</Text>
                 </View>
                 <View style={styles.innerRowContainer}>
-                    <Text style={styles.leftText}>Email:</Text>
+                    <Text style={styles.leftText}>{strings('residents.email')}</Text>
                     <Text style={styles.rightText}>{user.email}</Text>
                 </View>
             </View>
