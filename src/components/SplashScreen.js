@@ -1,9 +1,12 @@
 import React, {Component} from 'react';
-import {Image, StyleSheet, View} from 'react-native';
+import {Dimensions, Image, StyleSheet, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import colors from '../shared/colors';
 import {NavigationActions} from 'react-navigation';
 import firebase from 'firebase';
+
+const window = Dimensions.get('window');
+const IMAGE_HEIGHT = window.width / 2;
 
 export default class SplashScreen extends Component {
 
@@ -92,9 +95,8 @@ const styles = StyleSheet.create({
     },
     image: {
         flex: 1,
-        alignSelf: 'stretch',
-        width: undefined,
-        height: undefined,
+        height: IMAGE_HEIGHT,
+        alignSelf: 'center',
         opacity: 0.8
     }
 });

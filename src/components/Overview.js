@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
+import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View, Image} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -121,8 +121,6 @@ export default class OverviewScreen extends Component {
                 events,
                 selectedMvp: events.mvp,
                 selectedShots: events.shots
-            }, () => {
-                this.foxButton.style = OverviewScreen.columnContainerStyle(this.state.events.fox);
             });
         });
     }
@@ -192,7 +190,7 @@ export default class OverviewScreen extends Component {
         this.setState({selectedShots: itemValue});
     };
 
-    static columnContainerStyle(value, left, right) {
+    columnContainerStyle(value, left, right) {
         return {
             backgroundColor: (value ? colors.darkGreenColor : colors.cancelButtonColor),
             borderBottomLeftRadius: left ? 20 : 0,
@@ -274,7 +272,7 @@ export default class OverviewScreen extends Component {
             body: this.state.events.partymode.length > 0 ? 'OFF' : 'ON'
         }).then(() => {
             const partymode = this.state.events.partymode;
-            Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name);
+            Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name).catch(error => console.log(error));
         });
     };
 
@@ -293,28 +291,28 @@ export default class OverviewScreen extends Component {
             <View style={styles.container}>
                 <View style={styles.rowContainer}>
                     <View style={styles.headerContainer}>
-                        <FitImage
+                        <Image
                             resizeMode='contain'
                             style={styles.headerImage}
-                            source={require('../../img/kollegianer.png')} indicator={false}/>
+                            source={require('../../img/kollegianer.png')}/>
                     </View>
                 </View>
                 <View style={styles.rowContainer}>
                     <View style={styles.borderlessColumnContainer}>
-                        <FitImage resizeMode='contain' style={styles.image}
-                                  source={require('../../img/køkkenuge.png')} indicator={false}/>
+                        <Image resizeMode='contain' style={styles.image}
+                                  source={require('../../img/køkkenuge.png')}/>
                         <Text numberOfLines={2} style={styles.text}>{this.state.kitchenWeek}</Text>
                     </View>
                     <View style={styles.borderlessColumnContainer}>
-                        <FitImage resizeMode='contain' style={styles.image}
-                                  source={require('../../img/sheriff.png')} indicator={false}/>
+                        <Image resizeMode='contain' style={styles.image}
+                                  source={require('../../img/sheriff.png')}/>
                         <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
                     </View>
                     <View style={styles.borderlessColumnContainer}>
                         <Text numberOfLines={1}
                               style={styles.text}>{this.state.nextBirthdayUsers.length > 0 ? this.state.nextBirthdayUsers[0].birthday : ''}</Text>
-                        <FitImage resizeMode='contain' style={styles.image}
-                                  source={require('../../img/birthday.png')} indicator={false}/>
+                        <Image resizeMode='contain' style={styles.image}
+                                  source={require('../../img/birthday.png')}/>
                         {this._renderBirthdayNames()}
                     </View>
                 </View>
@@ -323,43 +321,41 @@ export default class OverviewScreen extends Component {
                         <TouchableOpacity
                             style={styles.leftColumnContainer}
                             onPress={() => this.setShotsModalVisible(true)}>
-                            <FitImage resizeMode='contain' style={styles.image}
-                                      source={require('../../img/keep_calm_and_shots.png')} indicator={false}/>
+                            <Image resizeMode='contain' style={styles.image}
+                                      source={require('../../img/keep_calm_and_shots.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.rightColumnContainer}
                                           onPress={() => this.setMvpModalVisible(true)
                                           }>
-                            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}
-                                      indicator={false}/>
+                            <Image resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.rowContainer}>
                         <TouchableOpacity
-                            style={OverviewScreen.columnContainerStyle(this.state.events.beerpong, true)}
+                            style={this.columnContainerStyle(this.state.events.beerpong, true)}
                             onPress={this.updateBeerPongEvent}>
                             <Text style={styles.whiteText}>Beer pong på coxk</Text>
-                            <FitImage resizeMode='contain' style={styles.image}
-                                      source={require('../../img/beerpong.png')} indicator={false}/>
+                            <Image resizeMode='contain' style={styles.image}
+                                      source={require('../../img/beerpong.png')}/>
                             <Text numberOfLines={2}
                                   style={styles.whiteText}>{this.state.events.beerpong ? 'Jaaa Daa!' : 'Nah fam'}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={OverviewScreen.columnContainerStyle(this.state.events.partymode.length > 0)}
+                            style={this.columnContainerStyle(this.state.events.partymode.length > 0)}
                             onPress={this.updatePartyMode}>
                             <Text style={styles.whiteText}>PARTY MODE</Text>
-                            <FitImage resizeMode='contain' style={styles.image}
-                                      source={require('../../img/party_mode.png')} indicator={false}/>
+                            <Image resizeMode='contain' style={styles.image}
+                                      source={require('../../img/party_mode.png')}/>
                             <Text numberOfLines={2}
                                   style={styles.whiteText}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : 'später mein freund'}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            ref={component => this.foxButton = component}
-                            style={OverviewScreen.columnContainerStyle(this.state.events.fox, false, true)}
+                            style={this.columnContainerStyle(this.state.events.fox, false, true)}
                             onPress={this.updateFoxEvent}>
                             <Text style={styles.whiteText}>Øl-ræven</Text>
-                            <FitImage resizeMode='contain' style={styles.image} source={require('../../img/fox.png')} indicator={false}/>
+                            <Image resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
                             <Text numberOfLines={2}
                                   style={styles.whiteText}>{this.state.events.fox ? 'ofc på 1700' : 'Nope, dsværd'}</Text>
                         </TouchableOpacity>

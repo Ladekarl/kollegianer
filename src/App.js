@@ -8,7 +8,7 @@ import {
     FIREBASE_PROJECT_ID,
     FIREBASE_STORAGE_BUCKET
 } from 'react-native-dotenv';
-import {Alert, Platform, StyleSheet, View} from 'react-native';
+import {Alert, Platform, StyleSheet, View, StatusBar} from 'react-native';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation';
@@ -209,6 +209,9 @@ export default class App extends Component {
     };
 
     render() {
+        if(Platform.OS === 'ios') {
+            StatusBar.setBarStyle('light-content', true);
+        }
         return (
             <View style={styles.container}>
                 <AppNavigation ref={this.setRef} screenProps={{

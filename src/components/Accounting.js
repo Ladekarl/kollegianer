@@ -421,10 +421,12 @@ export default class AccountingScreen extends Component {
     };
 
     _onScrollBeginDrag = () => {
+        if(Platform.OS === 'ios') return;
         this.hasBegunScrolling = true;
     };
 
     _onScrollEndDrag = () => {
+        if(Platform.OS === 'ios') return;
         if (this.scrollView) {
             const page = Math.floor(this.beginOffset / this.state.componentHeight) + 1;
             const nextPage = this.isScrollingUp ? page - 1 : page;
@@ -439,6 +441,7 @@ export default class AccountingScreen extends Component {
     beginOffset = undefined;
 
     _onScroll = event => {
+        if(Platform.OS === 'ios') return;
         const currentOffset = event.nativeEvent.contentOffset.y;
         if (this.hasBegunScrolling) {
             this.beginOffset = currentOffset;
@@ -458,6 +461,7 @@ export default class AccountingScreen extends Component {
                     style={styles.container}
                     ref={ref => this.scrollView = ref}
                     onScroll={this._onScroll}
+                    pagingEnabled={true}
                     onScrollBeginDrag={this._onScrollBeginDrag}
                     onScrollEndDrag={this._onScrollEndDrag}>
                     <View style={this.pageHeightStyle()}>

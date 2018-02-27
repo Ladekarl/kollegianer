@@ -1,5 +1,15 @@
 import React, {Component} from 'react';
-import {Alert, RefreshControl, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {
+    Alert,
+    Platform,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
+} from 'react-native';
 import Icon from 'react-native-fa-icons';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
@@ -53,7 +63,7 @@ export default class ViManglerScreen extends Component {
 
     checkItem = (key, item) => {
         item.checked = !item.checked;
-        Database.updateViMangler(key, item);
+        Database.updateViMangler(key, item).catch(error => console.log(error));
     };
 
     _itemTextStyle = (item) => {
@@ -214,7 +224,7 @@ const styles = StyleSheet.create({
         marginRight: 9,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.inactiveTabColor
+        backgroundColor: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
     },
     rowImageContainer: {
         height: 35,
@@ -224,7 +234,7 @@ const styles = StyleSheet.create({
         marginRight: 14,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.inactiveTabColor
+        backgroundColor: Platform.OS === 'ios' ? colors.whiteColor : colors.inactiveTabColor
     },
     descriptionContainer: {
         flex: 7,
@@ -257,12 +267,13 @@ const styles = StyleSheet.create({
     },
     rowImage: {
         textAlign: 'center',
-        color: colors.backgroundColor,
+        color: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor,
+        fontSize: Platform.OS === 'ios' ? 20 : 15,
         alignItems: 'center',
         justifyContent: 'center'
     },
     icon: {
-        fontSize: 15,
-        color: colors.backgroundColor
+        fontSize: Platform.OS === 'ios' ? 20 : 15,
+        color: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor
     }
 });

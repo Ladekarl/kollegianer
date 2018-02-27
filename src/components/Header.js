@@ -42,15 +42,15 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        backgroundColor: colors.backgroundColor,
+        backgroundColor: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor,
         paddingLeft: 25,
         paddingRight: 25,
         paddingTop: Platform.OS === 'ios' ? 40 : 20,
-        paddingBottom: Platform.OS === 'ios' ? 20 : 10
+        paddingBottom: 10
     },
     headerText: {
         fontSize: 20,
-        color: colors.inactiveTabColor,
+        color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor,
         fontWeight: 'bold'
     },
     headerButton: {
@@ -63,9 +63,9 @@ const styles = StyleSheet.create({
         backgroundColor: colors.inactiveTabColor
     },
     icon: {
-        fontSize: 15,
+        fontSize: Platform.OS === 'ios' ? 20 : 15,
         height: undefined,
         width: undefined,
-        color: colors.backgroundColor
+        color: Platform.OS === 'ios' ? colors.backgroundColor : colors.backgroundColor
     }
 });

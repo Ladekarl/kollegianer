@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Platform} from 'react-native';
 import PropTypes from 'prop-types';
 import {NavigationActions} from 'react-navigation';
 import Icon from 'react-native-fa-icons';
@@ -63,10 +63,10 @@ export default class DrawerScreen extends Component {
                 </View>
                 <View style={styles.divider}/>
                 <ScrollView style={styles.drawerItemsContainer}>
-                    <TouchableOpacity style={styles.drawerItemContainer} onPress={this.navigateToScreen('Home')}>
+                    <TouchableOpacity onPress={this.navigateToScreen('Home')}>
                         <Text style={styles.drawerItemText}>{strings('drawer.home')}</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.drawerItemContainer} onPress={this.navigateToScreen('Residents')}>
+                    <TouchableOpacity onPress={this.navigateToScreen('Residents')}>
                         <Text style={styles.drawerItemText}>{strings('drawer.residents')}</Text>
                     </TouchableOpacity>
                 </ScrollView>
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
     headerContainer: {
         flex: 0.5,
         justifyContent: 'center',
-        backgroundColor: colors.backgroundColor
+        backgroundColor: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor
     },
     headerIconTextContainer: {
         flexDirection: 'row',
@@ -103,7 +103,6 @@ const styles = StyleSheet.create({
         flex: 3,
         paddingTop: 15
     },
-    drawerItemContainer: {},
     drawerItemText: {
         fontSize: 20,
         marginLeft: 80,
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
         elevation: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: colors.inactiveTabColor
+        backgroundColor: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
     },
     footerIconContainer: {
         marginTop: 10,
@@ -141,7 +140,7 @@ const styles = StyleSheet.create({
         fontSize: 35,
         height: undefined,
         width: undefined,
-        color: colors.backgroundColor
+        color: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor
     },
     footerIcon: {
         fontSize: 25,
@@ -156,7 +155,7 @@ const styles = StyleSheet.create({
         marginLeft: 10,
         fontWeight: 'bold',
         fontSize: 15,
-        color: colors.inactiveTabColor
+        color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
     },
     divider: {
         borderBottomWidth: StyleSheet.hairlineWidth

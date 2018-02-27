@@ -210,7 +210,7 @@ export default class GossipScreen extends Component {
     _deleteMessage = () => {
         if (this.selectedMessage && this.selectedMessage.isOwnMessage) {
             this.messagesUpdated = true;
-            Database.deleteGossip(this.selectedMessage.key);
+            Database.deleteGossip(this.selectedMessage.key).catch(error => console.log(error));
         }
         this.setMessageModalVisible(false);
         this.selectedMessage = undefined;
@@ -437,7 +437,7 @@ export default class GossipScreen extends Component {
             <KeyboardAvoidingView
                 style={styles.container}
                 behavior='padding'
-                keyboardVerticalOffset={64}>
+                keyboardVerticalOffset={84}>
                 {this._renderShared()}
             </KeyboardAvoidingView>
         );

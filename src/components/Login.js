@@ -111,7 +111,7 @@ export default class LoginScreen extends Component {
                 Database.getUser(user.uid).then(snapshot => {
                     const dbUser = snapshot.val();
                     if (!dbUser) {
-                        this._stopLoadingAndSetError(strings('error_user_does_not_exist_in_database'));
+                        this._stopLoadingAndSetError(strings('login.error_user_does_not_exist_in_database'));
                         return;
                     }
                     LocalStorage.getFcmToken().then(fcmToken => {
@@ -195,7 +195,7 @@ export default class LoginScreen extends Component {
                         <View style={[styles.elevatedInputContainer, {marginBottom: 20}]}>
                             <Icon name={'user'} style={styles.icon}/>
                             <TextInput style={styles.usernameInput}
-                                       placeholder={strings('email_placeholder')}
+                                       placeholder={strings('login.email_placeholder')}
                                        keyboardType='email-address'
                                        autoCapitalize='none'
                                        textAlignVertical={'center'}
@@ -214,20 +214,20 @@ export default class LoginScreen extends Component {
                                        autoCapitalize='none'
                                        underlineColorAndroid='transparent'
                                        selectionColor={colors.inactiveTabColor}
-                                       placeholder={strings('password_placeholder')}
+                                       placeholder={strings('login.password_placeholder')}
                                        value={this.state.password}
                                        onChangeText={password => this.setState({password})}/>
                         </View>
-                    </View>
-                    <View style={styles.errorContainer}>
-                        <Text style={styles.errorText}>{this.state.error}</Text>
-                    </View>
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.loginButton}
-                                          onPress={this.onLoginPress}
-                                          disabled={this.state.loading}>
-                            <Text style={styles.loginButtonText}>{strings('login.login_button')}</Text>
-                        </TouchableOpacity>
+                        <View style={styles.errorContainer}>
+                            <Text style={styles.errorText}>{this.state.error}</Text>
+                        </View>
+                        <View style={styles.buttonContainer}>
+                            <TouchableOpacity style={styles.loginButton}
+                                              onPress={this.onLoginPress}
+                                              disabled={this.state.loading}>
+                                <Text style={styles.loginButtonText}>{strings('login.login_button')}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </View>
                 {this.state.loading &&
@@ -258,20 +258,20 @@ const styles = StyleSheet.create({
         alignItems: 'center'
     },
     topContainer: {
+        minHeight: IMAGE_HEIGHT_SMALL,
         alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center'
     },
     loginFormContainer: {
-        flex: 1,
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        justifyContent: 'center',
+        alignItems: 'stretch',
         width: '80%'
     },
     inputContainer: {
-        flex: 4,
         justifyContent: 'center',
-        alignItems: 'center'
+        alignItems: 'stretch',
+        marginBottom: 20
     },
     elevatedInputContainer: {
         backgroundColor: colors.whiteColor,
@@ -283,14 +283,14 @@ const styles = StyleSheet.create({
         paddingBottom: 3,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        borderWidth: Platform.OS === 'ios' ? StyleSheet.hairlineWidth : 0,
+        borderColor: colors.inactiveTabColor,
     },
     errorContainer: {
-        flex: 2,
+        height: 50,
         justifyContent: 'center',
         alignItems: 'center',
-        margin: 10,
-        height: 30
     },
     loadingContainer: {
         position: 'absolute',
@@ -303,11 +303,8 @@ const styles = StyleSheet.create({
     },
     image: {
         height: IMAGE_HEIGHT,
-        alignSelf: 'center',
-        resizeMode: 'contain',
-        marginBottom: 20,
-        padding: 10,
-        marginTop: 20
+        minHeight: IMAGE_HEIGHT_SMALL,
+        resizeMode: 'contain'
     },
     usernameInput: {
         flex: 1,
@@ -327,17 +324,12 @@ const styles = StyleSheet.create({
     },
     errorText: {
         textAlign: 'center',
-        alignSelf: 'center',
         justifyContent: 'center',
         alignItems: 'center',
         color: colors.errorColor
     },
     buttonContainer: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        alignSelf: 'stretch',
-        marginBottom: '10%'
+        alignItems: 'stretch'
     },
     loginButton: {
         borderRadius: 50,
@@ -346,7 +338,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         padding: 18,
         elevation: 5,
-        alignSelf: 'stretch',
         backgroundColor: colors.submitButtonColor
     },
     loginButtonText: {

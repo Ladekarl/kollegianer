@@ -6,7 +6,7 @@ import SettingsScreen from '../components/Settings';
 import ResidentsScreen from '../components/Residents';
 import DrawerScreen from '../components/Drawer';
 import colors from '../shared/colors';
-import {TouchableOpacity, StyleSheet} from 'react-native';
+import {TouchableOpacity, StyleSheet, Platform} from 'react-native';
 import Icon from 'react-native-fa-icons';
 import React from 'react';
 import Header from '../components/Header';
@@ -25,32 +25,25 @@ const defaultPageNavigationOptions = ({navigation}) => ({
                 fontSize: 20,
                 height: undefined,
                 width: undefined,
-                color: colors.inactiveTabColor
+                color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
             }}/>
         </TouchableOpacity>,
     headerTitleStyle: {
-        fontSize: 18,
-        color: colors.inactiveTabColor
+        fontSize: 20,
+        color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
     },
     headerStyle: {
         elevation: 1,
-        backgroundColor: colors.backgroundColor,
+        backgroundColor: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor,
         margin: 0,
-        borderBottomWidth: StyleSheet.hairlineWidth,
-        borderBottomColor: colors.inactiveTabColor,
-        padding: 0
+        paddingBottom: Platform.OS === 'ios' ? 10 : 0
     },
-    headerTintColor: colors.inactiveTabColor
+    headerTintColor: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
 });
 
 const homeNavigationOptions = ({navigation}) => ({
     headerMode: 'none',
     header: (<Header navigation={navigation}/>),
-    title: 'Hjem',
-    drawerIcon: ({tintColor}) => (<Icon name='home' style={{fontSize: 15, color: tintColor}}/>),
-    headerTitleStyle: {
-        fontSize: 18
-    },
 });
 
 export default AppNavigation = StackNavigator({
