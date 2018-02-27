@@ -1,5 +1,28 @@
 {
+  "accounting": {
+  },
+  "drawer": {
+  },
+  "gossip": {
+  },
+  "logout": {
+  },
+  "modal": {
+  },
+  "overview": {
+  },
+  "residents": {
+  },
+  "settings": {
+  },
+  "splashScreen": {
+  },
+  "viMangler": {
+  },
   "login": {
-    "login_button": "LOG IND"
+    "login_button": "LOG IND",
+    "error_user_does_not_exist_in_database": "Brugeren eksisterer ikke i databasen",
+    "email_placeholder": "Email",
+    "password_placeholder": "Kodeord"
   }
 }

@@ -1,5 +1,8 @@
 {
   "login": {
-    "login_button": "LOGIN"
+    "login_button": "LOGIN",
+    "error_user_does_not_exist_in_database": "User does not exist in database",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password"
   }
 }

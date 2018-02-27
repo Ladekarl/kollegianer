@@ -111,7 +111,7 @@ export default class LoginScreen extends Component {
                 Database.getUser(user.uid).then(snapshot => {
                     const dbUser = snapshot.val();
                     if (!dbUser) {
-                        this._stopLoadingAndSetError('User did not exist in database');
+                        this._stopLoadingAndSetError(strings('error_user_does_not_exist_in_database'));
                         return;
                     }
                     LocalStorage.getFcmToken().then(fcmToken => {
@@ -195,7 +195,7 @@ export default class LoginScreen extends Component {
                         <View style={[styles.elevatedInputContainer, {marginBottom: 20}]}>
                             <Icon name={'user'} style={styles.icon}/>
                             <TextInput style={styles.usernameInput}
-                                       placeholder='Email'
+                                       placeholder={strings('email_placeholder')}
                                        keyboardType='email-address'
                                        autoCapitalize='none'
                                        textAlignVertical={'center'}
@@ -214,7 +214,7 @@ export default class LoginScreen extends Component {
                                        autoCapitalize='none'
                                        underlineColorAndroid='transparent'
                                        selectionColor={colors.inactiveTabColor}
-                                       placeholder='Password'
+                                       placeholder={strings('password_placeholder')}
                                        value={this.state.password}
                                        onChangeText={password => this.setState({password})}/>
                         </View>
