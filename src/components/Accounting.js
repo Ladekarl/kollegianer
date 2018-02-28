@@ -180,6 +180,8 @@ export default class AccountingScreen extends Component {
             } else if (!error) {
                 this._isLoading(false);
                 Alert.alert(strings('accounting.wrong_file_type'));
+            } else {
+                this._isLoading(false);
             }
         });
     };
@@ -382,7 +384,7 @@ export default class AccountingScreen extends Component {
         if (updatePromises.length > 0) {
             Promise.all(updatePromises).finally(() => {
                 this._isLoading(false);
-            })
+            });
         } else {
             this._isLoading(false);
         }
@@ -490,11 +492,11 @@ export default class AccountingScreen extends Component {
                             <Text style={styles.leftText}>{strings('accounting.cider')}</Text>
                             <Text style={styles.rightText}>{this.state.user.beerAccount.ciders}</Text>
                         </View>
-                        {/*<View style={styles.rowContainer}>*/}
-                        {/*<Text style={styles.leftText}>{strings('accounting.withAll')}</Text>*/}
-                        {/*<Text style={styles.rightText}>{this.state.user.beerAccount.ciders +*/}
-                        {/*this.state.user.beerAccount.sodas + this.state.user.beerAccount.beers}</Text>*/}
-                        {/*</View>*/}
+                        <View style={styles.rowContainer}>
+                            <Text style={styles.leftText}>{strings('accounting.with_all')}</Text>
+                            <Text style={styles.rightText}>{this.state.user.beerAccount.ciders +
+                            this.state.user.beerAccount.sodas + this.state.user.beerAccount.beers}</Text>
+                        </View>
                         <View style={styles.innerSectionContainer}>
                             <Text style={styles.innerSectionText}>{strings('accounting.status')}</Text>
                         </View>

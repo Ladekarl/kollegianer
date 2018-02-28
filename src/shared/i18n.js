@@ -1,6 +1,6 @@
 'use strict';
 
-import I18n, {getLanguages} from 'react-native-i18n';
+import I18n from 'react-native-i18n';
 import en from '../../locales/en.json';
 import da from '../../locales/da.json';
 

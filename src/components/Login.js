@@ -74,28 +74,32 @@ export default class LoginScreen extends Component {
         if (!event || !event.duration) {
             event = {duration: 50};
         }
-        Animated.timing(this.state.imageHeight, {
-            duration: event.duration,
-            toValue: IMAGE_HEIGHT_SMALL,
-        }).start();
-        Animated.timing(this.state.containerHeight, {
-            duration: event.duration,
-            toValue: CONTAINER_HEIGHT_SMALL,
-        }).start();
+        Animated.parallel([
+            Animated.timing(this.state.containerHeight, {
+                duration: event.duration,
+                toValue: CONTAINER_HEIGHT_SMALL
+            }),
+            Animated.timing(this.state.imageHeight, {
+                duration: event.duration,
+                toValue: IMAGE_HEIGHT_SMALL
+            })
+        ]).start();
     };
 
     keyboardWillHide = (event) => {
         if (!event || !event.duration) {
             event = {duration: 50};
         }
-        Animated.timing(this.state.imageHeight, {
-            duration: event.duration,
-            toValue: IMAGE_HEIGHT,
-        }).start();
-        Animated.timing(this.state.containerHeight, {
-            duration: event.duration,
-            toValue: CONTAINER_HEIGHT,
-        }).start();
+        Animated.parallel([
+            Animated.timing(this.state.containerHeight, {
+                duration: event.duration,
+                toValue: CONTAINER_HEIGHT,
+            }),
+            Animated.timing(this.state.imageHeight, {
+                duration: event.duration,
+                toValue: IMAGE_HEIGHT,
+            })
+        ]).start();
     };
 
     onLoginPress = () => {
