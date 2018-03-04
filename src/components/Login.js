@@ -8,6 +8,7 @@ import {
     Platform,
     StyleSheet,
     Text,
+    ScrollView,
     TextInput,
     TouchableOpacity,
     View
@@ -19,6 +20,7 @@ import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import {strings} from '../shared/i18n';
+import ModalScreen from './Modal';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
@@ -40,7 +42,8 @@ export default class LoginScreen extends Component {
             error: '',
             loading: false,
             imageHeight: new Animated.Value(IMAGE_HEIGHT),
-            containerHeight: new Animated.Value(CONTAINER_HEIGHT)
+            containerHeight: new Animated.Value(CONTAINER_HEIGHT),
+            eulaDialogVisible: false
         };
 
         const user = firebase.auth().currentUser;
@@ -185,6 +188,10 @@ export default class LoginScreen extends Component {
         );
     };
 
+    showEulaDialog = (visible) => {
+        this.setState({eulaDialogVisible: visible});
+    };
+
     _renderShared = () => {
         return (
             <View style={styles.innerContainer}>
@@ -226,6 +233,16 @@ export default class LoginScreen extends Component {
                             <Text style={styles.errorText}>{this.state.error}</Text>
                         </View>
                         <View style={styles.buttonContainer}>
+                            <View style={styles.eulaContainer}>
+                                <Text>
+                                    {strings('login.eula_agreement_1')}
+                                    <Text
+                                        onPress={() => this.showEulaDialog(true)}
+                                        style={styles.eulaText}>
+                                        {strings('login.eula_agreement_2')}
+                                    </Text>
+                                </Text>
+                            </View>
                             <TouchableOpacity style={styles.loginButton}
                                               onPress={this.onLoginPress}
                                               disabled={this.state.loading}>
@@ -239,6 +256,15 @@ export default class LoginScreen extends Component {
                     <ActivityIndicator size='large' color={colors.inactiveTabColor} style={{elevation: 10}}/>
                 </View>
                 }
+                <ModalScreen
+                    modalTitle={strings('login.eula_title')}
+                    noCancelButton={true}
+                    onSubmit={() => this.showEulaDialog(false)}
+                    visible={this.state.eulaDialogVisible}>
+                    <ScrollView style={styles.eulaTextContainer}>
+                        <Text>{Platform.OS === 'ios' ? strings('login.eula_ios') : strings('login.eula_android')}</Text>
+                    </ScrollView>
+                </ModalScreen>
             </View>
         );
     };
@@ -305,6 +331,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center'
     },
+    eulaContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+        marginTop: 10,
+        marginBottom: 10
+    },
+    eulaTextContainer: {
+        height: '70%',
+    },
+    eulaText: {
+        color: 'blue',
+        textDecorationLine: 'underline'
+    },
     image: {
         height: IMAGE_HEIGHT,
         minHeight: IMAGE_HEIGHT_SMALL,
@@ -335,6 +375,7 @@ const styles = StyleSheet.create({
     buttonContainer: {
         alignItems: 'stretch'
     },
+
     loginButton: {
         borderRadius: 50,
         height: 50,

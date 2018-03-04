@@ -398,7 +398,6 @@ export default class AccountingScreen extends Component {
     _parseCsv = (content) => {
         return new Promise((resolve, reject) => {
             Papa.parse(content, {
-                delimiter: ',',
                 complete: (results) => {
                     resolve(results);
                 },

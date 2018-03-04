@@ -6,7 +6,7 @@ import SettingsScreen from '../components/Settings';
 import ResidentsScreen from '../components/Residents';
 import DrawerScreen from '../components/Drawer';
 import colors from '../shared/colors';
-import {TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import {TouchableOpacity, Platform} from 'react-native';
 import Icon from 'react-native-fa-icons';
 import React from 'react';
 import Header from '../components/Header';
@@ -46,7 +46,7 @@ const homeNavigationOptions = ({navigation}) => ({
     header: (<Header navigation={navigation}/>),
 });
 
-export default AppNavigation = StackNavigator({
+const AppNavigation = StackNavigator({
     loginFlow: {
         screen: StackNavigator({
             SplashScreen: {screen: SplashScreen},
@@ -81,3 +81,5 @@ export default AppNavigation = StackNavigator({
         })
     }
 }, {headerMode: 'none'});
+
+export default AppNavigation;

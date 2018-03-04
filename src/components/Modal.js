@@ -101,6 +101,7 @@ const styles = StyleSheet.create({
   },
   modalInnerContainer: {
     width: '80%',
+    maxHeight: '80%',
     borderRadius: 15,
     justifyContent: 'center',
     opacity: 1,

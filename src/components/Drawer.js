@@ -7,12 +7,15 @@ import colors from '../shared/colors';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import {strings} from '../shared/i18n';
+import {NavigationScreenProp} from 'react-navigation/src/TypeDefinition';
 
 export default class DrawerScreen extends Component {
 
     static propTypes = {
         navigation: PropTypes.object.isRequired
     };
+    
+    navigator: NavigationScreenProp;
 
     constructor(props) {
         super(props);
@@ -28,10 +31,16 @@ export default class DrawerScreen extends Component {
     }
 
     navigateToScreen = (route) => () => {
-        const navigateAction = NavigationActions.navigate({
-            routeName: route
-        });
-        this.props.navigation.dispatch(navigateAction);
+        let currentRoute = this.navigator.state.key;
+
+        if(currentRoute !== route) {
+            const navigateAction = NavigationActions.navigate({
+                routeName: route
+            });
+            this.navigator.dispatch(navigateAction);
+        } else {
+            this.closeDrawer();
+        }
     };
 
     _getUser = () => {
@@ -44,10 +53,11 @@ export default class DrawerScreen extends Component {
     };
 
     closeDrawer = () => {
-        this.props.navigation.navigate('DrawerClose');
+        this.navigator.navigate('DrawerClose');
     };
 
     render() {
+        this.navigator = this.props.navigation;
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
