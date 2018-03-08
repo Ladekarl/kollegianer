@@ -14,7 +14,7 @@ exports.UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event => {
 
     const notificationTokens = () => getUserUpdatedNotificationTokens(user, previousUser);
 
-    let notification = user.kitchenWeek ?
+    let notification = user.kitchenweek ?
         (committingUser) => buildKitchenWeekNotification(committingUser) :
         (committingUser) => buildSheriffNotification(committingUser);
 
