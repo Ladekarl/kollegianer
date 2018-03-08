@@ -50,9 +50,6 @@ export default class GossipScreen extends Component {
         this.initialLimit = 20;
         this.limit = this.initialLimit;
         this.messagesUpdated = false;
-    }
-
-    componentWillMount() {
         this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow);
         this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide);
     }
@@ -344,9 +341,10 @@ export default class GossipScreen extends Component {
                 date: date,
                 id: this.localUser.uid
             };
-            Database.addGossip(newMessage);
+            Database.addGossip(newMessage).catch(error => console.log(error));
             this.setState({message: ''});
             Keyboard.dismiss();
+            this.forceUpdate();
         }
     };
 

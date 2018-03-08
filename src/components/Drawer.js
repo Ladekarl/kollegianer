@@ -7,7 +7,6 @@ import colors from '../shared/colors';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import {strings} from '../shared/i18n';
-import {NavigationScreenProp} from 'react-navigation/src/TypeDefinition';
 
 export default class DrawerScreen extends Component {
 
@@ -15,7 +14,7 @@ export default class DrawerScreen extends Component {
         navigation: PropTypes.object.isRequired
     };
     
-    navigator: NavigationScreenProp;
+    navigator;
 
     constructor(props) {
         super(props);

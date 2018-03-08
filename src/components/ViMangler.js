@@ -236,6 +236,7 @@ const styles = StyleSheet.create({
         marginRight: 14,
         justifyContent: 'center',
         alignItems: 'center',
+        alignSelf: 'center',
         backgroundColor: Platform.OS === 'ios' ? colors.whiteColor : colors.inactiveTabColor
     },
     descriptionContainer: {

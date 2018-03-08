@@ -50,9 +50,7 @@ export default class LoginScreen extends Component {
         if (user) {
             this._navigateAndReset('mainFlow');
         }
-    }
 
-    componentWillMount() {
         this.keyboardWillShowSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', this.keyboardWillShow);
         this.keyboardWillHideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', this.keyboardWillHide);
     }

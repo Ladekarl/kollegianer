@@ -42,8 +42,7 @@ export default class ModalScreen extends Component {
       <Modal
         animationType='fade'
         transparent={true}
-        onRequestClose={() => {
-        }}
+        onRequestClose={onCancel}
         visible={visible}>
         <View style={styles.modalContainer}>
           <View style={[styles.modalInnerContainer]}>

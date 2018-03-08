@@ -77,6 +77,18 @@ export default class App extends Component {
 
     constructor(props) {
         super(props);
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp({
+                apiKey: FIREBASE_API_KEY,
+                authDomain: FIREBASE_DOMAIN,
+                databaseURL: FIREBASE_DATABASE_URL,
+                projectId: FIREBASE_PROJECT_ID,
+                storageBucket: FIREBASE_STORAGE_BUCKET,
+                messagingSenderId: FIREBASE_MESSAGE_SENDER_ID
+            });
+        }
+
         const customTextProps = {
             style: {
                 fontFamily: 'Lato'
@@ -88,23 +100,11 @@ export default class App extends Component {
         const customActivityIndicator = {
             color: colors.inactiveTabColor
         };
+
         setCustomText(customTextProps);
         setCustomTouchableOpacity(customTouchableOpacityProps);
         setCustomActivityIndicator(customActivityIndicator);
-        setCustomTextInput(customTextProps)
-    }
-
-    componentWillMount() {
-        if (!firebase.apps.length) {
-            firebase.initializeApp({
-                apiKey: FIREBASE_API_KEY,
-                authDomain: FIREBASE_DOMAIN,
-                databaseURL: FIREBASE_DATABASE_URL,
-                projectId: FIREBASE_PROJECT_ID,
-                storageBucket: FIREBASE_STORAGE_BUCKET,
-                messagingSenderId: FIREBASE_MESSAGE_SENDER_ID
-            });
-        }
+        setCustomTextInput(customTextProps);
     }
 
     componentDidMount() {
