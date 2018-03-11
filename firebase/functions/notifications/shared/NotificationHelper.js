@@ -100,12 +100,13 @@ const buildNotificationIos = (payload) => {
     }
 };
 
-const buildNotificationAndroid = (payload) => {
+const buildNotificationAndroid = (payload, tag) => {
     return {
         data: {
             custom_notification: JSON.stringify(Object.assign({
                 priority: 'high',
-                show_in_foreground: true
+                show_in_foreground: true,
+                tag: tag
             }, payload))
         }
     };
@@ -127,7 +128,7 @@ const readDatabaseOnce = (path) => {
     return admin.database().ref(path).once('value');
 };
 
-const publishNotification = (event, notificationTokenFn, notificationFn) => {
+const publishNotification = (event, notificationTokenFn, notificationFn, tag) => {
     const committingUid = getCommittingId(event);
     return readDatabaseOnce(`/user/`).then(usersSnapshots => {
         let committingUser = findUser(committingUid, usersSnapshots);
@@ -145,7 +146,7 @@ const publishNotification = (event, notificationTokenFn, notificationFn) => {
         const notificationPayload = notificationFn(committingUser);
         return Promise.all([
             sendNotification(iosNotifTokens, buildNotificationIos(notificationPayload)),
-            sendNotification(androidNotifTokens, buildNotificationAndroid(notificationPayload))
+            sendNotification(androidNotifTokens, buildNotificationAndroid(notificationPayload, tag))
         ]);
     });
 };

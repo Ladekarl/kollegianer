@@ -17,9 +17,10 @@ exports.ViManglerAddedNotification = notifyOnCreate('/vimangler/{viManglerUid}',
 exports.ViManglerUpdatedNotification = notifyOnUpdate('/vimangler/{viManglerUid}', event => {
     const viMangler = getValue(event);
 
-    const updatedNotification = (committingUser) => buildViManglerUpdatedNotification(committingUser, viMangler);
-    const addedNotification = () => buildViManglerAddedNotification(viMangler);
-    return publishNotification(event, getNotificationTokensForViMangler, viMangler.checked ? updatedNotification : addedNotification);
+    let notification = viMangler.checked ?
+        (committingUser) => buildViManglerUpdatedNotification(committingUser, viMangler) :
+        () => buildViManglerAddedNotification(viMangler);
+    return publishNotification(event, getNotificationTokensForViMangler, notification, 'kollegianer.vi_mangler_updated');
 });
 
 const userIsShopper = (user) => user.duty.toLowerCase().indexOf('indkøber') !== -1;

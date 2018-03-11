@@ -8,11 +8,11 @@ const {
 } = require('./shared/NotificationHelper');
 
 exports.BeerAccountNotification = notifyOnUpdate('/accounting/beerAccount', event => {
-    publishNotification(event, getNotificationTokens, buildBeerAccountingNotification);
+    publishNotification(event, getNotificationTokens, buildBeerAccountingNotification, 'kollegianer.beer_account');
 });
 
 exports.KitchenAccountNotification = notifyOnUpdate('/accounting/kitchenAccount', event => {
-    publishNotification(event, getNotificationTokens, buildKitchenAccountingNotification);
+    publishNotification(event, getNotificationTokens, buildKitchenAccountingNotification, 'kollegianer.kitchen_account');
 });
 
 const buildBeerAccountingNotification = () => buildAccountingNotification('Ølregnskabet');

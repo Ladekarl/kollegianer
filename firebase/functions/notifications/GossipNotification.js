@@ -20,5 +20,5 @@ exports.GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (event
 
     const buildGossipNotification = () => buildNotification('Gossip!', message, 'fcm.GOSSIP');
 
-    return publishNotification(event, getNotificationTokens, buildGossipNotification);
+    return publishNotification(event, getNotificationTokens, buildGossipNotification, 'kollegianer.gossip');
 });
