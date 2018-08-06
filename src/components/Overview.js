@@ -261,7 +261,8 @@ export default class OverviewScreen extends Component {
     };
 
     _togglePartyLights = () => {
-        return fetch('https://se2-openhab04.compute.dtu.dk/rest/items/Dtu4Plug_Switch', {
+        const partymode = this.state.events.partymode;
+        return fetch(`http://192.168.1.105:3030/${partymode.length > 0 ? 'on' : 'off'}`, {
             method: 'POST',
             headers: {
                 Accept: 'application/json',
@@ -270,7 +271,6 @@ export default class OverviewScreen extends Component {
             },
             body: this.state.events.partymode.length > 0 ? 'OFF' : 'ON'
         }).then(() => {
-            const partymode = this.state.events.partymode;
             Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name).catch(error => console.log(error));
         });
     };

@@ -197,6 +197,8 @@ export default class AccountingScreen extends Component {
             cocioIndex, consumptionIndex, deptIndex, depositIndex, payedIndex, punishmentIndex, toPayIndex,
             sharedExpenseIndex, otherIndex, boughtIndex, punishmentBasisIndex, deadline;
 
+        otherIndex = 3;
+
         for (let i = 0; i < csv.length; i++) {
             let row = csv[i];
             for (let j = 0; j < row.length; j++) {
