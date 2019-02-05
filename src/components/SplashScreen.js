@@ -2,8 +2,8 @@ import React, {Component} from 'react';
 import {Dimensions, Image, StyleSheet, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import colors from '../shared/colors';
-import {NavigationActions} from 'react-navigation';
-import firebase from 'firebase';
+import {StackActions, NavigationActions} from 'react-navigation';
+import firebase from 'react-native-firebase';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
@@ -22,9 +22,16 @@ export default class SplashScreen extends Component {
             }
         }).catch(() => {
             LocalStorage.getUser().then(user => {
-                if (user && user.email && user.password && user.uid) {
-                    this._navigateAndReset('mainFlow');
-                    this._signIn();
+                if (user && user.email && user.uid) {
+                    if (user.accessToken) {
+                        this._navigateAndReset('mainFlow');
+                        this._signInFacebook();
+                    } else if (user.password) {
+                        this._navigateAndReset('mainFlow');
+                        this._signIn();
+                    } else {
+                        this._navigateAndReset('Login', true);
+                    }
                 } else {
                     this._navigateAndReset('Login', true);
                 }
@@ -43,13 +50,22 @@ export default class SplashScreen extends Component {
         }).catch(error => console.log(error));
     };
 
+    _signInFacebook = () => {
+        LocalStorage.getUser().then(user => {
+            const credential = firebase.auth.FacebookAuthProvider.credential(user.accessToken);
+            firebase.auth().signInWithCredential(credential).catch(() => {
+                this._navigateAndReset('Login', true);
+            });
+        }).catch(error => console.log(error));
+    };
+
     _navigateAndReset = (routeName, isNested) => {
-        let resetAction = NavigationActions.reset({
+        let resetAction = StackActions.reset({
             index: 0,
             actions: [NavigationActions.navigate({routeName: routeName})],
         });
         if (!isNested) {
-            resetAction.key = null
+            resetAction.key = null;
         }
         this.props.navigation.dispatch(resetAction);
     };

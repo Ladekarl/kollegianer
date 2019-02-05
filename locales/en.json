@@ -90,16 +90,22 @@
     "change_password_modal_ok": "OK",
     "profile": "Profile",
     "name": "Name:",
+    "name_placeholder": "name",
     "email": "Email:",
+    "email_placeholder": "email",
     "birthday": "Birthday:",
+    "birthday_placeholder": "30/01/2000",
     "room": "Room:",
+    "room_placeholder": "1715",
     "duty": "Duty:",
+    "duty_placeholder": "Select duty",
     "kitchen_week": "Kitchen week:",
     "sheriff": "Sheriff:",
     "change_password": "Change password",
     "choose_duty_modal_title": "Choose a duty",
     "choose_kitchen_week_modal_title": "Choose the next kitchen week",
-    "choose_sheriff_modal_title": "Choose the next sheriff"
+    "choose_sheriff_modal_title": "Choose the next sheriff",
+    "fill_required": "Please fill out the information"
   },
   "vi_mangler": {
     "vi_manger": "Shopping List",
@@ -111,6 +117,8 @@
   },
   "login": {
     "login_button": "LOGIN",
+    "login_button_facebook": "LOGIN WITH FACEBOOK",
+    "could_not_login": "Could not login. Try again",
     "error_user_does_not_exist_in_database": "User does not exist in database",
     "email_placeholder": "Email",
     "password_placeholder": "Password",

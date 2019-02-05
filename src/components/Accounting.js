@@ -49,10 +49,10 @@ export default class AccountingScreen extends Component {
                     deadline: '',
                     regNr: '',
                     accountNr: '',
-                    beers: '',
-                    sodas: '',
-                    ciders: '',
-                    cocios: '',
+                    beers: null,
+                    sodas: null,
+                    ciders: null,
+                    cocios: null,
                     consumption: '',
                     dept: '',
                     deposit: '',
@@ -81,26 +81,28 @@ export default class AccountingScreen extends Component {
                 tiers.set('total', [undefined, undefined, undefined]);
                 snapshot.forEach(snap => {
                     let user = snap.val();
-                    if (user.beerAccount) {
-                        tiers.forEach((item, key, mapObj) => {
-                            for (let i = 0; i < item.length; i++) {
-                                const takeSpot = (user, fromIndex) => {
-                                    if (fromIndex + 1 < item.length) {
-                                        takeSpot(item[fromIndex], fromIndex + 1);
-                                        item[fromIndex + 1] = item[fromIndex];
-                                    }
-                                    item[fromIndex] = user;
-                                };
+                    tiers.forEach((item, key, mapObj) => {
+                        for (let i = 0; i < item.length; i++) {
+                            const takeSpot = (user, fromIndex) => {
+                                if (fromIndex + 1 < item.length) {
+                                    takeSpot(item[fromIndex], fromIndex + 1);
+                                    item[fromIndex + 1] = item[fromIndex];
+                                }
+                                item[fromIndex] = user;
+                            };
 
-                                let userBeerAccount = user.beerAccount;
-                                const userBeers = userBeerAccount.beers ? parseInt(userBeerAccount.beers) : 0;
-                                const userSodas = userBeerAccount.sodas ? parseInt(userBeerAccount.sodas) : 0;
-                                const userCiders = userBeerAccount.ciders ? parseInt(userBeerAccount.ciders) : 0;
+                            let userBeerAccount = user.beerAccount;
+                            let userBeers, userSodas, userCiders;
+                            if (userBeerAccount) {
+                                userBeers = userBeerAccount.beers ? parseInt(userBeerAccount.beers) : 0;
+                                userSodas = userBeerAccount.sodas ? parseInt(userBeerAccount.sodas) : 0;
+                                userCiders = userBeerAccount.ciders ? parseInt(userBeerAccount.ciders) : 0;
                                 user.beerAccount.beers = userBeers;
                                 user.beerAccount.sodas = userSodas;
                                 user.beerAccount.ciders = userCiders;
-
-                                if (item[i]) {
+                            }
+                            if (userBeerAccount) {
+                                if (item[i] && item[i].beerAccount) {
                                     let itemBeerAccount = item[i].beerAccount;
                                     const topBeers = itemBeerAccount.beers ? parseInt(itemBeerAccount.beers) : 0;
                                     const topSodas = itemBeerAccount.sodas ? parseInt(itemBeerAccount.sodas) : 0;
@@ -116,14 +118,12 @@ export default class AccountingScreen extends Component {
                                             takeSpot(user, i);
                                             break;
                                         }
-                                    }
-                                    else if (key === 'cider') {
+                                    } else if (key === 'cider') {
                                         if (topCiders < userCiders) {
                                             takeSpot(user, i);
                                             break;
                                         }
-                                    }
-                                    else if (key === 'total') {
+                                    } else if (key === 'total') {
                                         if (topBeers + topSodas + topCiders <
                                             userBeers + userSodas + userCiders) {
                                             takeSpot(user, i);
@@ -138,8 +138,8 @@ export default class AccountingScreen extends Component {
                                 }
                                 mapObj.set(key, item);
                             }
-                        });
-                    }
+                        }
+                    });
                     if (snap.key === localUser.uid) {
                         if (!user.kitchenAccount) {
                             user.kitchenAccount = this.state.user.kitchenAccount;
@@ -327,25 +327,27 @@ export default class AccountingScreen extends Component {
 
             this.usersSnapshot.forEach(snap => {
                 let user = snap.val();
-                const column = getColumn(user);
-                if (column) {
-                    const row = csv[column];
-                    user.beerAccount = {
-                        deadline: deadline,
-                        regNr: regNr,
-                        accountNr: accountNr,
-                        beers: row[beerIndex],
-                        sodas: row[sodaIndex],
-                        ciders: row[ciderIndex],
-                        cocios: row[cocioIndex],
-                        consumption: row[consumptionIndex],
-                        dept: row[deptIndex],
-                        deposit: row[depositIndex],
-                        payed: row[payedIndex],
-                        punishment: row[punishmentIndex],
-                        toPay: row[toPayIndex],
-                    };
-                    updatePromises.push(Database.updateUser(snap.key, user));
+                if (user.room) {
+                    const column = getColumn(user);
+                    if (column) {
+                        const row = csv[column];
+                        user.beerAccount = {
+                            deadline: deadline,
+                            regNr: regNr,
+                            accountNr: accountNr,
+                            beers: row[beerIndex],
+                            sodas: row[sodaIndex],
+                            ciders: row[ciderIndex],
+                            cocios: row[cocioIndex],
+                            consumption: row[consumptionIndex],
+                            dept: row[deptIndex],
+                            deposit: row[depositIndex],
+                            payed: row[payedIndex],
+                            punishment: row[punishmentIndex],
+                            toPay: row[toPayIndex],
+                        };
+                        updatePromises.push(Database.updateUser(snap.key, user));
+                    }
                 }
             });
             updatePromises.push(Database.updateBeerAccount(csv));
@@ -357,29 +359,30 @@ export default class AccountingScreen extends Component {
             && sharedExpenseIndex !== undefined && otherIndex !== undefined && boughtIndex !== undefined && punishmentBasisIndex !== undefined) {
             this.usersSnapshot.forEach(snap => {
                 let user = snap.val();
-                let column = getColumn(user);
-                if (column) {
-                    let row = csv[column];
-                    user.kitchenAccount = {
-                        deadline: deadline,
-                        regNr: regNr,
-                        accountNr: accountNr,
-                        sharedExpense: row[sharedExpenseIndex],
-                        other: row[otherIndex],
-                        bought: row[boughtIndex],
-                        dept: row[deptIndex],
-                        payed: row[payedIndex],
-                        deposit: row[depositIndex],
-                        punishmentBasis: row[punishmentBasisIndex],
-                        punishment: row[punishmentIndex],
-                        toPay: row[toPayIndex],
-                    };
-                    updatePromises.push(Database.updateUser(snap.key, user));
+                if (user.room) {
+                    let column = getColumn(user);
+                    if (column) {
+                        let row = csv[column];
+                        user.kitchenAccount = {
+                            deadline: deadline,
+                            regNr: regNr,
+                            accountNr: accountNr,
+                            sharedExpense: row[sharedExpenseIndex],
+                            other: row[otherIndex],
+                            bought: row[boughtIndex],
+                            dept: row[deptIndex],
+                            payed: row[payedIndex],
+                            deposit: row[depositIndex],
+                            punishmentBasis: row[punishmentBasisIndex],
+                            punishment: row[punishmentIndex],
+                            toPay: row[toPayIndex],
+                        };
+                        updatePromises.push(Database.updateUser(snap.key, user));
+                    }
                 }
             });
             updatePromises.push(Database.updateKitchenAccount(csv));
-        }
-        else {
+        } else {
             Alert.alert(strings('accounting.something_went_wrong'), strings('accounting.assert_file_type') + '\n' +
                 strings('accounting.assert_correct_account'));
         }
@@ -421,7 +424,7 @@ export default class AccountingScreen extends Component {
     pageHeightStyle = () => {
         return {
             height: this.state.componentHeight
-        }
+        };
     };
 
     _onScrollBeginDrag = () => {
@@ -459,6 +462,7 @@ export default class AccountingScreen extends Component {
     };
 
     render() {
+        const {user} = this.state;
         return (
             <View style={styles.container} onLayout={this.setComponentHeight}>
                 <ScrollView
@@ -471,7 +475,7 @@ export default class AccountingScreen extends Component {
                     <View style={this.pageHeightStyle()}>
                         <View style={styles.sectionHeaderContainer}>
                             <Text style={styles.sectionHeaderText}>{strings('accounting.beer_account')}</Text>
-                            {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
+                            {user && !!user.duty && user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
                             <TouchableOpacity
                                 style={styles.buttonContainer}
                                 onPress={() => this._uploadFile(false)}>
@@ -483,62 +487,62 @@ export default class AccountingScreen extends Component {
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.beer')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.beers}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.beers}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.soda')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.sodas}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.sodas}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.cider')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.ciders}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.ciders}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.with_all')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.ciders +
-                            this.state.user.beerAccount.sodas + this.state.user.beerAccount.beers}</Text>
+                            <Text
+                                style={styles.rightText}>{user.beerAccount.ciders + user.beerAccount.sodas + user.beerAccount.beers}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
                             <Text style={styles.innerSectionText}>{strings('accounting.status')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.punishment')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.punishment}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.punishment}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.deposit')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.deposit}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.deposit}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.dept')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.dept}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.dept}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.payed')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.payed}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.payed}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
                             <Text style={styles.innerSectionText}>{strings('accounting.current')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.deadline')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.beerAccount.deadline}</Text>
+                            <Text style={styles.rightText}>{user.beerAccount.deadline}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.to_pay')}</Text>
-                            <Text style={this._getToPayTextStyle()}>{this.state.user.beerAccount.toPay}</Text>
+                            <Text style={this._getToPayTextStyle()}>{user.beerAccount.toPay}</Text>
                         </View>
                         <View style={styles.innerBottomContainer}>
                             <Text style={styles.columnHeadlineText}>{strings('accounting.reg_nr')}</Text>
-                            <Text style={styles.innerBottomText}>{this.state.user.beerAccount.regNr}</Text>
+                            <Text style={styles.innerBottomText}>{user.beerAccount.regNr}</Text>
                             <Text style={styles.columnHeadlineText}>{strings('accounting.account_nr')}</Text>
-                            <Text style={styles.innerBottomText}>{this.state.user.beerAccount.accountNr}</Text>
+                            <Text style={styles.innerBottomText}>{user.beerAccount.accountNr}</Text>
                         </View>
                     </View>
                     <View style={this.pageHeightStyle()}>
                         <View style={styles.sectionHeaderContainer}>
                             <Text style={styles.sectionHeaderText}>{strings('accounting.kitchen_account')}</Text>
-                            {this.state.user && this.state.user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
+                            {user && !!user.duty && user.duty.toLowerCase().indexOf('regnskab') !== -1 &&
                             <TouchableOpacity
                                 style={styles.buttonContainer}
                                 onPress={() => this._uploadFile(true)}>
@@ -550,53 +554,53 @@ export default class AccountingScreen extends Component {
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.bought')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.bought}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.bought}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.shared_expenses')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.sharedExpense}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.sharedExpense}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.dept')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.dept}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.dept}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.payed')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.payed}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.payed}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.punishment_basis')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.punishmentBasis}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.punishmentBasis}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.punishment')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.punishment}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.punishment}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.deposit')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.deposit}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.deposit}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.other')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.other}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.other}</Text>
                         </View>
                         <View style={styles.innerSectionContainer}>
                             <Text style={styles.innerSectionText}>{strings('accounting.current')}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.deadline')}</Text>
-                            <Text style={styles.rightText}>{this.state.user.kitchenAccount.deadline}</Text>
+                            <Text style={styles.rightText}>{user.kitchenAccount.deadline}</Text>
                         </View>
                         <View style={styles.rowContainer}>
                             <Text style={styles.leftText}>{strings('accounting.to_pay')}</Text>
                             <Text
-                                style={this._getToPayTextStyle()}>{this.state.user.kitchenAccount.toPay}</Text>
+                                style={this._getToPayTextStyle()}>{user.kitchenAccount.toPay}</Text>
                         </View>
                         <View style={styles.innerBottomContainer}>
                             <Text style={styles.columnHeadlineText}>{strings('accounting.reg_nr')}</Text>
-                            <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.regNr}</Text>
+                            <Text style={styles.innerBottomText}>{user.kitchenAccount.regNr}</Text>
                             <Text style={styles.columnHeadlineText}>{strings('accounting.account_nr')}</Text>
-                            <Text style={styles.innerBottomText}>{this.state.user.kitchenAccount.accountNr}</Text>
+                            <Text style={styles.innerBottomText}>{user.kitchenAccount.accountNr}</Text>
                         </View>
                     </View>
                     {this.state.tiers &&
@@ -718,7 +722,7 @@ export default class AccountingScreen extends Component {
                     }
                 </ScrollView>
             </View>
-        )
+        );
     };
 }
 

@@ -1,4 +1,4 @@
-import * as firebase from 'firebase';
+import firebase from 'react-native-firebase';
 import RNFetchBlob from 'react-native-fetch-blob'
 
 const polyfill = RNFetchBlob.polyfill;
@@ -7,6 +7,16 @@ window.Blob = polyfill.Blob;
 
 
 export default class Database {
+
+  static async addUser(user) {
+    let updates = {};
+    updates['/user/' + user.uid] = {
+      email: user.email,
+      name: user.displayName,
+      photo: user.photoURL
+    };
+    return firebase.database().ref().update(updates);
+  }
 
   static async getUser(userId) {
     let userPath = '/user/' + userId;

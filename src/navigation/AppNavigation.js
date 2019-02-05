@@ -1,4 +1,4 @@
-import {DrawerNavigator, StackNavigator} from 'react-navigation';
+import {createAppContainer, createStackNavigator, createDrawerNavigator} from 'react-navigation';
 import SplashScreen from '../components/SplashScreen';
 import LoginScreen from '../components/Login';
 import LogoutScreen from '../components/Logout';
@@ -20,7 +20,7 @@ const defaultPageNavigationOptions = ({navigation}) => ({
             marginLeft: 20,
             justifyContent: 'center',
             alignItems: 'center',
-        }} onPress={() => navigation.navigate('DrawerToggle')}>
+        }} onPress={() => navigation.openDrawer()}>
             <Icon name='navicon' style={{
                 fontSize: 20,
                 height: undefined,
@@ -46,27 +46,28 @@ const homeNavigationOptions = ({navigation}) => ({
     header: (<Header navigation={navigation}/>),
 });
 
-const AppNavigation = StackNavigator({
+const AppNavigation = createAppContainer(
+    createStackNavigator({
     loginFlow: {
-        screen: StackNavigator({
+        screen: createStackNavigator({
             SplashScreen: {screen: SplashScreen},
             Login: {screen: LoginScreen},
         }, {headerMode: 'none'})
     },
     mainFlow: {
-        screen: DrawerNavigator({
+        screen: createDrawerNavigator({
             Home: {
-                screen: StackNavigator({
+                screen: createStackNavigator({
                     Home: {screen: HomeScreen, navigationOptions: homeNavigationOptions}
                 })
             },
             Residents: {
-                screen: StackNavigator({
+                screen: createStackNavigator({
                     Residents: {screen: ResidentsScreen, navigationOptions: defaultPageNavigationOptions}
                 })
             },
             Settings: {
-                screen: StackNavigator({
+                screen: createStackNavigator({
                     Settings: {screen: SettingsScreen, navigationOptions: defaultPageNavigationOptions}
                 })
             },
@@ -80,6 +81,6 @@ const AppNavigation = StackNavigator({
             }
         })
     }
-}, {headerMode: 'none'});
+}, {headerMode: 'none'}));
 
 export default AppNavigation;

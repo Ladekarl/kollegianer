@@ -90,16 +90,22 @@
     "change_password_modal_ok": "OK",
     "profile": "Profil",
     "name": "Navn:",
+    "name_placeholder": "navn",
     "email": "Email:",
+    "email_placeholder": "email",
     "birthday": "Fødselsdato:",
+    "birthday_placeholder": "30/01/2000",
     "room": "Værelse:",
+    "room_placeholder": "1715",
     "duty": "Tjans:",
+    "duty_placeholder": "Vælg tjans",
     "kitchen_week": "Køkkenuge:",
     "sheriff": "Sherif:",
     "change_password": "Skift adgangskode",
     "choose_duty_modal_title": "Vælg en tjans",
     "choose_kitchen_week_modal_title": "Vælg næste køkkenuge",
-    "choose_sheriff_modal_title": "Vælg næste sheriff"
+    "choose_sheriff_modal_title": "Vælg næste sheriff",
+    "fill_required": "Udfyld venligst alle fælterne"
   },
   "vi_mangler": {
     "vi_manger": "Vi Mangler",
@@ -111,6 +117,8 @@
   },
   "login": {
     "login_button": "LOG IND",
+    "login_button_facebook": "LOG IND MED FACEBOOK",
+    "could_not_login": "Kunne ikke logge ind. Prøv igen.",
     "error_user_does_not_exist_in_database": "Brugeren eksisterer ikke i databasen",
     "email_placeholder": "Email",
     "password_placeholder": "Kodeord",

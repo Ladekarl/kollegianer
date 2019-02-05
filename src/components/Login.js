@@ -6,6 +6,7 @@ import {
     Keyboard,
     KeyboardAvoidingView,
     Platform,
+    Image,
     StyleSheet,
     Text,
     ScrollView,
@@ -13,19 +14,20 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-import firebase from 'firebase';
-import {NavigationActions} from 'react-navigation'
+import firebase from 'react-native-firebase';
+import {StackActions, NavigationActions} from 'react-navigation';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import {strings} from '../shared/i18n';
 import ModalScreen from './Modal';
+import {AccessToken, LoginManager} from 'react-native-fbsdk';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
-const CONTAINER_HEIGHT = window.height / 2;
-const CONTAINER_HEIGHT_SMALL = window.height / 4;
+const CONTAINER_HEIGHT = window.height / 3;
+const CONTAINER_HEIGHT_SMALL = window.height / 5;
 const IMAGE_HEIGHT_SMALL = window.width / 3;
 
 export default class LoginScreen extends Component {
@@ -45,14 +47,6 @@ export default class LoginScreen extends Component {
             containerHeight: new Animated.Value(CONTAINER_HEIGHT),
             eulaDialogVisible: false
         };
-
-        const user = firebase.auth().currentUser;
-        if (user) {
-            this._navigateAndReset('mainFlow');
-        }
-
-        this.keyboardWillShowSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', this.keyboardWillShow);
-        this.keyboardWillHideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', this.keyboardWillHide);
     }
 
     componentWillUnmount() {
@@ -61,13 +55,15 @@ export default class LoginScreen extends Component {
     }
 
     componentDidMount() {
+        this.keyboardWillShowSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', this.keyboardWillShow);
+        this.keyboardWillHideSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide', this.keyboardWillHide);
         LocalStorage.getUser().then(user => {
             if (user && user.email && user.password) {
                 this.setState({email: user.email, password: user.password});
-                this._login(user.email, user.password)
+                this._login(user.email, user.password);
             }
         }).catch(error => {
-            this.setState({error: error.message})
+            this.setState({error: error.message});
         });
     }
 
@@ -106,45 +102,82 @@ export default class LoginScreen extends Component {
     onLoginPress = () => {
         Keyboard.dismiss();
         const {email, password} = this.state;
-        this._login(email.trim(), password);
+        if (email && email.length > 0 && password && password.length > 0) {
+            this._login(email.trim(), password);
+        }
+    };
+
+    onFacebookLoginPress = () => {
+        Keyboard.dismiss();
+        this.setState({error: '', loading: true});
+        LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
+            result => {
+                if (!result.isCancelled) {
+                    AccessToken.getCurrentAccessToken().then((data) => {
+                        const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
+                        firebase.auth().signInWithCredential(credential)
+                            .then(response => {
+                                this._onSignInSuccess(response, '', data.accessToken);
+                            })
+                            .catch((error) => {
+                                this._stopLoadingAndSetError(error.message);
+                            });
+                    }).catch(() => {
+                        this._stopLoadingAndSetError(strings('login.could_not_login'));
+                    });
+                }
+            },
+            () => {
+                this._stopLoadingAndSetError(strings('login.could_not_login'));
+            }
+        );
     };
 
     _login = (email, password) => {
         this.setState({error: '', loading: true});
         firebase.auth().signInWithEmailAndPassword(email, password)
-            .then((user) => {
-                Database.getUser(user.uid).then(snapshot => {
-                    const dbUser = snapshot.val();
-                    if (!dbUser) {
-                        this._stopLoadingAndSetError(strings('login.error_user_does_not_exist_in_database'));
-                        return;
-                    }
-                    LocalStorage.getFcmToken().then(fcmToken => {
-                        if (fcmToken && fcmToken.token) {
-                            if (!dbUser.notificationTokens) {
-                                dbUser.notificationTokens = [];
-                            }
-                            let tokenFound = false;
-                            dbUser.notificationTokens.forEach(t => {
-                                if (t.token && String(t.token).valueOf() == String(fcmToken.token).valueOf()) {
-                                    tokenFound = true;
-                                }
-                            });
-                            if (!tokenFound) {
-                                dbUser.notificationTokens.push(fcmToken);
-                            }
-                            Database.updateUser(user.uid, dbUser).catch(error => console.log(error));
-                        }
-                    }).finally(() => {
-                        dbUser.uid = user.uid;
-                        dbUser.password = password;
-                        this._saveUserAndNavigate(dbUser);
-                    });
-                }).catch(error => {
-                    this._stopLoadingAndSetError(error)
-                });
+            .then(response => {
+                this._onSignInSuccess(response, password);
             }).catch(error => {
-            this._stopLoadingAndSetError(error)
+            this._stopLoadingAndSetError(error.message);
+        });
+    };
+
+    _onSignInSuccess = (response, password, accessToken) => {
+        const user = response.user;
+        Database.getUser(user.uid).then(snapshot => {
+            const dbUser = snapshot.val();
+            if (!dbUser) {
+                return Database.addUser(user).then(() => {
+                    return Database.getUser(user.uid);
+                });
+            }
+            return dbUser;
+        }).then((dbUser) => {
+            LocalStorage.getFcmToken().then(fcmToken => {
+                if (fcmToken && fcmToken.token) {
+                    if (!dbUser.notificationTokens) {
+                        dbUser.notificationTokens = [];
+                    }
+                    let tokenFound = false;
+                    dbUser.notificationTokens.forEach(t => {
+                        if (t.token && String(t.token).valueOf() == String(fcmToken.token).valueOf()) {
+                            tokenFound = true;
+                        }
+                    });
+                    if (!tokenFound) {
+                        dbUser.notificationTokens.push(fcmToken);
+                    }
+                    Database.updateUser(user.uid, dbUser).catch(error => console.log(error));
+                }
+            }).finally(() => {
+                dbUser.uid = user.uid;
+                dbUser.password = password;
+                dbUser.accessToken = accessToken;
+                this._saveUserAndNavigate(dbUser);
+            });
+        }).catch(error => {
+            this._stopLoadingAndSetError(error.message);
         });
     };
 
@@ -158,11 +191,11 @@ export default class LoginScreen extends Component {
     };
 
     _stopLoadingAndSetError = (error) => {
-        this.setState({error: error.message, loading: false});
+        this.setState({error: error, loading: false});
     };
 
     _navigateAndReset = (routeName) => {
-        const resetAction = NavigationActions.reset({
+        const resetAction = StackActions.reset({
             index: 0,
             key: null,
             actions: [NavigationActions.navigate({routeName: routeName})],
@@ -227,24 +260,32 @@ export default class LoginScreen extends Component {
                                        value={this.state.password}
                                        onChangeText={password => this.setState({password})}/>
                         </View>
+                        {!!this.state.error &&
                         <View style={styles.errorContainer}>
                             <Text style={styles.errorText}>{this.state.error}</Text>
                         </View>
+                        }
                         <View style={styles.buttonContainer}>
                             <View style={styles.eulaContainer}>
-                                <Text>
+                                <Text style={styles.eulaText}>
                                     {strings('login.eula_agreement_1')}
-                                    <Text
-                                        onPress={() => this.showEulaDialog(true)}
-                                        style={styles.eulaText}>
-                                        {strings('login.eula_agreement_2')}
-                                    </Text>
+                                </Text>
+                                <Text
+                                    onPress={() => this.showEulaDialog(true)}
+                                    style={styles.eulaLinkText}>
+                                    {strings('login.eula_agreement_2')}
                                 </Text>
                             </View>
                             <TouchableOpacity style={styles.loginButton}
                                               onPress={this.onLoginPress}
                                               disabled={this.state.loading}>
                                 <Text style={styles.loginButtonText}>{strings('login.login_button')}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.facebookLoginButton}
+                                              onPress={this.onFacebookLoginPress}
+                                              disabled={this.state.loading}>
+                                <Image style={styles.facebookIcon} source={require('../../img/facebook-icon.png')}/>
+                                <Text style={styles.loginButtonText}>{strings('login.login_button_facebook')}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -316,7 +357,7 @@ const styles = StyleSheet.create({
         borderColor: colors.inactiveTabColor,
     },
     errorContainer: {
-        height: 50,
+        height: 80,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -332,7 +373,8 @@ const styles = StyleSheet.create({
     eulaContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        flexDirection: 'row',
+        textAlign: 'center',
+        flexDirection: 'column',
         marginTop: 10,
         marginBottom: 10
     },
@@ -340,7 +382,11 @@ const styles = StyleSheet.create({
         height: '70%',
     },
     eulaText: {
+        textAlign: 'center'
+    },
+    eulaLinkText: {
         color: 'blue',
+        textAlign: 'center',
         textDecorationLine: 'underline'
     },
     image: {
@@ -371,9 +417,9 @@ const styles = StyleSheet.create({
         color: colors.errorColor
     },
     buttonContainer: {
-        alignItems: 'stretch'
+        alignItems: 'stretch',
+        justifyContent: 'space-between'
     },
-
     loginButton: {
         borderRadius: 50,
         height: 50,
@@ -383,8 +429,26 @@ const styles = StyleSheet.create({
         elevation: 5,
         backgroundColor: colors.submitButtonColor
     },
+    facebookLoginButton: {
+        borderRadius: 50,
+        height: 50,
+        alignItems: 'center',
+        flexDirection: 'row',
+        marginTop: 20,
+        padding: 18,
+        elevation: 5,
+        backgroundColor: colors.facebookColor
+    },
     loginButtonText: {
-        color: colors.whiteColor
+        color: colors.whiteColor,
+        alignSelf: 'center',
+        textAlign: 'center',
+        flex: 1
+    },
+    facebookIcon: {
+        height: 20,
+        width: 20,
+        paddingBottom: 5
     },
     icon: {
         fontSize: 20,

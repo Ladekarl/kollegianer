@@ -27,8 +27,8 @@
 		54B772F8DFFA42998E542010 /* Lato-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CE82944507A54711B437F85D /* Lato-BlackItalic.ttf */; };
 		5A8CF37C629848729F2D3027 /* Lato-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0358951B54DE4CA498C21B3F /* Lato-Black.ttf */; };
 		5E9157361DD0AC6A00FF2AA8 /* libRCTAnimation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E9157331DD0AC6500FF2AA8 /* libRCTAnimation.a */; };
+		6287928EBE55B561F3E6DF78 /* libPods-kollegianer.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 77623CE3D3794E7551977C18 /* libPods-kollegianer.a */; };
 		6D7BFD78D1C64065AB5CC7E0 /* Lato-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 115CCBC9ED724D229F59C43B /* Lato-Bold.ttf */; };
-		6F68C5394E6ED3E2CDBF3BF6 /* Pods_kollegianer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C6D78C132EEC13965D6AE42E /* Pods_kollegianer.framework */; };
 		832341BD1AAA6AB300B99B32 /* libRCTText.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 832341B51AAA6A8300B99B32 /* libRCTText.a */; };
 		83E555AB3024482DB8E8A962 /* libRNFS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DB834B0107D5444780999D70 /* libRNFS.a */; };
 		8C53E6BD489F4BE4A3718104 /* libRNI18n.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 26FF79750D9B4B75949468A7 /* libRNI18n.a */; };
@@ -414,6 +414,7 @@
 		72B6EB05BDE34A3FBA1B7350 /* Lato-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-BoldItalic.ttf"; path = "../assets/fonts/Lato-BoldItalic.ttf"; sourceTree = "<group>"; };
 		755756C5161047458CDC04C0 /* helveticalt.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = helveticalt.ttf; path = ../assets/fonts/helveticalt.ttf; sourceTree = "<group>"; };
 		758A0C9C88A036E6E5DB1B27 /* Pods-kollegianer-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kollegianer-tvOS.debug.xcconfig"; path = "Pods/Target Support Files/Pods-kollegianer-tvOS/Pods-kollegianer-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
+		77623CE3D3794E7551977C18 /* libPods-kollegianer.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-kollegianer.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		77E9A82DCBD0445FA535CFB5 /* RNImagePicker.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNImagePicker.xcodeproj; path = "../node_modules/react-native-image-picker/ios/RNImagePicker.xcodeproj"; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		7A2C1CD9FA72753F1DB1FCC6 /* Pods-kollegianer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kollegianer.debug.xcconfig"; path = "Pods/Target Support Files/Pods-kollegianer/Pods-kollegianer.debug.xcconfig"; sourceTree = "<group>"; };
@@ -426,7 +427,6 @@
 		ADBDB91F1DFEBF0600ED6528 /* RCTBlob.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBlob.xcodeproj; path = "../node_modules/react-native/Libraries/Blob/RCTBlob.xcodeproj"; sourceTree = "<group>"; };
 		AE304368C2424A928C36B155 /* RNFS.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFS.xcodeproj; path = "../node_modules/react-native-fs/RNFS.xcodeproj"; sourceTree = "<group>"; };
 		B1E8AD1803FE4C4F951463DD /* Lato-Hairline.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-Hairline.ttf"; path = "../assets/fonts/Lato-Hairline.ttf"; sourceTree = "<group>"; };
-		C6D78C132EEC13965D6AE42E /* Pods_kollegianer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_kollegianer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB7A762E1FC6FB7C0053A08F /* kollegianer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = kollegianer.entitlements; path = kollegianer/kollegianer.entitlements; sourceTree = "<group>"; };
 		CBFF38631FC2427E00E4B884 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "kollegianer/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CE82944507A54711B437F85D /* Lato-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-BlackItalic.ttf"; path = "../assets/fonts/Lato-BlackItalic.ttf"; sourceTree = "<group>"; };
@@ -457,13 +457,13 @@
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				3FD3D379554A4C80A6AC0428 /* libRNFIRMessaging.a in Frameworks */,
-				6F68C5394E6ED3E2CDBF3BF6 /* Pods_kollegianer.framework in Frameworks */,
 				4F62617C6E9D46C1920E62CC /* libRNImagePicker.a in Frameworks */,
 				BC293905D1234AA096F5DC8F /* libRNFetchBlob.a in Frameworks */,
 				EE5F5FCBFFD04CF5A3D4DFC9 /* libRNDocumentPicker.a in Frameworks */,
 				83E555AB3024482DB8E8A962 /* libRNFS.a in Frameworks */,
 				C978A8FB894B4B28BF949FB4 /* libRCTActionSheet.a in Frameworks */,
 				8C53E6BD489F4BE4A3718104 /* libRNI18n.a in Frameworks */,
+				6287928EBE55B561F3E6DF78 /* libPods-kollegianer.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -633,7 +633,7 @@
 			children = (
 				40A0796D2FD16B0CBDFCF9CA /* libPods-kollegianer-tvOS.a */,
 				EA452F9874ADC2568087E64F /* libPods-kollegianer-tvOSTests.a */,
-				C6D78C132EEC13965D6AE42E /* Pods_kollegianer.framework */,
+				77623CE3D3794E7551977C18 /* libPods-kollegianer.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -801,7 +801,7 @@
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
-				21D3C5A0ECFE6F7FB8AE0F28 /* [CP] Embed Pods Frameworks */,
+				178E0D26788D4EC1D9B175DB /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -1323,26 +1323,22 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		21D3C5A0ECFE6F7FB8AE0F28 /* [CP] Embed Pods Frameworks */ = {
+		178E0D26788D4EC1D9B175DB /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
-				"${SRCROOT}/Pods/Target Support Files/Pods-kollegianer/Pods-kollegianer-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/GoogleToolboxForMac/GoogleToolboxForMac.framework",
-				"${BUILT_PRODUCTS_DIR}/Protobuf/Protobuf.framework",
-				"${BUILT_PRODUCTS_DIR}/nanopb/nanopb.framework",
+				"${SRCROOT}/Pods/Target Support Files/Pods-kollegianer/Pods-kollegianer-resources.sh",
+				"${PODS_ROOT}/FBSDKCoreKit/FacebookSDKStrings.bundle",
 			);
-			name = "[CP] Embed Pods Frameworks";
+			name = "[CP] Copy Pods Resources";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/GoogleToolboxForMac.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Protobuf.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/nanopb.framework",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/FacebookSDKStrings.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-kollegianer/Pods-kollegianer-frameworks.sh\"\n";
+			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-kollegianer/Pods-kollegianer-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

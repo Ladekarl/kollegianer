@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View, Image} from 'react-native';
+import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View, Image, Modal} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -8,6 +8,7 @@ import ModalScreen from './Modal';
 import Base64 from '../shared/Base64';
 import LocalStorage from '../storage/LocalStorage';
 import {strings} from '../shared/i18n';
+import RequiredSettings from './RequiredSettings';
 
 export default class OverviewScreen extends Component {
 
@@ -36,52 +37,6 @@ export default class OverviewScreen extends Component {
             pickerItems: [],
             nextBirthdayUsers: []
         };
-
-        Database.getUsers().then(snapshot => {
-            let kitchenWeek = '';
-            let sheriff = '';
-            let nextBirthdayDate = '';
-            let nextBirthdayUsers = [];
-
-            snapshot.forEach(snap => {
-                let user = snap.val();
-                let birthdayYear = user.birthday.split('/').pop();
-                birthdayYear = parseInt(birthdayYear) > 50 ? '19' + birthdayYear : '20' + birthdayYear;
-
-                const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
-                if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
-                    if (nextBirthdayDate
-                        && nextBirthdayDate.getMonth() === userBirthday.getMonth()
-                        && nextBirthdayDate.getDate() === userBirthday.getDate()) {
-                        nextBirthdayUsers.push(user);
-                    } else {
-                        nextBirthdayUsers = [user];
-                    }
-                    nextBirthdayDate = userBirthday;
-                }
-                if (user.kitchenweek) {
-                    kitchenWeek = user.name;
-                }
-                if (user.sheriff) {
-                    sheriff = user.name;
-                }
-            });
-            let pickerItems = this._renderPickerItems(snapshot);
-            this.setState({
-                kitchenWeek,
-                sheriff,
-                pickerItems,
-                nextBirthdayUsers
-            });
-            LocalStorage.getUser().then(user => {
-                this.localUser = user;
-                snapshot.forEach(snap => {
-                    if (user.kitchenweek && user.sheriff && snap.key === this.localUser.uid) {
-                        this.showAssignSheriffAlert();
-                    }
-                });
-            }).catch(error => console.log(error));
-        }).catch(error => console.log(error));
     }
 
     _getNearestBirthday = (b1, b2) => {
@@ -112,6 +67,58 @@ export default class OverviewScreen extends Component {
     };
 
     componentDidMount() {
+        Database.getUsers().then(snapshot => {
+            let kitchenWeek = '';
+            let sheriff = '';
+            let nextBirthdayDate = '';
+            let nextBirthdayUsers = [];
+
+            snapshot.forEach(snap => {
+                let user = snap.val();
+                if (user.birthday) {
+                    let birthdayYear = user.birthday.split('/').pop();
+                    birthdayYear = parseInt(birthdayYear) > 50 ? '19' + birthdayYear : '20' + birthdayYear;
+
+                    const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
+                    if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
+                        if (nextBirthdayDate
+                            && nextBirthdayDate.getMonth() === userBirthday.getMonth()
+                            && nextBirthdayDate.getDate() === userBirthday.getDate()) {
+                            nextBirthdayUsers.push(user);
+                        } else {
+                            nextBirthdayUsers = [user];
+                        }
+                        nextBirthdayDate = userBirthday;
+                    }
+                }
+                if (user.kitchenweek) {
+                    kitchenWeek = user.name;
+                }
+                if (user.sheriff) {
+                    sheriff = user.name;
+                }
+            });
+            let pickerItems = this._renderPickerItems(snapshot);
+            this.setState({
+                kitchenWeek,
+                sheriff,
+                pickerItems,
+                nextBirthdayUsers
+            });
+            LocalStorage.getUser().then(localUser => {
+                this.localUser = localUser;
+                snapshot.forEach(snap => {
+                    const user = snap.val();
+                    if (this.localUser.uid === snap.key) {
+                        this.remoteUser = user;
+                    }
+                    if (this.remoteUser && this.remoteUser.kitchenweek && this.remoteUser.sheriff) {
+                        this.showAssignSheriffAlert();
+                    }
+                });
+            }).catch(error => console.log(error));
+        }).catch(error => console.log(error));
+
         Database.listenEvents(snapshot => {
             let events = snapshot.val();
             this.currentShots = events.shots;
@@ -148,7 +155,7 @@ export default class OverviewScreen extends Component {
         snapshot.forEach(child => {
             pickerItems.push(
                 <Picker.Item key={child.key} label={child.val().name} value={child.val().name}/>
-            )
+            );
         });
         return pickerItems;
     };
@@ -324,9 +331,9 @@ export default class OverviewScreen extends Component {
                                    source={require('../../img/keep_calm_and_shots.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.rightColumnContainer}
-                                          onPress={() => this.setMvpModalVisible(true)
-                                          }>
+                        <TouchableOpacity
+                            style={styles.rightColumnContainer}
+                            onPress={() => this.setMvpModalVisible(true)}$>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
                         </TouchableOpacity>
@@ -380,6 +387,7 @@ export default class OverviewScreen extends Component {
                     onCancel={this.onShotsCancel}
                     isPicker={true}
                 />
+                <RequiredSettings/>
             </View>
         );
     }

@@ -13,8 +13,6 @@ export default class DrawerScreen extends Component {
     static propTypes = {
         navigation: PropTypes.object.isRequired
     };
-    
-    navigator;
 
     constructor(props) {
         super(props);
@@ -22,7 +20,7 @@ export default class DrawerScreen extends Component {
             user: {
                 name: '',
             }
-        }
+        };
     }
 
     componentDidMount() {
@@ -30,13 +28,17 @@ export default class DrawerScreen extends Component {
     }
 
     navigateToScreen = (route) => () => {
-        let currentRoute = this.navigator.state.key;
+        const {routes, index} = this.props.navigation.state;
+        let currentRoute = this.props.navigation.state.routeName;
+        if (routes && routes.length > 0 && index < routes.length) {
+            currentRoute = routes[index].routeName;
+        }
 
-        if(currentRoute !== route) {
+        if (currentRoute !== route) {
             const navigateAction = NavigationActions.navigate({
                 routeName: route
             });
-            this.navigator.dispatch(navigateAction);
+            this.props.navigation.dispatch(navigateAction);
         } else {
             this.closeDrawer();
         }
@@ -52,11 +54,11 @@ export default class DrawerScreen extends Component {
     };
 
     closeDrawer = () => {
-        this.navigator.navigate('DrawerClose');
+        this.props.navigation.closeDrawer();
     };
 
     render() {
-        this.navigator = this.props.navigation;
+        const {user} = this.state;
         return (
             <View style={styles.container}>
                 <View style={styles.headerContainer}>
@@ -65,8 +67,10 @@ export default class DrawerScreen extends Component {
                             <View style={styles.headerIconContainer}>
                                 <Icon name='user' style={styles.headerIcon}/>
                             </View>
+                            {!!user.name &&
                             <Text numberOfLines={2}
-                                  style={styles.headerText}>{this.state.user.name}</Text>
+                                  style={styles.headerText}>{user.name}</Text>
+                            }
                         </View>
                     </TouchableWithoutFeedback>
                 </View>
@@ -90,7 +94,7 @@ export default class DrawerScreen extends Component {
                     </TouchableOpacity>
                 </View>
             </View>
-        )
+        );
     }
 }
 

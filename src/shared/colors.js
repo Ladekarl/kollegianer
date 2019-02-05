@@ -22,6 +22,7 @@ export default new ThemeManager({
         logoutTextColor: '#dd513d',
         cancelButtonColor: '#ac3429',
         submitButtonColor: '#41637a',
+        facebookColor: '#3B5998',
         lightRedColor: 'rgba(10,0,0,0.2)',
         errorColor: 'red',
         whiteColor: 'white',

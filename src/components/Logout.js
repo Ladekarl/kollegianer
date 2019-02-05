@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 
 import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
-import firebase from 'firebase';
-import {NavigationActions} from 'react-navigation'
+import firebase from 'react-native-firebase';
+import {StackActions, NavigationActions} from 'react-navigation';
 
 import LocalStorage from '../storage/LocalStorage';
 import Icon from 'react-native-fa-icons';
@@ -69,7 +69,7 @@ export default class LogoutScreen extends Component {
     };
 
     _redirectToLogin = () => {
-        const resetAction = NavigationActions.reset({
+        const resetAction = StackActions.reset({
             index: 0,
             key: null,
             actions: [

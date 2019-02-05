@@ -1,6 +1,0 @@
-framework module Pods_kollegianer {
-  umbrella header "Pods-kollegianer-umbrella.h"
-
-  export *
-  module * { export * }
-}

@@ -1,24 +1,11 @@
+// @flow
 import React, {Component} from 'react';
-import firebase from 'firebase';
-import {
-    FIREBASE_API_KEY,
-    FIREBASE_DATABASE_URL,
-    FIREBASE_DOMAIN,
-    FIREBASE_MESSAGE_SENDER_ID,
-    FIREBASE_PROJECT_ID,
-    FIREBASE_STORAGE_BUCKET
-} from 'react-native-dotenv';
+import firebase from 'react-native-firebase';
 import {Alert, Platform, StyleSheet, View, StatusBar} from 'react-native';
 import LocalStorage from './storage/LocalStorage'
 import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation';
 import colors from './shared/colors';
-import FCM, {
-    FCMEvent,
-    NotificationType,
-    RemoteNotificationResult,
-    WillPresentNotificationResult
-} from 'react-native-fcm';
 import {navigateTo} from './containers/Home';
 import {
     setCustomActivityIndicator,
@@ -27,67 +14,11 @@ import {
     setCustomTouchableOpacity,
 } from 'react-native-global-props';
 import AppNavigation from './navigation/AppNavigation';
-
-let initialNotification;
-
-FCM.on(FCMEvent.Notification, async (notif) => {
-    if (notif.local_notification) {
-    }
-    if (notif.opened_from_tray) {
-        initialNotification = notif;
-    }
-
-    if (Platform.OS === 'ios') {
-        switch (notif._notificationType) {
-            case NotificationType.Remote:
-                notif.finish(RemoteNotificationResult.NewData);
-                break;
-            case NotificationType.NotificationResponse:
-                notif.finish();
-                break;
-            case NotificationType.WillPresent:
-                notif.finish(WillPresentNotificationResult.All);
-                break;
-        }
-    }
-});
-
-FCM.on(FCMEvent.RefreshToken, (token) => {
-    const user = firebase.auth().currentUser;
-    if (user && token) {
-        const newToken = {token: token, isIos: Platform.OS === 'ios'};
-        LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
-        Database.getNotificationTokens(user.uid).then(snapshot => {
-            let tokens = snapshot.val();
-            let tokenFound = false;
-            tokens.forEach(t => {
-                if (String(t.token).valueOf() == String(newToken.token).valueOf()) {
-                    tokenFound = true;
-                }
-            });
-            if (!tokenFound) {
-                tokens.push(newToken);
-                Database.updateNotificationTokens(user.uid, tokens).catch(error => console.log(error));
-            }
-        }).catch(error => console.log(error));
-    }
-});
-
+import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
 export default class App extends Component {
 
     constructor(props) {
         super(props);
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp({
-                apiKey: FIREBASE_API_KEY,
-                authDomain: FIREBASE_DOMAIN,
-                databaseURL: FIREBASE_DATABASE_URL,
-                projectId: FIREBASE_PROJECT_ID,
-                storageBucket: FIREBASE_STORAGE_BUCKET,
-                messagingSenderId: FIREBASE_MESSAGE_SENDER_ID
-            });
-        }
 
         const customTextProps = {
             style: {
@@ -108,18 +39,84 @@ export default class App extends Component {
     }
 
     componentDidMount() {
-        FCM.requestPermissions()
-            .catch(() => Alert.alert('Tilladelse afvist',
-                'Du afviste tilladelsen. Prøv lige igen.'));
+        firebase.messaging().hasPermission().then(enabled => {
+            if (enabled) {
+                this.registerMessageListener();
+            } else {
+                firebase.messaging().requestPermission()
+                    .then(() => {
+                        this.registerMessageListener();
+                    })
+                    .catch(() => Alert.alert('Tilladelse afvist',
+                        'Du afviste tilladelsen. Prøv lige igen.'));
+            }
+        });
 
-        FCM.getFCMToken().then(token => {
+        firebase.messaging().getToken().then(token => {
             if (token) {
                 const newToken = {token: token, isIos: Platform.OS === 'ios'};
                 LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
             }
         }).catch(error => console.log(error));
 
-        FCM.on(FCMEvent.Notification, async (notification) => {
+        this.onTokenRefreshListener = firebase.messaging().onTokenRefresh(token => {
+            const user = firebase.auth().currentUser;
+            if (user && token) {
+                const newToken = {token: token, isIos: Platform.OS === 'ios'};
+                LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
+                Database.getNotificationTokens(user.uid).then(snapshot => {
+                    let tokens = snapshot.val();
+                    let tokenFound = false;
+                    tokens.forEach(t => {
+                        if (String(t.token).valueOf() == String(newToken.token).valueOf()) {
+                            tokenFound = true;
+                        }
+                    });
+                    if (!tokenFound) {
+                        tokens.push(newToken);
+                        Database.updateNotificationTokens(user.uid, tokens).catch(error => console.log(error));
+                    }
+                }).catch(error => console.log(error));
+            }
+        });
+
+        this.getInitialNotification().then(notification => {
+            if (notification) {
+                this._navigateOnNotification(notification);
+            }
+        }).catch(error => console.log(error));
+    }
+
+    getInitialNotification = () => {
+        return new Promise((resolve, reject) => {
+            firebase.messaging().getInitialNotification().then((notification: NotificationOpen) => {
+                if (notification) {
+                    const action = notification.action;
+                    if (this.supportedNotifications.indexOf(action) !== -1) {
+                        resolve(notification);
+                    } else {
+                       reject('Initial notification not supported');
+                    }
+                } else {
+                    reject('No initial notification');
+                }
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    };
+
+    componentWillUnmount() {
+        if(this.messageListener) {
+            this.messageListener();
+        }
+        if(this.onTokenRefreshListener) {
+            this.onTokenRefreshListener();
+        }
+    }
+
+    registerMessageListener = () => {
+        this.messageListener = firebase.messaging().onMessage((message: RemoteMessage) => {
             this._navigateOnNotification(notification);
             const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
             switch (action) {
@@ -134,19 +131,10 @@ export default class App extends Component {
                     break;
             }
         });
+    };
 
-        this.getInitialNotification().then(notification => {
-            if (notification) {
-                this._navigateOnNotification(notification);
-            }
-        }).catch(error => console.log(error));
-    }
-
-    _navigateOnNotification(notification) {
-        if (Platform.OS === 'ios' && !notification.apns) {
-            return;
-        }
-        const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
+    _navigateOnNotification(notification: NotificationOpen) {
+        const action = notification.action;
         switch (action) {
             // Switch on current_action from FCM payload
             case 'fcm.VI_MANGLER':
@@ -174,39 +162,7 @@ export default class App extends Component {
         this.navigator = navigator;
     };
 
-    getInitialNotification = () => {
-        return new Promise((resolve, reject) => {
-            if (initialNotification) {
-                const action = Platform.OS === 'ios' ? initialNotification.apns.action_category : initialNotification.fcm.action;
-                if (this.supportedNotifications.indexOf(action) !== -1) {
-                    resolve(initialNotification);
-                } else {
-                    reject('Initial notification not supported');
-                }
-            } else {
-                FCM.getInitialNotification().then(notification => {
-                    if (notification) {
-                        const action = Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action;
-                        if (this.supportedNotifications.indexOf(action) !== -1) {
-                            resolve(notification);
-                        } else {
-                            reject('Initial notification not supported');
-                        }
-                    } else {
-                        reject('No initial notification');
-                    }
-                }).catch(error => {
-                    reject(error);
-                });
-            }
-        });
-    };
-
     supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
-
-    setInitialNotification = (notification) => {
-        initialNotification = notification;
-    };
 
     render() {
         if(Platform.OS === 'ios') {

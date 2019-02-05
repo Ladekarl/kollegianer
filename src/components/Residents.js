@@ -34,32 +34,42 @@ export default class ResidentsScreen extends Component {
         this.users.forEach(user => {
             renderUsers.push(this._renderUser(user));
         });
-        return renderUsers
+        return renderUsers;
     };
 
     _renderUser = (renderUser) => {
         let user = renderUser.val();
         return (
             <View key={renderUser.key}>
+                {!!user.room &&
                 <View style={styles.sectionHeaderContainer}>
                     <Text style={styles.sectionHeaderText}>{user.room}</Text>
                 </View>
+                }
+                {!!user.name &&
                 <View style={styles.innerRowContainer}>
                     <Text style={styles.leftText}>{strings('residents.name')}</Text>
                     <Text style={styles.rightText}>{user.name}</Text>
                 </View>
+                }
+                {!!user.duty &&
                 <View style={styles.innerRowContainer}>
                     <Text style={styles.leftText}>{strings('residents.duty')}</Text>
                     <Text style={styles.rightText}>{user.duty}</Text>
                 </View>
+                }
+                {!!user.birthday &&
                 <View style={styles.innerRowContainer}>
                     <Text style={styles.leftText}>{strings('residents.birthday')}</Text>
                     <Text style={styles.rightText}>{user.birthday}</Text>
                 </View>
+                }
+                {!!user.email &&
                 <View style={styles.innerRowContainer}>
                     <Text style={styles.leftText}>{strings('residents.email')}</Text>
                     <Text style={styles.rightText}>{user.email}</Text>
                 </View>
+                }
             </View>
         );
     };
@@ -69,7 +79,7 @@ export default class ResidentsScreen extends Component {
             <ScrollView style={styles.container}>
                 {this.state.renderUsers}
             </ScrollView>
-        )
+        );
     }
 }
 

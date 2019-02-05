@@ -15,7 +15,7 @@ export default class HeaderScreen extends Component {
     }
 
     openDrawer = () => {
-        this.props.navigation.navigate('DrawerOpen');
+        this.props.navigation.openDrawer();
     };
 
     openSettings = () => {
