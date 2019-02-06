@@ -191,17 +191,19 @@ export default class SettingsList extends Component {
     _renderUserPickerItems = (snapshot) => {
         let userPickerItems = [];
         snapshot.forEach(child => {
-            if (child.val().name !== this.localUser.name)
+            const user = child.val();
+            if (user && user.name && user.name !== this.localUser.name) {
                 userPickerItems.push(
-                    <Picker.Item key={child.key} label={child.val().name} value={child.val().name}/>
+                    <Picker.Item key={child.key} label={user.name} value={user.name}/>
                 );
+            }
         });
         this.setState({userPickerItems});
     };
 
     changePasswordAlert = () => {
         Alert.alert(strings('settings.change_password_modal_title'),
-            strings('settings.change_password_modal_text') + this.state.user.email,
+            strings('sxettings.change_password_modal_text') + this.state.user.email,
             [
                 {
                     text: strings('settings.change_password_modal_cancel'), onPress: () => {

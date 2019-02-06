@@ -153,9 +153,12 @@ export default class OverviewScreen extends Component {
     _renderPickerItems = (snapshot) => {
         let pickerItems = [];
         snapshot.forEach(child => {
-            pickerItems.push(
-                <Picker.Item key={child.key} label={child.val().name} value={child.val().name}/>
-            );
+            let user = child.val();
+            if (user && user.name) {
+                pickerItems.push(
+                    <Picker.Item key={child.key} label={user.name} value={user.name}/>
+                );
+            }
         });
         return pickerItems;
     };
@@ -333,7 +336,7 @@ export default class OverviewScreen extends Component {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.rightColumnContainer}
-                            onPress={() => this.setMvpModalVisible(true)}$>
+                            onPress={() => this.setMvpModalVisible(true)} $>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
                         </TouchableOpacity>

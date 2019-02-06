@@ -2,40 +2,18 @@
 import React, {Component} from 'react';
 import firebase from 'react-native-firebase';
 import {Alert, Platform, StyleSheet, View, StatusBar} from 'react-native';
-import LocalStorage from './storage/LocalStorage'
+import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation';
 import colors from './shared/colors';
 import {navigateTo} from './containers/Home';
-import {
-    setCustomActivityIndicator,
-    setCustomText,
-    setCustomTextInput,
-    setCustomTouchableOpacity,
-} from 'react-native-global-props';
 import AppNavigation from './navigation/AppNavigation';
-import type { RemoteMessage, NotificationOpen } from 'react-native-firebase';
+import type {RemoteMessage, NotificationOpen} from 'react-native-firebase';
+
 export default class App extends Component {
 
     constructor(props) {
         super(props);
-
-        const customTextProps = {
-            style: {
-                fontFamily: 'Lato'
-            }
-        };
-        const customTouchableOpacityProps = {
-            hitSlop: {top: 15, right: 15, left: 15, bottom: 15}
-        };
-        const customActivityIndicator = {
-            color: colors.inactiveTabColor
-        };
-
-        setCustomText(customTextProps);
-        setCustomTouchableOpacity(customTouchableOpacityProps);
-        setCustomActivityIndicator(customActivityIndicator);
-        setCustomTextInput(customTextProps);
     }
 
     componentDidMount() {
@@ -95,7 +73,7 @@ export default class App extends Component {
                     if (this.supportedNotifications.indexOf(action) !== -1) {
                         resolve(notification);
                     } else {
-                       reject('Initial notification not supported');
+                        reject('Initial notification not supported');
                     }
                 } else {
                     reject('No initial notification');
@@ -107,10 +85,10 @@ export default class App extends Component {
     };
 
     componentWillUnmount() {
-        if(this.messageListener) {
+        if (this.messageListener) {
             this.messageListener();
         }
-        if(this.onTokenRefreshListener) {
+        if (this.onTokenRefreshListener) {
             this.onTokenRefreshListener();
         }
     }
@@ -165,7 +143,7 @@ export default class App extends Component {
     supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
 
     render() {
-        if(Platform.OS === 'ios') {
+        if (Platform.OS === 'ios') {
             StatusBar.setBarStyle('light-content', true);
         }
         return (
