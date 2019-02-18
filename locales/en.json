@@ -78,7 +78,10 @@
     "name": "Name:",
     "duty": "Duty:",
     "birthday": "Birthday:",
-    "email": "Email:"
+    "email": "Email:",
+    "delete": "Delete",
+    "delete_modal_title": "Are you sure?",
+    "delete_modal_text": "Are you sure you want to delete "
   },
   "settings": {
     "settings": "Settings",

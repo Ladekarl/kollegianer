@@ -48,8 +48,8 @@ export default class ResidentsScreen extends Component {
     };
 
     onDeletePress = (userId, user) => {
-        Alert.alert('Are you sure?',
-            'Are you sure you want to delete ' + user.name + '?',
+        Alert.alert(strings('residents.delete_modal_title'),
+            strings('residents.delete_modal_text') + user.name + '?',
             [
                 {
                     text: strings('settings.change_password_modal_cancel'), onPress: () => {
@@ -75,7 +75,7 @@ export default class ResidentsScreen extends Component {
                     {renderUser.key !== localUser.uid &&
                     <TouchableOpacity style={styles.deleteButton}
                                       onPress={() => this.onDeletePress(renderUser.key, user)}>
-                        <Text style={styles.deleteText}>Delete</Text>
+                        <Text style={styles.deleteText}>{strings('residents.delete')}</Text>
                     </TouchableOpacity>
                     }
                 </View>

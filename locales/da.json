@@ -78,7 +78,10 @@
     "name": "Navn:",
     "duty": "Tjans:",
     "birthday": "Fødselsdag:",
-    "email": "Email:"
+    "email": "Email:",
+    "delete": "Slet",
+    "delete_modal_title": "Er du sikker?",
+    "delete_modal_text": "Er du sikker på at du vil slette "
   },
   "settings": {
     "settings": "Indstillinger",
