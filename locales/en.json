@@ -105,7 +105,11 @@
     "choose_duty_modal_title": "Choose a duty",
     "choose_kitchen_week_modal_title": "Choose the next kitchen week",
     "choose_sheriff_modal_title": "Choose the next sheriff",
-    "fill_required": "Please fill out the information"
+    "fill_required": "Please fill out the information",
+    "delete_account": "Delete Account",
+    "delete_account_modal_text": "Are you sure you want to delete your account?",
+    "keyphrase": "Keyphrase",
+    "keyphrase_placeholder": "Aa"
   },
   "vi_mangler": {
     "vi_manger": "Shopping List",

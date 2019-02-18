@@ -105,7 +105,11 @@
     "choose_duty_modal_title": "Vælg en tjans",
     "choose_kitchen_week_modal_title": "Vælg næste køkkenuge",
     "choose_sheriff_modal_title": "Vælg næste sheriff",
-    "fill_required": "Udfyld venligst alle fælterne"
+    "fill_required": "Udfyld venligst alle fælterne",
+    "delete_account": "Slet Konto",
+    "delete_account_modal_text": "Er du sikker på at du vil slette din konto?",
+    "keyphrase": "Nøgleord",
+    "keyphrase_placeholder": "Aa"
   },
   "vi_mangler": {
     "vi_manger": "Vi Mangler",

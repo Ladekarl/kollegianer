@@ -12,7 +12,8 @@ import Icon from 'react-native-fa-icons';
 export default class SettingsList extends Component {
 
     static propTypes = {
-        required: PropTypes.bool.isRequired
+        required: PropTypes.bool.isRequired,
+        navigation: PropTypes.object
     };
 
     constructor(props) {
@@ -27,7 +28,8 @@ export default class SettingsList extends Component {
                 kitchenweek: false,
                 room: '',
                 sheriff: false,
-                uid: ''
+                uid: '',
+                keyphrase: '',
             },
             dutyPickerItems: [],
             userPickerItems: [],
@@ -41,7 +43,8 @@ export default class SettingsList extends Component {
                 name: '',
                 birthday: '',
                 email: '',
-                room: ''
+                room: '',
+                keyphrase: ''
             }
         };
         this.auth = firebase.auth();
@@ -203,7 +206,7 @@ export default class SettingsList extends Component {
 
     changePasswordAlert = () => {
         Alert.alert(strings('settings.change_password_modal_title'),
-            strings('sxettings.change_password_modal_text') + this.state.user.email,
+            strings('settings.change_password_modal_text') + this.state.user.email,
             [
                 {
                     text: strings('settings.change_password_modal_cancel'), onPress: () => {
@@ -213,8 +216,31 @@ export default class SettingsList extends Component {
             ]);
     };
 
+    deleteAccountAlert = () => {
+        Alert.alert(strings('settings.delete_account'),
+            strings('settings.delete_account_modal_text'),
+            [
+                {
+                    text: strings('settings.change_password_modal_cancel'), onPress: () => {
+                    }
+                },
+                {text: strings('settings.change_password_modal_ok'), onPress: this._deleteAccount},
+            ]);
+    };
+
     _changePassword = () => {
         this.auth.sendPasswordResetEmail(this.state.user.email).catch(error => console.log(error));
+    };
+
+    _deleteAccount = () => {
+        Database.deleteAccount(this.localUser.uid).then(() => {
+            LocalStorage.removeUser().then(() => {
+                if (this.props.navigation) {
+                    this.props.navigation.navigate('Logout');
+                }
+            });
+        });
+
     };
 
     onDutyCancel = () => {
@@ -384,6 +410,24 @@ export default class SettingsList extends Component {
                         </Text>
                     </TouchableOpacity>
                 </View>
+                {required &&
+                <View style={styles.rowContainer}>
+                    <View style={styles.leftContainer}>
+                        {!user.keyphrase && required &&
+                        <Icon name='exclamation-circle' style={styles.requiredIcon}/>
+                        }
+                        <Text style={styles.leftText}>{strings('settings.keyphrase')}</Text>
+                    </View>
+                    <TextInput
+                        style={styles.rightText}
+                        value={tempUser.keyphrase}
+                        onChangeText={(text) => this.onSettingChanged(text, 'keyphrase')}
+                        onSubmitEditing={() => this.onSubmitSetting('keyphrase')}
+                        underlineColorAndroid={colors.inactiveTabColor}
+                        selectionColor={colors.inactiveTabColor}
+                        placeholder={strings('settings.keyphrase_placeholder')}/>
+                </View>
+                }
                 {this.currentKitchenWeek && this.localUser && this.localUser.uid === this.currentKitchenWeek.key &&
                 <View style={styles.rowContainer}>
                     <Text style={styles.leftText}>{strings('settings.kitchen_week')}</Text>
@@ -406,6 +450,15 @@ export default class SettingsList extends Component {
                         style={styles.changePasswordButton}
                         onPress={this.changePasswordAlert}>
                         <Text style={styles.changePasswordText}>{strings('settings.change_password')}</Text>
+                    </TouchableOpacity>
+                </View>
+                }
+                {this.localUser && !required &&
+                <View style={styles.changePasswordRowContainer}>
+                    <TouchableOpacity
+                        style={styles.deleteAccountButton}
+                        onPress={this.deleteAccountAlert}>
+                        <Text style={styles.changePasswordText}>{strings('settings.delete_account')}</Text>
                     </TouchableOpacity>
                 </View>
                 }
@@ -480,6 +533,12 @@ const styles = StyleSheet.create({
         padding: 15,
     },
     changePasswordButton: {
+        backgroundColor: colors.submitButtonColor,
+        padding: 15,
+        borderRadius: 30,
+        elevation: 5
+    },
+    deleteAccountButton: {
         backgroundColor: colors.cancelButtonColor,
         padding: 15,
         borderRadius: 30,

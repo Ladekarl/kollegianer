@@ -13,7 +13,7 @@ export default class SettingsScreen extends Component {
 
     render() {
         return (
-            <SettingsList required={false}/>
+            <SettingsList required={false} navigation={this.props.navigation}/>
         );
     }
 

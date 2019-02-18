@@ -152,8 +152,9 @@ export default class LoginScreen extends Component {
                     return Database.getUser(user.uid);
                 });
             }
-            return dbUser;
-        }).then((dbUser) => {
+            return snapshot;
+        }).then((response) => {
+            const dbUser = response.val();
             LocalStorage.getFcmToken().then(fcmToken => {
                 if (fcmToken && fcmToken.token) {
                     if (!dbUser.notificationTokens) {
@@ -170,12 +171,11 @@ export default class LoginScreen extends Component {
                     }
                     Database.updateUser(user.uid, dbUser).catch(error => console.log(error));
                 }
-            }).finally(() => {
-                dbUser.uid = user.uid;
-                dbUser.password = password;
-                dbUser.accessToken = accessToken;
-                this._saveUserAndNavigate(dbUser);
             });
+            dbUser.uid = user.uid;
+            dbUser.password = password;
+            dbUser.accessToken = accessToken;
+            this._saveUserAndNavigate(dbUser);
         }).catch(error => {
             this._stopLoadingAndSetError(error.message);
         });
@@ -423,8 +423,7 @@ const styles = StyleSheet.create({
     loginButton: {
         borderRadius: 50,
         height: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: 'row',
         padding: 18,
         elevation: 5,
         backgroundColor: colors.submitButtonColor

@@ -19,27 +19,30 @@ export default class RequiredSettings extends Component {
     componentDidMount() {
         LocalStorage.getUser().then(localUser => {
             this.localUser = localUser;
-            Database.getUser(localUser.uid).then(response => {
-                const user = response.val();
-                if (user && this.shouldShowSettings(user)) {
-                    this.setState({
-                        shouldShow: true
-                    });
-                }
-            });
+            this.toggleShow(true);
         });
     }
 
-    shouldShowSettings = (user) => {
-        return !user.name || !user.email || !user.birthday || !user.room || !user.duty;
+    shouldShowSettings = (user, keyphrase) => {
+        return !user.name || !user.email || !user.birthday || !user.room || !user.duty || !user.keyphrase || user.keyphrase !== keyphrase;
     };
 
     onDonePress = () => {
-        Database.getUser(this.localUser.uid).then(response => {
-            const user = response.val();
-            if (user && !this.shouldShowSettings(user)) {
+        this.toggleShow(false);
+    };
+
+    toggleShow = (shouldShow) => {
+        const promises = [];
+
+        promises.push(Database.getUser(this.localUser.uid));
+        promises.push(Database.getKeyphrase());
+
+        Promise.all(promises).then(([userResponse, keyphraseResponse]) => {
+            const user = userResponse.val();
+            const keyphrase = keyphraseResponse.val();
+            if (user && this.shouldShowSettings(user, keyphrase) === shouldShow) {
                 this.setState({
-                    shouldShow: false
+                    shouldShow
                 });
             }
         });

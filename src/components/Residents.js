@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {ScrollView, StyleSheet, Text, View} from 'react-native';
+import {ScrollView, StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
-import Icon from 'react-native-fa-icons';
 import {strings} from '../shared/i18n';
+import LocalStorage from '../storage/LocalStorage';
+import Icon from 'react-native-fa-icons';
 
 export default class ResidentsScreen extends Component {
 
@@ -18,32 +19,65 @@ export default class ResidentsScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            renderUsers: []
+            renderUsers: [],
+            localUser: null
         };
     }
 
     componentDidMount() {
-        Database.getUsers().then(snapshot => {
-            this.users = snapshot;
-            this.setState({renderUsers: this.renderUsers()});
-        });
+        this.getUsers();
     }
 
-    renderUsers = () => {
+    getUsers = () => {
+        LocalStorage.getUser().then(localUser => {
+            Database.getUsers().then(snapshot => {
+                this.users = snapshot;
+                this.setState({
+                    renderUsers: this.renderUsers(localUser),
+                });
+            });
+        });
+    };
+
+    renderUsers = (localUser) => {
         let renderUsers = [];
         this.users.forEach(user => {
-            renderUsers.push(this._renderUser(user));
+            renderUsers.push(this._renderUser(user, localUser));
         });
         return renderUsers;
     };
 
-    _renderUser = (renderUser) => {
+    onDeletePress = (userId, user) => {
+        Alert.alert('Are you sure?',
+            'Are you sure you want to delete ' + user.name + '?',
+            [
+                {
+                    text: strings('settings.change_password_modal_cancel'), onPress: () => {
+                    }
+                },
+                {text: strings('settings.change_password_modal_ok'), onPress: () => this.deleteUser(userId)},
+            ]);
+    };
+
+    deleteUser = (userId) => {
+        Database.deleteUser(userId).then(() => {
+            this.getUsers();
+        });
+    };
+
+    _renderUser = (renderUser, localUser) => {
         let user = renderUser.val();
         return (
             <View key={renderUser.key}>
                 {!!user.room &&
                 <View style={styles.sectionHeaderContainer}>
                     <Text style={styles.sectionHeaderText}>{user.room}</Text>
+                    {renderUser.key !== localUser.uid &&
+                    <TouchableOpacity style={styles.deleteButton}
+                                      onPress={() => this.onDeletePress(renderUser.key, user)}>
+                        <Text style={styles.deleteText}>Delete</Text>
+                    </TouchableOpacity>
+                    }
                 </View>
                 }
                 {!!user.name &&
@@ -114,5 +148,11 @@ const styles = StyleSheet.create({
     rightText: {
         marginRight: 10,
         color: colors.submitButtonColor
+    },
+    deleteButton: {
+        marginRight: 10
+    },
+    deleteText: {
+        color: colors.cancelButtonColor
     }
 });
