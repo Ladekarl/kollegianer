@@ -1,5 +1,5 @@
 import firebase from 'react-native-firebase';
-import RNFetchBlob from 'react-native-fetch-blob';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const polyfill = RNFetchBlob.polyfill;
 window.XMLHttpRequest = polyfill.XMLHttpRequest;

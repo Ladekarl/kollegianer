@@ -3,11 +3,11 @@ package com.kollegianer;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+import com.RNFetchBlob.RNFetchBlobPackage;
 import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
 import com.AlexanderZaytsev.RNI18n.RNI18nPackage;
 import com.rnfs.RNFSPackage;
 import com.reactnativedocumentpicker.ReactNativeDocumentPicker;
-import com.RNFetchBlob.RNFetchBlobPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
@@ -43,11 +43,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
+            new RNFetchBlobPackage(),
             new RNGestureHandlerPackage(),
             new RNI18nPackage(),
             new RNFSPackage(),
             new ReactNativeDocumentPicker(),
-            new RNFetchBlobPackage(),
             new ImagePickerPackage(),
             new RNFirebasePackage(),
             new RNFirebaseMessagingPackage(),

@@ -99,6 +99,20 @@ PODS:
   - Protobuf (3.6.1)
   - React (0.58.3):
     - React/Core (= 0.58.3)
+  - react-native-fbsdk (0.8.0):
+    - React
+    - react-native-fbsdk/Core (= 0.8.0)
+    - react-native-fbsdk/Login (= 0.8.0)
+    - react-native-fbsdk/Share (= 0.8.0)
+  - react-native-fbsdk/Core (0.8.0):
+    - FBSDKCoreKit
+    - React
+  - react-native-fbsdk/Login (0.8.0):
+    - FBSDKLoginKit
+    - React
+  - react-native-fbsdk/Share (0.8.0):
+    - FBSDKShareKit
+    - React
   - React/Core (0.58.3):
     - yoga (= 0.58.3.React)
   - React/CxxBridge (0.58.3):
@@ -146,6 +160,8 @@ PODS:
     - React/Core
     - React/fishhook
     - React/RCTBlob
+  - rn-fetch-blob (0.10.6):
+    - React/Core
   - RNGestureHandler (1.0.15):
     - React
   - yoga (0.58.3.React)
@@ -160,6 +176,7 @@ DEPENDENCIES:
   - Firebase/Messaging (~> 5.15.0)
   - Folly (from `../node_modules/react-native/third-party-podspecs/Folly.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
+  - react-native-fbsdk (from `../node_modules/react-native-fbsdk`)
   - React/Core (from `../node_modules/react-native`)
   - React/CxxBridge (from `../node_modules/react-native`)
   - React/DevSupport (from `../node_modules/react-native`)
@@ -173,6 +190,7 @@ DEPENDENCIES:
   - React/RCTText (from `../node_modules/react-native`)
   - React/RCTVibration (from `../node_modules/react-native`)
   - React/RCTWebSocket (from `../node_modules/react-native`)
+  - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
 
@@ -208,6 +226,10 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/react-native/third-party-podspecs/glog.podspec"
   React:
     :path: "../node_modules/react-native"
+  react-native-fbsdk:
+    :path: "../node_modules/react-native-fbsdk"
+  rn-fetch-blob:
+    :path: "../node_modules/rn-fetch-blob"
   RNGestureHandler:
     :path: "../node_modules/react-native-gesture-handler"
   yoga:
@@ -238,9 +260,11 @@ SPEC CHECKSUMS:
   nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
   Protobuf: 1eb9700044745f00181c136ef21b8ff3ad5a0fd5
   React: 9b873b38b92ed8012d7cdf3b965477095ed364c4
+  react-native-fbsdk: d5f98cc5abecbcc463e3c35c04743d716d002d37
+  rn-fetch-blob: 76a8f798dae965bbcd146a2438f2e1d381c91ae3
   RNGestureHandler: afde2addc517e85cc97a25bfe119acbee779a7ce
   yoga: 0885622311729a02c2bc02dca97167787a51488b
 
-PODFILE CHECKSUM: 479ae75b7ebb1b529cc9ffdbb1957d188d874da0
+PODFILE CHECKSUM: 69ef8ed3e8e5e3fc45493a0d68fecf16930feb78
 
 COCOAPODS: 1.5.2

@@ -362,13 +362,6 @@
 			remoteGlobalIDString = 014A3B5C1C6CF33500B6D375;
 			remoteInfo = RNImagePicker;
 		};
-		CBB406791FDF43D3007A36BB /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CFEBBDE72C694916B963249C /* RNFetchBlob.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = A15C300E1CD25C330074CB35;
-			remoteInfo = RNFetchBlob;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -425,7 +418,6 @@
 		CB7A762E1FC6FB7C0053A08F /* kollegianer.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = kollegianer.entitlements; path = kollegianer/kollegianer.entitlements; sourceTree = "<group>"; };
 		CBFF38631FC2427E00E4B884 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "kollegianer/GoogleService-Info.plist"; sourceTree = "<group>"; };
 		CE82944507A54711B437F85D /* Lato-BlackItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Lato-BlackItalic.ttf"; path = "../assets/fonts/Lato-BlackItalic.ttf"; sourceTree = "<group>"; };
-		CFEBBDE72C694916B963249C /* RNFetchBlob.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNFetchBlob.xcodeproj; path = "../node_modules/react-native-fetch-blob/ios/RNFetchBlob.xcodeproj"; sourceTree = "<group>"; };
 		D5B6A7D5EEF72C3FD4509396 /* Pods-kollegianer-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-kollegianer-tvOSTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-kollegianer-tvOSTests/Pods-kollegianer-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		DB834B0107D5444780999D70 /* libRNFS.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNFS.a; sourceTree = "<group>"; };
 		EA452F9874ADC2568087E64F /* libPods-kollegianer-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-kollegianer-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -660,7 +652,6 @@
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
 				77E9A82DCBD0445FA535CFB5 /* RNImagePicker.xcodeproj */,
-				CFEBBDE72C694916B963249C /* RNFetchBlob.xcodeproj */,
 				2F58294357FC40A6830218D7 /* RNDocumentPicker.xcodeproj */,
 				AE304368C2424A928C36B155 /* RNFS.xcodeproj */,
 				657ED3CC23D54F5BB2C5DD4E /* RNI18n.xcodeproj */,
@@ -772,14 +763,6 @@
 			isa = PBXGroup;
 			children = (
 				CBB406441FDF3374007A36BB /* libRNImagePicker.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		CBB406761FDF43D3007A36BB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				CBB4067A1FDF43D3007A36BB /* libRNFetchBlob.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -900,10 +883,6 @@
 				{
 					ProductGroup = CB6A15FC200EB1A900B3EDE4 /* Products */;
 					ProjectRef = 2F58294357FC40A6830218D7 /* RNDocumentPicker.xcodeproj */;
-				},
-				{
-					ProductGroup = CBB406761FDF43D3007A36BB /* Products */;
-					ProjectRef = CFEBBDE72C694916B963249C /* RNFetchBlob.xcodeproj */;
 				},
 				{
 					ProductGroup = CB44B5DF220A86AE0040AB30 /* Products */;
@@ -1245,13 +1224,6 @@
 			remoteRef = CBB406431FDF3374007A36BB /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		CBB4067A1FDF43D3007A36BB /* libRNFetchBlob.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNFetchBlob.a;
-			remoteRef = CBB406791FDF43D3007A36BB /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -1546,7 +1518,7 @@
 				13B07F951A680F5B00A75B9A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "kollegianer" */ = {
 			isa = XCConfigurationList;
@@ -1555,7 +1527,7 @@
 				83CBBA211A601CBA00E9B192 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

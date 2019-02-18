@@ -125,6 +125,8 @@ export default class LoginScreen extends Component {
                     }).catch(() => {
                         this._stopLoadingAndSetError(strings('login.could_not_login'));
                     });
+                } else {
+                    this._stopLoadingAndSetError('');
                 }
             },
             () => {

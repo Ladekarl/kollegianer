@@ -6,7 +6,7 @@ import Icon from 'react-native-fa-icons';
 import LocalStorage from '../storage/LocalStorage';
 import {DocumentPicker, DocumentPickerUtil} from 'react-native-document-picker';
 import * as Papa from 'papaparse';
-import RNFetchBlob from 'react-native-fetch-blob';
+import RNFetchBlob from 'rn-fetch-blob';
 import {strings} from '../shared/i18n';
 
 export default class AccountingScreen extends Component {
@@ -130,8 +130,7 @@ export default class AccountingScreen extends Component {
                                             break;
                                         }
                                     }
-                                }
-                                else {
+                                } else {
                                     item[i] = user;
                                     mapObj.set(key, item);
                                     break;
