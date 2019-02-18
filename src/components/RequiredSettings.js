@@ -5,6 +5,7 @@ import {strings} from '../shared/i18n';
 import colors from '../shared/colors';
 import Database from '../storage/Database';
 import LocalStorage from '../storage/LocalStorage';
+import {SafeAreaView} from 'react-navigation';
 
 export default class RequiredSettings extends Component {
 
@@ -54,7 +55,7 @@ export default class RequiredSettings extends Component {
         return (
             <Modal
                 visible={shouldShow}>
-                <View style={styles.container}>
+                <SafeAreaView style={styles.container} forceInset={{ top: 'always' }}>
                     <View style={styles.topContainer}>
                         <Text style={styles.topText}>{strings('settings.fill_required')}</Text>
                     </View>
@@ -64,7 +65,7 @@ export default class RequiredSettings extends Component {
                             <Text style={styles.buttonText}>{strings('settings.change_password_modal_ok')}</Text>
                         </TouchableOpacity>
                     </View>
-                </View>
+                </SafeAreaView>
             </Modal>
         );
     }
@@ -76,7 +77,8 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         left: 0,
-        right: 0
+        right: 0,
+        backgroundColor: colors.inactiveTabColor
     },
     topContainer: {
         height: 50,
