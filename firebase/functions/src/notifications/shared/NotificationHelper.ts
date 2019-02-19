@@ -93,7 +93,7 @@ export const sendNotification = async (notificationTokens: string[], payload: Me
 };
 
 export const findUser = (uid: string, userSnapshots: DataSnapshot): User | null => {
-    let user = null;
+    let user: User | null = null;
     userSnapshots.forEach(snapshot => {
         if (String(uid).valueOf() === String(snapshot.key).valueOf()) {
             user = snapshot.val();
@@ -108,7 +108,7 @@ export const getNotificationTokens = (userSnapshots: DataSnapshot,
     let notificationTokens: NotificationToken[] = [];
     const userIsNotCommitting = (uid: string, userId: string | null) => String(uid).valueOf() !== String(userId).valueOf();
     userSnapshots.forEach(snapshot => {
-        const user = snapshot.val();
+        const user: User = snapshot.val();
         if (user.notificationTokens &&
             user.notificationTokens.length &&
             user.notificationTokens.length > 0 &&
