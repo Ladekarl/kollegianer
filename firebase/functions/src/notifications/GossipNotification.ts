@@ -1,14 +1,12 @@
-'use strict';
-
-const {
+import {
     buildNotification,
     getNotificationTokens,
     getValue,
     notifyOnCreate,
     publishNotification
-} = require('./shared/NotificationHelper');
+} from './shared/NotificationHelper';
 
-exports.GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (event) => {
+export const GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (event) => {
     const newGossip = getValue(event);
     let message = newGossip.message;
 
