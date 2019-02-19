@@ -4,38 +4,47 @@ import {
     getValue,
     notifyOnCreate,
     notifyOnUpdate,
-    publishNotification
+    publishNotification,
+    User
 } from './shared/NotificationHelper';
+import * as admin from "firebase-admin";
+import DataSnapshot = admin.database.DataSnapshot;
 
+interface ViMangler {
+    checked: boolean;
+    date: string;
+    item: string;
+    room: string;
+}
 
-const userIsShopper = (user) => user.duty.toLowerCase().indexOf('indkøber') !== -1;
+const userIsShopper = (user: User) => user.duty.toLowerCase().indexOf('indkøber') !== -1;
 
-const getNotificationTokensForViMangler = (usersSnapshots, committingUid) =>
+const getNotificationTokensForViMangler = (usersSnapshots: DataSnapshot, committingUid: string) =>
     getNotificationTokens(usersSnapshots, committingUid,
         (userId, user) => userIsShopper(user)
     );
 
-const buildViManglerAddedNotification = (viMangler) => buildNotification(
+const buildViManglerAddedNotification = (viMangler: ViMangler) => buildNotification(
     'Der blev tilføjet en ting til Vi Mangler',
     `${viMangler.item} blev tilføjet af ${viMangler.room}`,
     'fcm.VI_MANGLER'
 );
 
-const buildViManglerUpdatedNotification = (committingUser, viMangler) => buildNotification(
+const buildViManglerUpdatedNotification = (committingUser: User | null, viMangler: ViMangler) => buildNotification(
     'Der blev købt en ting på Vi Mangler',
-    `${viMangler.item} blev købt af ${committingUser.room}`,
+    `${viMangler.item} blev købt` + (committingUser ? `af ${committingUser.room}` : ''),
     'fcm.VI_MANGLER');
 
-export const ViManglerAddedNotification = notifyOnCreate('/vimangler/{viManglerUid}', event => {
-    const viMangler = getValue(event);
-    return publishNotification(event, getNotificationTokensForViMangler, () => buildViManglerAddedNotification(viMangler), undefined);
+export const ViManglerAddedNotification = notifyOnCreate('/vimangler/{viManglerUid}', (event, context) => {
+    const viMangler = event.val();
+    return publishNotification(context, getNotificationTokensForViMangler, () => buildViManglerAddedNotification(viMangler), undefined);
 });
 
-export const ViManglerUpdatedNotification = notifyOnUpdate('/vimangler/{viManglerUid}', event => {
+export const ViManglerUpdatedNotification = notifyOnUpdate('/vimangler/{viManglerUid}', (event, context) => {
     const viMangler = getValue(event);
 
-    let notification = viMangler.checked ?
-        (committingUser) => buildViManglerUpdatedNotification(committingUser, viMangler) :
+    const notification = viMangler.checked ?
+        (committingUid: string, committingUser: User | null) => buildViManglerUpdatedNotification(committingUser, viMangler) :
         () => buildViManglerAddedNotification(viMangler);
-    return publishNotification(event, getNotificationTokensForViMangler, notification, 'kollegianer.vi_mangler_updated');
+    return publishNotification(context, getNotificationTokensForViMangler, notification, 'kollegianer.vi_mangler_updated');
 });

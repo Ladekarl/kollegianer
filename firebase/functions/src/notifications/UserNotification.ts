@@ -2,16 +2,26 @@ import {
     buildNotification,
     getPreviousValue,
     getValue,
+    NotificationToken,
     notifyOnUpdate,
-    publishNotification
+    publishNotification,
+    User
 } from './shared/NotificationHelper';
 
 
-const buildKitchenWeekNotification = (committingUser) => buildNotification('Du har nu køkkenugen', `${committingUser.room} gav dig køkkenugen`, 'fcm.KITCHEN_WEEK');
-const buildSheriffNotification = (committingUser) => buildNotification('Du er nu sheriff', `${committingUser.room} gjorde dig til sheriff`, 'fcm.SHERIFF');
+const buildKitchenWeekNotification = (committingUser: User | null) =>
+    buildNotification(
+        'Du har nu køkkenugen',
+        committingUser ? `${committingUser.room} gav dig køkkenugen` : '',
+        'fcm.KITCHEN_WEEK');
+const buildSheriffNotification = (committingUser: User | null) =>
+    buildNotification(
+        'Du er nu sheriff',
+        committingUser ? `${committingUser.room} gjorde dig til sheriff` : '',
+        'fcm.SHERIFF');
 
-const getUserUpdatedNotificationTokens = (user, previousUser) => {
-    let notificationTokens = [];
+const getUserUpdatedNotificationTokens = (user: User, previousUser: User) => {
+    let notificationTokens: NotificationToken[] = [];
     if (user.notificationTokens &&
         user.notificationTokens.length &&
         user.notificationTokens.length > 0 &&
@@ -21,17 +31,17 @@ const getUserUpdatedNotificationTokens = (user, previousUser) => {
     return notificationTokens;
 };
 
-export const UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', event => {
+export const UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', (event, context) => {
     const user = getValue(event);
     const previousUser = getPreviousValue(event);
 
     const notificationTokens = () => getUserUpdatedNotificationTokens(user, previousUser);
 
-    let notification = user.kitchenweek ?
-        (committingUser) => buildKitchenWeekNotification(committingUser) :
-        (committingUser) => buildSheriffNotification(committingUser);
+    const notification = user.kitchenweek ?
+        (committingUid: string, committingUser: User | null) => buildKitchenWeekNotification(committingUser) :
+        (committingUid: string, committingUser: User | null) => buildSheriffNotification(committingUser);
 
-    let tag = user.kitchenweek ? 'kollegianer.kitchen_week' : 'kollegianer.sheriff';
+    const tag = user.kitchenweek ? 'kollegianer.kitchen_week' : 'kollegianer.sheriff';
 
-    return publishNotification(event, notificationTokens, notification, tag);
+    return publishNotification(context, notificationTokens, notification, tag);
 });
