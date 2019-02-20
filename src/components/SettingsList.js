@@ -30,6 +30,7 @@ export default class SettingsList extends Component {
                 sheriff: false,
                 uid: '',
                 keyphrase: '',
+                phone: ''
             },
             dutyPickerItems: [],
             userPickerItems: [],
@@ -44,7 +45,8 @@ export default class SettingsList extends Component {
                 birthday: '',
                 email: '',
                 room: '',
-                keyphrase: ''
+                keyphrase: '',
+                phone: ''
             }
         };
         this.auth = firebase.auth();
@@ -341,6 +343,7 @@ export default class SettingsList extends Component {
                         onChangeText={text => this.onSettingChanged(text, 'name')}
                         onSubmitEditing={() => this.onSubmitSetting('name')}
                         textContentType='name'
+                        returnKeyType='done'
                         underlineColorAndroid={colors.inactiveTabColor}
                         selectionColor={colors.inactiveTabColor}
                         placeholder={strings('settings.name_placeholder')}/>
@@ -359,15 +362,13 @@ export default class SettingsList extends Component {
                         onSubmitEditing={() => this.onSubmitSetting('email')}
                         textContentType='emailAddress'
                         keyboardType='email-address'
+                        returnKeyType='done'
                         underlineColorAndroid={colors.inactiveTabColor}
                         selectionColor={colors.inactiveTabColor}
                         placeholder={strings('settings.email_placeholder')}/>
                 </View>
                 <View style={styles.rowContainer}>
                     <View style={styles.leftContainer}>
-                        {!user.birthday && required &&
-                        <Icon name='exclamation-circle' style={styles.requiredIcon}/>
-                        }
                         <Text style={styles.leftText}>{strings('settings.birthday')}</Text>
                     </View>
                     <TextInput
@@ -377,7 +378,24 @@ export default class SettingsList extends Component {
                         onSubmitEditing={() => this.onSubmitSetting('birthday')}
                         underlineColorAndroid={colors.inactiveTabColor}
                         selectionColor={colors.inactiveTabColor}
+                        returnKeyType='done'
                         placeholder={strings('settings.birthday_placeholder')}/>
+                </View>
+                <View style={styles.rowContainer}>
+                    <View style={styles.leftContainer}>
+                        <Text style={styles.leftText}>{strings('settings.phone_number')}</Text>
+                    </View>
+                    <TextInput
+                        style={styles.rightText}
+                        value={tempUser.phone}
+                        keyboardType='phone-pad'
+                        onChangeText={text => this.onSettingChanged(text, 'phone')}
+                        onSubmitEditing={() => this.onSubmitSetting('phone')}
+                        underlineColorAndroid={colors.inactiveTabColor}
+                        selectionColor={colors.inactiveTabColor}
+                        textContentType='telephoneNumber'
+                        returnKeyType='done'
+                        placeholder={strings('settings.phone_number_placeholder')}/>
                 </View>
                 <View style={styles.rowContainer}>
                     <View style={styles.leftContainer}>
@@ -391,7 +409,8 @@ export default class SettingsList extends Component {
                         value={tempUser.room}
                         onChangeText={text => this.onSettingChanged(text, 'room')}
                         onSubmitEditing={() => this.onSubmitSetting('room')}
-                        keyboardType='numeric'
+                        keyboardType='number-pad'
+                        returnKeyType='done'
                         underlineColorAndroid={colors.inactiveTabColor}
                         selectionColor={colors.inactiveTabColor}
                         placeholder={strings('settings.room_placeholder')}/>
@@ -424,6 +443,10 @@ export default class SettingsList extends Component {
                         onChangeText={(text) => this.onSettingChanged(text, 'keyphrase')}
                         onSubmitEditing={() => this.onSubmitSetting('keyphrase')}
                         underlineColorAndroid={colors.inactiveTabColor}
+                        autoComplete='password'
+                        returnKeyType='done'
+                        autoCorrect={false}
+                        autoCapitalize='none'
                         selectionColor={colors.inactiveTabColor}
                         placeholder={strings('settings.keyphrase_placeholder')}/>
                 </View>

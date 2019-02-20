@@ -98,6 +98,12 @@ export default class ResidentsScreen extends Component {
                     <Text style={styles.rightText}>{user.birthday}</Text>
                 </View>
                 }
+                {!!user.phone &&
+                <View style={styles.innerRowContainer}>
+                    <Text style={styles.leftText}>{strings('residents.phone')}</Text>
+                    <Text style={styles.rightText}>{user.phone}</Text>
+                </View>
+                }
                 {!!user.email &&
                 <View style={styles.innerRowContainer}>
                     <Text style={styles.leftText}>{strings('residents.email')}</Text>
