@@ -69,9 +69,8 @@ export default class ResidentsScreen extends Component {
         let user = renderUser.val();
         return (
             <View key={renderUser.key}>
-                {!!user.room &&
                 <View style={styles.sectionHeaderContainer}>
-                    <Text style={styles.sectionHeaderText}>{user.room}</Text>
+                    <Text style={styles.sectionHeaderText}>{user.room || ''}</Text>
                     {renderUser.key !== localUser.uid &&
                     <TouchableOpacity style={styles.deleteButton}
                                       onPress={() => this.onDeletePress(renderUser.key, user)}>
@@ -79,7 +78,6 @@ export default class ResidentsScreen extends Component {
                     </TouchableOpacity>
                     }
                 </View>
-                }
                 {!!user.name &&
                 <View style={styles.innerRowContainer}>
                     <Text style={styles.leftText}>{strings('residents.name')}</Text>
