@@ -110,7 +110,7 @@ export default class LoginScreen extends Component {
     onFacebookLoginPress = () => {
         Keyboard.dismiss();
         this.setState({error: '', loading: true});
-        LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
+        LoginManager.logInWithPermissions(['public_profile', 'email']).then(
             result => {
                 if (!result.isCancelled) {
                     AccessToken.getCurrentAccessToken().then((data) => {

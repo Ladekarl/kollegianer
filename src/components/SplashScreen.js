@@ -29,13 +29,13 @@ export default class SplashScreen extends Component {
                     } else if (user.password) {
                         this._signIn();
                     } else {
-                        this._navigateAndReset('Login', true);
+                        this._navigateAndReset('Login');
                     }
                 } else {
-                    this._navigateAndReset('Login', true);
+                    this._navigateAndReset('Login');
                 }
             }).catch(() => {
-                    this._navigateAndReset('Login', true);
+                    this._navigateAndReset('Login');
                 }
             );
         });
@@ -46,7 +46,7 @@ export default class SplashScreen extends Component {
             return firebase.auth().signInWithEmailAndPassword(user.email, user.password).then((response) => {
                 this._onSignInSuccess(response, user.password, user.accessToken);
             }).catch(() => {
-                this._navigateAndReset('Login', true);
+                this._navigateAndReset('Login');
             });
         }).catch(error => console.log(error));
     };
@@ -57,7 +57,7 @@ export default class SplashScreen extends Component {
             firebase.auth().signInWithCredential(credential).then((response) => {
                 this._onSignInSuccess(response, user.password, user.accessToken);
             }).catch(() => {
-                this._navigateAndReset('Login', true);
+                this._navigateAndReset('Login');
             });
         }).catch(error => console.log(error));
     };
@@ -108,14 +108,12 @@ export default class SplashScreen extends Component {
         });
     };
 
-    _navigateAndReset = (routeName, isNested) => {
+    _navigateAndReset = (routeName) => {
         let resetAction = StackActions.reset({
             index: 0,
+            key: undefined,
             actions: [NavigationActions.navigate({routeName: routeName})],
         });
-        if (!isNested) {
-            resetAction.key = null;
-        }
         this.props.navigation.dispatch(resetAction);
     };
 

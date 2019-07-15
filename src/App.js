@@ -1,14 +1,20 @@
-// @flow
+/*
+*
+* @format
+* @flow
+*
+*/
+
 import React, {Component} from 'react';
+import type {NotificationOpen, RemoteMessage} from 'react-native-firebase';
 import firebase from 'react-native-firebase';
-import {Alert, Platform, StyleSheet, View, StatusBar} from 'react-native';
+import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
 import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
 import {NavigationActions} from 'react-navigation';
 import colors from './shared/colors';
 import {navigateTo} from './containers/Home';
 import AppNavigation from './navigation/AppNavigation';
-import type {RemoteMessage, NotificationOpen} from 'react-native-firebase';
 
 export default class App extends Component {
 
