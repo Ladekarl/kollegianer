@@ -203,33 +203,33 @@ export default class AccountingScreen extends Component {
             for (let j = 0; j < row.length; j++) {
                 let entity = row[j].toLowerCase();
                 // Get column indexes
-                if (entity.indexOf('1701') !== -1) {
+                if (entity.indexOf('1701') !== -1 && typeof index1701 === 'undefined') {
                     index1701 = i;
-                } else if (entity.indexOf('1702') !== -1) {
+                } else if (entity.indexOf('1702') !== -1 && typeof index1702 === 'undefined') {
                     index1702 = i;
-                } else if (entity.indexOf('1703') !== -1) {
+                } else if (entity.indexOf('1703') !== -1 && typeof index1703 === 'undefined') {
                     index1703 = i;
-                } else if (entity.indexOf('1704') !== -1) {
+                } else if (entity.indexOf('1704') !== -1 && typeof index1704 === 'undefined') {
                     index1704 = i;
-                } else if (entity.indexOf('1705') !== -1) {
+                } else if (entity.indexOf('1705') !== -1 && typeof index1705 === 'undefined') {
                     index1705 = i;
-                } else if (entity.indexOf('1706') !== -1) {
+                } else if (entity.indexOf('1706') !== -1 && typeof index1706 === 'undefined') {
                     index1706 = i;
-                } else if (entity.indexOf('1707') !== -1) {
+                } else if (entity.indexOf('1707') !== -1 && typeof index1707 === 'undefined') {
                     index1707 = i;
-                } else if (entity.indexOf('1708') !== -1) {
+                } else if (entity.indexOf('1708') !== -1 && typeof index1708 === 'undefined') {
                     index1708 = i;
-                } else if (entity.indexOf('1709') !== -1) {
+                } else if (entity.indexOf('1709') !== -1 && typeof index1709 === 'undefined') {
                     index1709 = i;
-                } else if (entity.indexOf('1710') !== -1) {
+                } else if (entity.indexOf('1710') !== -1 && typeof index1710 === 'undefined') {
                     index1710 = i;
-                } else if (entity.indexOf('1711') !== -1) {
+                } else if (entity.indexOf('1711') !== -1 && typeof index1711 === 'undefined') {
                     index1711 = i;
-                } else if (entity.indexOf('1712') !== -1) {
+                } else if (entity.indexOf('1712') !== -1 && typeof index1712 === 'undefined') {
                     index1712 = i;
-                } else if (entity.indexOf('1713') !== -1) {
+                } else if (entity.indexOf('1713') !== -1 && typeof index1713 === 'undefined') {
                     index1713 = i;
-                } else if (entity.indexOf('1714') !== -1) {
+                } else if (entity.indexOf('1714') !== -1 && typeof index1714 === 'undefined') {
                     index1714 = i;
                 }
 

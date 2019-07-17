@@ -2,7 +2,8 @@
           package="com.kollegianer">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -36,15 +37,15 @@
 
         <service android:name="io.invertase.firebase.messaging.RNFirebaseMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
 
-        <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService" />
+        <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService"/>
 
         <provider android:authorities="com.facebook.app.FacebookContentProvider1234"
-            android:name="com.facebook.FacebookContentProvider"
-            android:exported="true" />
+                  android:name="com.facebook.FacebookContentProvider"
+                  android:exported="true"/>
     </application>
 
 </manifest>

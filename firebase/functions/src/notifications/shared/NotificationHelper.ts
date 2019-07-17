@@ -1,25 +1,53 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import DataSnapshot = admin.database.DataSnapshot;
+import MessagingPayload = admin.messaging.MessagingPayload;
+import MessagingOptions = admin.messaging.MessagingOptions;
+import NotificationMessagePayload = admin.messaging.NotificationMessagePayload;
+import EventContext = functions.EventContext;
+import Change = functions.Change;
 
-export const readDatabaseOnce = (path) => {
+export interface NotificationToken {
+    token: string;
+    isIos: boolean;
+}
+
+interface Account {
+    data: string[][];
+    updatedOn: Date;
+}
+
+
+export interface User {
+    beerAccount: Account
+    birthday: string;
+    duty: string;
+    email: string;
+    kitchenAccount: Account
+    kitchenweek: boolean;
+    name: string;
+    notificationTokens: NotificationToken[];
+    room: string;
+    sheriff: boolean;
+}
+
+export const readDatabaseOnce = (path: string) => {
     return admin.database().ref(path).once('value');
 };
 
-export const removeNotificationTokens = (failedTokens) => {
+export const removeNotificationTokens = (failedTokens: string[]) => {
     return new Promise((resolve, reject) => {
         if (failedTokens.length > 0) {
             console.log('Removing failed notification tokens');
             readDatabaseOnce(`/user/`).then(results => {
-                const userSnapshots = results[0];
-                let removeTokensPromises: Array<any> = [];
-                userSnapshots.forEach(snapshot => {
-                    let user = snapshot.val();
+                const removeTokensPromises: Promise<void>[] = [];
+                results.forEach(snapshot => {
+                    const user: User = snapshot.val();
                     if (user.notificationTokens && user.notificationTokens.length && user.notificationTokens.length > 0) {
                         failedTokens.forEach(token => {
                             for (let i = 0; i < user.notificationTokens.length; i++) {
-                                let notificationToken = user.notificationTokens[i];
-                                if (notificationToken.token && String(notificationToken.token).valueOf() == String(token).valueOf()) {
+                                const notificationToken = user.notificationTokens[i];
+                                if (notificationToken.token && String(notificationToken.token).valueOf() === String(token).valueOf()) {
                                     user.notificationTokens.splice(i, 1);
                                     removeTokensPromises.push(snapshot.ref.set(user));
                                 }
@@ -43,38 +71,44 @@ export const removeNotificationTokens = (failedTokens) => {
     });
 };
 
-export const sendNotification = (notificationTokens, payload) => {
-    const options = {priority: 'high'};
-    return admin.messaging().sendToDevice(notificationTokens, payload, options)
-        .then(response => {
-            // For each message check if there was an error.
-            let failedTokens: Array<any> = [];
-            response.results.forEach((result, index) => {
-                const error = result.error;
-                if (error) {
-                    console.error('Failure sending notification to', notificationTokens[index], error);
-                    failedTokens.push(notificationTokens[index]);
-                }
-            });
-            return Promise.all([removeNotificationTokens(failedTokens)]);
-        });
+export const sendNotification = async (notificationTokens: string[], payload: MessagingPayload) => {
+    const options: MessagingOptions = {
+        priority: 'high'
+    };
+
+    const response = await admin.messaging().sendToDevice(notificationTokens, payload, options);
+
+    // For each message check if there was an error.
+    const failedTokens: string[] = [];
+
+    response.results.forEach((result, index) => {
+        const error = result.error;
+        if (error) {
+            console.error('Failure sending notification to', notificationTokens[index], error);
+            failedTokens.push(notificationTokens[index]);
+        }
+    });
+
+    return removeNotificationTokens(failedTokens);
 };
 
-export const findUser = (uid: string, userSnapshots: DataSnapshot) => {
-    let user = null;
+export const findUser = (uid: string, userSnapshots: DataSnapshot): User | null => {
+    let user: User | null = null;
     userSnapshots.forEach(snapshot => {
-        if (String(uid).valueOf() == String(snapshot.key).valueOf()) {
+        if (String(uid).valueOf() === String(snapshot.key).valueOf()) {
             user = snapshot.val();
         }
     });
     return user;
 };
 
-export const getNotificationTokens = (userSnapshots, committingUid, conditionFn) => {
-    let notificationTokens: Array<any> = [];
-    const userIsNotCommitting = (uid, userId) => String(uid).valueOf() != String(userId).valueOf();
+export const getNotificationTokens = (userSnapshots: DataSnapshot,
+                                      committingUid: string,
+                                      conditionFn?: (key: string | null, user: User) => boolean) => {
+    let notificationTokens: NotificationToken[] = [];
+    const userIsNotCommitting = (uid: string, userId: string | null) => String(uid).valueOf() !== String(userId).valueOf();
     userSnapshots.forEach(snapshot => {
-        const user = snapshot.val();
+        const user: User = snapshot.val();
         if (user.notificationTokens &&
             user.notificationTokens.length &&
             user.notificationTokens.length > 0 &&
@@ -88,50 +122,54 @@ export const getNotificationTokens = (userSnapshots, committingUid, conditionFn)
     return notificationTokens;
 };
 
-export const buildNotification = (title, body, clickAction) => {
+export const buildNotification = (title: string, body: string, clickAction: string): NotificationMessagePayload => {
     return {
-        title: title,
-        body: body,
+        title,
+        body,
+        clickAction,
         click_action: clickAction
     }
 };
 
-export const buildNotificationIos = (payload) => {
+export const buildNotificationIos = (payload: NotificationMessagePayload): MessagingPayload => {
     return {
         notification: payload
     }
 };
 
-export const buildNotificationAndroid = (payload, tag) => {
+export const buildNotificationAndroid = (payload: NotificationMessagePayload, tag?: string): MessagingPayload => {
     return {
         data: {
             custom_notification: JSON.stringify(Object.assign({
                 priority: 'high',
                 show_in_foreground: true,
-                tag: tag
+                tag
             }, payload))
         }
     };
 };
 
-export const getPreviousValue = (event) => {
-    return event.data.previous.val();
+export const getPreviousValue = (event: Change<DataSnapshot>) => {
+    return event.before ? event.before.val() : null;
 };
 
-export const getValue = (event) => {
-    return event.data.val()
+export const getValue = (event: Change<DataSnapshot>) => {
+    return event.after ? event.after.val() : null;
 };
 
-export const getCommittingId = (event) => {
-    return event.auth.variable ? event.auth.variable.uid : '';
+export const getCommittingId = (context: EventContext) => {
+    return context.auth ? context.auth.uid : '';
 };
 
-export const publishNotification = async (event, notificationTokenFn, notificationFn, tag) => {
-    const committingUid = getCommittingId(event);
+export const publishNotification = async (context: EventContext,
+                                          notificationTokenFn: (userSnapshots: DataSnapshot, committingUid: string) => NotificationToken[],
+                                          notificationFn: (committingUid: string, committingUser: User | null) => NotificationMessagePayload,
+                                          tag?: string) => {
+    const committingUid = getCommittingId(context);
     const usersSnapshots = await readDatabaseOnce(`/user/`);
 
-    let committingUser = findUser(committingUid, usersSnapshots);
-    let notificationTokens = notificationTokenFn(usersSnapshots, committingUid);
+    const committingUser = findUser(committingUid, usersSnapshots);
+    const notificationTokens = notificationTokenFn(usersSnapshots, committingUid);
 
     if (notificationTokens.length === 0) {
         console.log('There are no notification tokens to send to.');
@@ -143,7 +181,7 @@ export const publishNotification = async (event, notificationTokenFn, notificati
 
     console.log('There are', notificationTokens.length, 'tokens to send notifications to.', iosNotifTokens.length, 'iOS and', androidNotifTokens.length, 'android');
 
-    const notificationPayload = notificationFn(committingUser);
+    const notificationPayload = notificationFn(committingUid, committingUser);
 
     return Promise.all([
         sendNotification(iosNotifTokens, buildNotificationIos(notificationPayload)),
@@ -151,18 +189,18 @@ export const publishNotification = async (event, notificationTokenFn, notificati
     ]);
 };
 
-export const notifyOnWrite = (path, fn) => {
-    return functions.database.ref(path).onWrite(event => fn(event));
+export const notifyOnWrite = (path: string, fn: (change: Change<DataSnapshot>, context: EventContext) => PromiseLike<any> | any) => {
+    return functions.database.ref(path).onWrite(fn);
 };
 
-export const notifyOnCreate = (path, fn) => {
-    return functions.database.ref(path).onCreate(event => fn(event));
+export const notifyOnCreate = (path: string, fn: (snapshot: DataSnapshot, context: EventContext) => PromiseLike<any> | any) => {
+    return functions.database.ref(path).onCreate(fn);
 };
 
-export const notifyOnUpdate = (path, fn) => {
-    return functions.database.ref(path).onUpdate(event => fn(event));
+export const notifyOnUpdate = (path: string, fn: (snapshot: Change<DataSnapshot>, context: EventContext) => PromiseLike<any> | any) => {
+    return functions.database.ref(path).onUpdate(fn);
 };
 
-export const notifyOnDelete = (path, fn) => {
-    return functions.database.ref(path).onDelete(event => fn(event));
+export const notifyOnDelete = (path: string, fn: (snapshot: DataSnapshot, context: EventContext) => PromiseLike<any> | any) => {
+    return functions.database.ref(path).onDelete(fn);
 };

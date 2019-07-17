@@ -1,4 +1,4 @@
-import {AsyncStorage} from 'react-native';
+import AsyncStorage from '@react-native-community/async-storage';
 import {FCM_TOKEN_STORAGE_KEY, USER_STORAGE_KEY} from 'react-native-dotenv';
 
 export default class LocalStorage {

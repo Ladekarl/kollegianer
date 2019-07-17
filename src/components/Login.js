@@ -110,7 +110,8 @@ export default class LoginScreen extends Component {
     onFacebookLoginPress = () => {
         Keyboard.dismiss();
         this.setState({error: '', loading: true});
-        LoginManager.logInWithReadPermissions(['public_profile', 'email']).then(
+        LoginManager.logOut();
+        LoginManager.logInWithPermissions(['public_profile', 'email']).then(
             result => {
                 if (!result.isCancelled) {
                     AccessToken.getCurrentAccessToken().then((data) => {
@@ -122,14 +123,17 @@ export default class LoginScreen extends Component {
                             .catch((error) => {
                                 this._stopLoadingAndSetError(error.message);
                             });
-                    }).catch(() => {
+                    }).catch((error) => {
+                        console.log(error);
                         this._stopLoadingAndSetError(strings('login.could_not_login'));
                     });
                 } else {
+                    console.log('user cancelled');
                     this._stopLoadingAndSetError('');
                 }
             },
-            () => {
+            (error) => {
+                console.log(error);
                 this._stopLoadingAndSetError(strings('login.could_not_login'));
             }
         );

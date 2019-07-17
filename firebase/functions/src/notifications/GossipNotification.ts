@@ -1,13 +1,24 @@
 import {
     buildNotification,
     getNotificationTokens,
-    getValue,
     notifyOnCreate,
     publishNotification
 } from './shared/NotificationHelper';
 
-export const GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (event) => {
-    const newGossip = getValue(event);
+interface GossipPhoto {
+    height: number;
+    url: string;
+    width: number;
+}
+
+interface GossipMessage {
+    date: string;
+    message: string;
+    photo?: GossipPhoto;
+}
+
+export const GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (event, context) => {
+    const newGossip: GossipMessage = event.val();
     let message = newGossip.message;
 
     if (message.length > 50) {
@@ -18,5 +29,5 @@ export const GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (
 
     const buildGossipNotification = () => buildNotification('Gossip!', message, 'fcm.GOSSIP');
 
-    return publishNotification(event, getNotificationTokens, buildGossipNotification, 'kollegianer.gossip');
+    return publishNotification(context, getNotificationTokens, buildGossipNotification, 'kollegianer.gossip');
 });
