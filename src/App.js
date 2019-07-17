@@ -1,12 +1,4 @@
-/*
-*
-* @format
-* @flow
-*
-*/
-
 import React, {Component} from 'react';
-import type {NotificationOpen, RemoteMessage} from 'react-native-firebase';
 import firebase from 'react-native-firebase';
 import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
 import LocalStorage from './storage/LocalStorage';
@@ -73,7 +65,7 @@ export default class App extends Component {
 
     getInitialNotification = () => {
         return new Promise((resolve, reject) => {
-            firebase.messaging().getInitialNotification().then((notification: NotificationOpen) => {
+            firebase.notifications().getInitialNotification().then((notification) => {
                 if (notification) {
                     const action = notification.action;
                     if (this.supportedNotifications.indexOf(action) !== -1) {
@@ -100,7 +92,7 @@ export default class App extends Component {
     }
 
     registerMessageListener = () => {
-        this.messageListener = firebase.messaging().onMessage((message: RemoteMessage) => {
+        this.messageListener = firebase.messaging().onMessage(notification => {
             this._navigateOnNotification(notification);
             const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
             switch (action) {
@@ -117,7 +109,7 @@ export default class App extends Component {
         });
     };
 
-    _navigateOnNotification(notification: NotificationOpen) {
+    _navigateOnNotification(notification) {
         const action = notification.action;
         switch (action) {
             // Switch on current_action from FCM payload

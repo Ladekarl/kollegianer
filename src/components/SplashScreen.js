@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Dimensions, Image, StyleSheet, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import colors from '../shared/colors';
-import {StackActions, NavigationActions} from 'react-navigation';
+import {NavigationActions, StackActions} from 'react-navigation';
 import firebase from 'react-native-firebase';
 import Database from '../storage/Database';
 
@@ -102,16 +102,16 @@ export default class SplashScreen extends Component {
 
     _saveUserAndNavigate = (dbUser) => {
         LocalStorage.setUser(dbUser).then(() => {
-            this._navigateAndReset('mainFlow');
+            this._navigateAndReset('mainFlow', true);
         }).catch(error => {
             console.log(error);
         });
     };
 
-    _navigateAndReset = (routeName) => {
+    _navigateAndReset = (routeName, nested) => {
         let resetAction = StackActions.reset({
             index: 0,
-            key: undefined,
+            key: nested ? null : undefined,
             actions: [NavigationActions.navigate({routeName: routeName})],
         });
         this.props.navigation.dispatch(resetAction);
@@ -121,13 +121,11 @@ export default class SplashScreen extends Component {
         return (
             <View style={styles.container}>
                 <View style={styles.innerContainer}>
-                    <View style={styles.topContainer}>
-                        <Image
-                            resizeMode='contain'
-                            style={styles.image}
-                            source={require('../../img/kollegianer.png')}
-                        />
-                    </View>
+                    <Image
+                        resizeMode='contain'
+                        style={styles.image}
+                        source={require('../../img/kollegianer.png')}
+                    />
                 </View>
             </View>
         );
@@ -139,22 +137,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     innerContainer: {
-        flex: 1,
         backgroundColor: colors.backgroundColor,
-        paddingLeft: 20,
-        paddingRight: 20,
-        justifyContent: 'center',
-    },
-    topContainer: {
-        marginTop: '10%',
-        marginBottom: '20%',
-        marginLeft: '10%',
-        marginRight: '10%',
-        position: 'absolute',
-        width: '100%',
-        height: '40%',
-        justifyContent: 'center',
-        alignItems: 'center'
+        ...StyleSheet.absoluteFill
     },
     image: {
         flex: 1,

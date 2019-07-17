@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Alert, Picker, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View, TextInput} from 'react-native';
+import {Alert, Picker, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
@@ -309,6 +309,8 @@ export default class SettingsList extends Component {
         tempUser[prop] = text;
         this.setState({
             tempUser
+        }, () => {
+            this.onSubmitSetting(prop);
         });
     };
 

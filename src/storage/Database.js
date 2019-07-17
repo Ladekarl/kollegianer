@@ -131,6 +131,16 @@ export default class Database {
         return firebase.database().ref(eventsPath).on('value', callback);
     }
 
+    static async listenFish(callback) {
+        let fishPath = '/fish/';
+        return firebase.database().ref(fishPath).on('value', callback);
+    }
+
+    static async unListenFish() {
+        let fishPath = '/fish/';
+        return firebase.database().ref(fishPath).off('value');
+    }
+
     static async unListenEvents() {
         let eventsPath = '/events/';
         return firebase.database().ref(eventsPath).off('value');

@@ -71,7 +71,8 @@
     "fox_button": "Beer fox",
     "fox_button_true": "ofc on 1700",
     "fox_button_false": "Nope, sorry",
-    "modal_choose_person": "Choose a person"
+    "modal_choose_person": "Choose a person",
+    "last_fed": "Last fed"
   },
   "residents": {
     "residents": "Residents",

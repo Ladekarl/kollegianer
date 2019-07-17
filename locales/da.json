@@ -71,7 +71,8 @@
     "fox_button": "Øl-ræven",
     "fox_button_true": "ofc på 1700",
     "fox_button_false": "Nope, dsværd",
-    "modal_choose_person": "Vælg en person"
+    "modal_choose_person": "Vælg en person",
+    "last_fed": "Sidst fodret"
   },
   "residents": {
     "residents": "Beboere",

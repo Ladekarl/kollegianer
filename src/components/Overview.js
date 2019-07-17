@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 
-import {Alert, Picker, StyleSheet, Text, TouchableOpacity, View, Image, Modal} from 'react-native';
+import {Alert, Image, Picker, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
@@ -11,6 +11,9 @@ import {strings} from '../shared/i18n';
 import RequiredSettings from './RequiredSettings';
 
 export default class OverviewScreen extends Component {
+
+    days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     static navigationOptions = {
         tabBarLabel: 'Oversigt',
@@ -28,6 +31,7 @@ export default class OverviewScreen extends Component {
                 shots: '',
                 partymode: ''
             },
+            fish: '',
             kitchenWeek: '',
             sheriff: '',
             selectedMvp: '',
@@ -76,10 +80,15 @@ export default class OverviewScreen extends Component {
             snapshot.forEach(snap => {
                 let user = snap.val();
                 if (user.birthday) {
-                    let birthdayYear = user.birthday.split('/').pop();
-                    birthdayYear = parseInt(birthdayYear) > 50 ? '19' + birthdayYear : '20' + birthdayYear;
-
-                    const userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
+                    let birthdayYearString = user.birthday.split('/').pop();
+                    let birthdayYear = parseInt(birthdayYearString);
+                    let userBirthday;
+                    if (birthdayYear < 100) {
+                        birthdayYear = birthdayYear > 50 ? '19' + birthdayYear : '20' + birthdayYear;
+                        userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{2})/, birthdayYear + '-$2-$1'));
+                    } else {
+                        userBirthday = new Date(user.birthday.replace(/(\d{2})\/(\d{2})\/(\d{4})/, birthdayYear + '-$2-$1'));
+                    }
                     if (nextBirthdayUsers.length === 0 || this._getNearestBirthday(userBirthday, nextBirthdayDate) === userBirthday) {
                         if (nextBirthdayDate
                             && nextBirthdayDate.getMonth() === userBirthday.getMonth()
@@ -129,10 +138,19 @@ export default class OverviewScreen extends Component {
                 selectedShots: events.shots
             });
         }).catch(error => console.log(error));
+
+        Database.listenFish(snapshot => {
+            let fish = snapshot.val();
+            const fishTime = new Date(fish.timestamp);
+            this.setState({
+                fish: this.days[fishTime.getDay()] + ' ' + fishTime.getDate() + ' ' + this.months[fishTime.getMonth()] + ' ' + fishTime.getHours() + ':' + fishTime.getMinutes()
+            });
+        }).catch(error => console.log(error));
     }
 
     componentWillUnmount() {
         Database.unListenEvents().catch(error => console.log(error));
+        Database.unListenFish().catch(error => console.log(error));
     }
 
     showAssignSheriffAlert = () => {
@@ -298,31 +316,40 @@ export default class OverviewScreen extends Component {
     render() {
         return (
             <View style={styles.container}>
-                <View style={styles.rowContainer}>
-                    <View style={styles.headerContainer}>
-                        <Image
-                            resizeMode='contain'
-                            style={styles.headerImage}
-                            source={require('../../img/kollegianer.png')}/>
+                <View style={styles.bigRowContainer}>
+                    <View style={styles.columnContainer}>
+                        <View style={styles.borderlessColumnContainer}>
+                            <Image resizeMode='contain' style={styles.image}
+                                   source={require('../../img/køkkenuge.png')}/>
+                            <Text numberOfLines={2} style={styles.text}>{this.state.kitchenWeek}</Text>
+                        </View>
+                        <View style={styles.borderlessColumnContainer}>
+                            <Image resizeMode='contain' style={styles.image} source={require('../../img/fish.png')}/>
+                            <Text numberOfLines={1} style={styles.text}>{strings('overview.last_fed')}</Text>
+                            <Text numberOfLines={2} style={styles.text}>{this.state.fish}</Text>
+                        </View>
                     </View>
-                </View>
-                <View style={styles.rowContainer}>
-                    <View style={styles.borderlessColumnContainer}>
-                        <Image resizeMode='contain' style={styles.image}
-                               source={require('../../img/køkkenuge.png')}/>
-                        <Text numberOfLines={2} style={styles.text}>{this.state.kitchenWeek}</Text>
+                    <View style={styles.columnContainer}>
+                        <View style={styles.headerContainer}>
+                            <Image
+                                resizeMode='contain'
+                                style={styles.headerImage}
+                                source={require('../../img/kollegianer.png')}/>
+                        </View>
                     </View>
-                    <View style={styles.borderlessColumnContainer}>
-                        <Image resizeMode='contain' style={styles.image}
-                               source={require('../../img/sheriff.png')}/>
-                        <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
-                    </View>
-                    <View style={styles.borderlessColumnContainer}>
-                        <Text numberOfLines={1}
-                              style={styles.text}>{this.state.nextBirthdayUsers.length > 0 ? this.state.nextBirthdayUsers[0].birthday : ''}</Text>
-                        <Image resizeMode='contain' style={styles.image}
-                               source={require('../../img/birthday.png')}/>
-                        {this._renderBirthdayNames()}
+                    <View style={styles.columnContainer}>
+                        <View style={styles.borderlessColumnContainer}>
+                            <Image resizeMode='contain' style={styles.image}
+                                   source={require('../../img/sheriff.png')}/>
+                            <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
+                        </View>
+                        <View style={styles.borderlessColumnContainer}>
+                            <Text numberOfLines={1}
+                                  style={styles.text}>{this.state.nextBirthdayUsers.length > 0 ? this.state.nextBirthdayUsers[0].birthday : ''}</Text>
+                            <Image resizeMode='contain' style={styles.image}
+                                   source={require('../../img/birthday.png')}/>
+                            {this._renderBirthdayNames()}
+                        </View>
                     </View>
                 </View>
                 <View style={styles.elevatedContainer}>
@@ -336,7 +363,7 @@ export default class OverviewScreen extends Component {
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.rightColumnContainer}
-                            onPress={() => this.setMvpModalVisible(true)} $>
+                            onPress={() => this.setMvpModalVisible(true)}>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
                             <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
                         </TouchableOpacity>
@@ -447,11 +474,21 @@ const styles = StyleSheet.create({
         margin: 20,
         borderRadius: 20
     },
+    bigRowContainer: {
+        flex: 2,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'stretch'
+    },
     rowContainer: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'stretch'
+    },
+    columnContainer: {
+        flex: 1,
+        justifyContent: 'center',
     },
     headerImage: {
         flex: 1,

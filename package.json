@@ -9,6 +9,7 @@
     "ios": "react-native run-ios"
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.5.1",
     "papaparse": "^4.3.6",
     "prop-types": "^15.7.2",
     "react": "16.8.3",
