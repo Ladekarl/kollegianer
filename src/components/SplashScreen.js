@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {Dimensions, Image, StyleSheet, View} from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import colors from '../shared/colors';
-import {NavigationActions, StackActions} from 'react-navigation';
 import firebase from 'react-native-firebase';
 import Database from '../storage/Database';
+import {navigateAndReset, navigateOnNotification} from '../shared/NavigationHelpers';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
@@ -17,47 +17,55 @@ export default class SplashScreen extends Component {
 
     componentDidMount() {
         this.props.screenProps.getInitialNotification().then(notification => {
-            this.props.screenProps.setInitialNotification(undefined);
+            console.log('Launched from notification');
             if (notification) {
-                this._signIn();
+                this._signIn().then(() => {
+                    navigateOnNotification(this.props.navigation, notification.notification);
+                    this.props.screenProps.removeInitialNotification(notification);
+                });
             }
-        }).catch(() => {
-            LocalStorage.getUser().then(user => {
-                if (user && user.email && user.uid) {
-                    if (user.accessToken) {
-                        this._signInFacebook();
-                    } else if (user.password) {
-                        this._signIn();
-                    } else {
-                        this._navigateAndReset('Login');
-                    }
-                } else {
-                    this._navigateAndReset('Login');
-                }
-            }).catch(() => {
-                    this._navigateAndReset('Login');
-                }
-            );
+        }).catch(error => {
+            console.log(error);
+            this._signIn();
         });
     }
 
     _signIn = () => {
         return LocalStorage.getUser().then(user => {
+            if (user && user.email && user.uid) {
+                if (user.accessToken) {
+                    return this._signInFacebook();
+                } else if (user.password) {
+                    return this._signInEmail();
+                } else {
+                    return navigateAndReset(this.props.navigation, 'Login');
+                }
+            } else {
+                navigateAndReset(this.props.navigation, 'Login');
+            }
+        }).catch(() => {
+                navigateAndReset(this.props.navigation, 'Login');
+            }
+        );
+    };
+
+    _signInEmail = () => {
+        return LocalStorage.getUser().then(user => {
             return firebase.auth().signInWithEmailAndPassword(user.email, user.password).then((response) => {
                 this._onSignInSuccess(response, user.password, user.accessToken);
             }).catch(() => {
-                this._navigateAndReset('Login');
+                navigateAndReset(this.props.navigation, 'Login');
             });
         }).catch(error => console.log(error));
     };
 
     _signInFacebook = () => {
-        LocalStorage.getUser().then(user => {
+        return LocalStorage.getUser().then(user => {
             const credential = firebase.auth.FacebookAuthProvider.credential(user.accessToken);
             firebase.auth().signInWithCredential(credential).then((response) => {
                 this._onSignInSuccess(response, user.password, user.accessToken);
             }).catch(() => {
-                this._navigateAndReset('Login');
+                navigateAndReset(this.props.navigation, 'Login');
             });
         }).catch(error => console.log(error));
     };
@@ -76,19 +84,19 @@ export default class SplashScreen extends Component {
             const dbUser = response.val();
             LocalStorage.getFcmToken().then(fcmToken => {
                 if (fcmToken && fcmToken.token) {
-                    if (!dbUser.notificationTokens) {
-                        dbUser.notificationTokens = [];
-                    }
+                    let notificationTokens = dbUser.notificationTokens ?? [];
                     let tokenFound = false;
-                    dbUser.notificationTokens.forEach(t => {
+                    notificationTokens.forEach(t => {
                         if (t.token && String(t.token).valueOf() == String(fcmToken.token).valueOf()) {
                             tokenFound = true;
                         }
                     });
                     if (!tokenFound) {
-                        dbUser.notificationTokens.push(fcmToken);
+                        notificationTokens.push(fcmToken);
                     }
-                    Database.updateUser(user.uid, dbUser).catch(error => console.log(error));
+                    Database.updateUser(user.uid, {
+                        notificationTokens
+                    }).catch(error => console.log(error));
                 }
             });
             dbUser.uid = user.uid;
@@ -102,19 +110,10 @@ export default class SplashScreen extends Component {
 
     _saveUserAndNavigate = (dbUser) => {
         LocalStorage.setUser(dbUser).then(() => {
-            this._navigateAndReset('mainFlow', true);
+            navigateAndReset(this.props.navigation, 'mainFlow', true);
         }).catch(error => {
             console.log(error);
         });
-    };
-
-    _navigateAndReset = (routeName, nested) => {
-        let resetAction = StackActions.reset({
-            index: 0,
-            key: nested ? null : undefined,
-            actions: [NavigationActions.navigate({routeName: routeName})],
-        });
-        this.props.navigation.dispatch(resetAction);
     };
 
     render() {

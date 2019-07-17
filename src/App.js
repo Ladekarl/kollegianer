@@ -3,10 +3,9 @@ import firebase from 'react-native-firebase';
 import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
 import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
-import {NavigationActions} from 'react-navigation';
 import colors from './shared/colors';
-import {navigateTo} from './containers/Home';
 import AppNavigation from './navigation/AppNavigation';
+import {navigateOnNotification} from './shared/NavigationHelpers';
 
 export default class App extends Component {
 
@@ -16,25 +15,31 @@ export default class App extends Component {
 
     componentDidMount() {
         firebase.messaging().hasPermission().then(enabled => {
-            if (enabled) {
-                this.registerMessageListener();
-            } else {
-                firebase.messaging().requestPermission()
-                    .then(() => {
-                        this.registerMessageListener();
-                    })
-                    .catch(() => Alert.alert('Tilladelse afvist',
-                        'Du afviste tilladelsen. Prøv lige igen.'));
+            if (!enabled) {
+                return firebase.messaging().requestPermission();
             }
+        }).then(() => {
+            this.registerTokenRefreshListener();
+            this.removeNotificationOpenedListener = firebase.notifications().onNotificationOpened(notification => {
+                if (notification) {
+                    navigateOnNotification(this.navigator, notification.notification);
+                    this.removeInitialNotification(notification);
+                }
+            });
+            firebase.messaging().getToken().then(token => {
+                if (token) {
+                    const newToken = {token: token, isIos: Platform.OS === 'ios'};
+                    LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
+                }
+            }).catch(error => console.log(error));
+        }).catch((error) => {
+            console.log(error);
+            Alert.alert('Tilladelse afvist',
+                'Du afviste tilladelsen. Prøv lige igen.');
         });
+    }
 
-        firebase.messaging().getToken().then(token => {
-            if (token) {
-                const newToken = {token: token, isIos: Platform.OS === 'ios'};
-                LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
-            }
-        }).catch(error => console.log(error));
-
+    registerTokenRefreshListener = () => {
         this.onTokenRefreshListener = firebase.messaging().onTokenRefresh(token => {
             const user = firebase.auth().currentUser;
             if (user && token) {
@@ -55,19 +60,13 @@ export default class App extends Component {
                 }).catch(error => console.log(error));
             }
         });
-
-        this.getInitialNotification().then(notification => {
-            if (notification) {
-                this._navigateOnNotification(notification);
-            }
-        }).catch(error => console.log(error));
-    }
+    };
 
     getInitialNotification = () => {
         return new Promise((resolve, reject) => {
             firebase.notifications().getInitialNotification().then((notification) => {
                 if (notification) {
-                    const action = notification.action;
+                    const action = notification.notification.data.action;
                     if (this.supportedNotifications.indexOf(action) !== -1) {
                         resolve(notification);
                     } else {
@@ -83,59 +82,20 @@ export default class App extends Component {
     };
 
     componentWillUnmount() {
-        if (this.messageListener) {
-            this.messageListener();
-        }
         if (this.onTokenRefreshListener) {
             this.onTokenRefreshListener();
         }
-    }
-
-    registerMessageListener = () => {
-        this.messageListener = firebase.messaging().onMessage(notification => {
-            this._navigateOnNotification(notification);
-            const action = (Platform.OS === 'ios' ? notification.apns.action_category : notification.fcm.action);
-            switch (action) {
-                case 'fcm.VI_MANGLER':
-                    navigateTo('ViMangler');
-                    break;
-                case 'fcm.GOSSIP':
-                    navigateTo('Gossip');
-                    break;
-                case 'fcm.ACCOUNTING':
-                    navigateTo('Regnskab');
-                    break;
-            }
-        });
-    };
-
-    _navigateOnNotification(notification) {
-        const action = notification.action;
-        switch (action) {
-            // Switch on current_action from FCM payload
-            case 'fcm.VI_MANGLER':
-                this._navigate('Home', 'ViMangler');
-                break;
-            case 'fcm.GOSSIP':
-                this._navigate('Home', 'Gossip');
-                break;
-            case 'fcm.ACCOUNTING':
-                this._navigate('Home', 'Regnskab');
-                break;
+        if (this.removeNotificationOpenedListener) {
+            this.removeNotificationOpenedListener();
         }
     }
 
-    _navigate = (firstRouteName, secondRouteName) => {
-        this.navigator.dispatch(NavigationActions.navigate({
-            routeName: firstRouteName,
-            params: {
-                action: secondRouteName
-            }
-        }));
-    };
-
     setRef = (navigator) => {
         this.navigator = navigator;
+    };
+
+    removeInitialNotification = (notification) => {
+        firebase.notifications().removeDeliveredNotification(notification.notification._notificationId);
     };
 
     supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
@@ -148,7 +108,7 @@ export default class App extends Component {
             <View style={styles.container}>
                 <AppNavigation ref={this.setRef} screenProps={{
                     getInitialNotification: () => this.getInitialNotification(),
-                    setInitialNotification: (notification) => this.setInitialNotification(notification),
+                    removeInitialNotification: (notification) => this.removeInitialNotification(notification),
                 }}/>
             </View>
         );

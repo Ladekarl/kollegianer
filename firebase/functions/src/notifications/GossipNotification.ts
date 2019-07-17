@@ -4,6 +4,7 @@ import {
     notifyOnCreate,
     publishNotification
 } from './shared/NotificationHelper';
+import { Action } from './shared/Constants';
 
 interface GossipPhoto {
     height: number;
@@ -24,10 +25,10 @@ export const GossipMessageNotification = notifyOnCreate('/gossip/{gossipUid}', (
     if (message.length > 50) {
         message = message.slice(0, 50) + '...';
     } else if (newGossip.photo) {
-        message = 'Nogen har posted et billede!';
+        message = 'Someone posted a picture!';
     }
 
-    const buildGossipNotification = () => buildNotification('Gossip!', message, 'fcm.GOSSIP');
+    const buildGossipNotification = () => buildNotification('Gossip!', message, Action.Gossip);
 
-    return publishNotification(context, getNotificationTokens, buildGossipNotification, 'kollegianer.gossip');
+    return publishNotification(context, getNotificationTokens, buildGossipNotification, Action.Gossip);
 });

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import HomeTab from '../navigation/HomeTab';
-import {NavigationActions} from 'react-navigation';
+import {NavigationActions, withNavigationFocus} from 'react-navigation';
 
 let navigator = undefined;
 export const navigateTo = (routeName) => {
@@ -11,19 +11,22 @@ export const navigateTo = (routeName) => {
     }
 };
 
-export default class HomeScreen extends Component {
+class HomeScreen extends Component {
 
     componentDidMount() {
+        this.navigateFromParams();
+    }
+
+    navigateFromParams = () => {
         if (this.props.navigation.state.params) {
             let action = this.props.navigation.state.params.action;
             if (action) {
                 navigator.dispatch(NavigationActions.navigate({
                     routeName: action
                 }));
-                this.props.navigation.state.params.action = undefined;
             }
         }
-    }
+    };
 
     setRef = (nav) => {
         navigator = nav;
@@ -37,3 +40,5 @@ export default class HomeScreen extends Component {
         );
     }
 }
+
+export default withNavigationFocus(HomeScreen);
