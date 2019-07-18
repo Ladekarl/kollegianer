@@ -4,7 +4,7 @@ import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import LocalStorage from '../storage/LocalStorage';
-import {DocumentPicker, DocumentPickerUtil} from 'react-native-document-picker';
+import DocumentPicker from 'react-native-document-picker';
 import * as Papa from 'papaparse';
 import RNFetchBlob from 'rn-fetch-blob';
 import {strings} from '../shared/i18n';
@@ -155,13 +155,13 @@ export default class AccountingScreen extends Component {
     };
 
     _uploadFile = (isKitchen) => {
-        DocumentPicker.show({
-            filetype: [DocumentPickerUtil.allFiles()],
-        }, (error, res) => {
+        DocumentPicker.pick({
+            type: [DocumentPicker.types.allFiles],
+        }).then(res => {
             this._isLoading(true);
             const correctFileType = res && res.type && (res.type === 'text/comma-separated-values' || res.type === 'text/csv');
             const correctFileExtension = res && !res.type && res.fileName && res.fileName.split('.').pop() === 'csv';
-            if (!error && (correctFileType || correctFileExtension)) {
+            if (correctFileType || correctFileExtension) {
                 let filePath = Platform.OS === 'ios' ? decodeURI(res.uri.replace('file://', '')) : res.uri;
                 this._loadFile(filePath).then(content => {
                     this._parseCsv(content).then(result => {
@@ -176,11 +176,15 @@ export default class AccountingScreen extends Component {
                     console.log(error);
                     Alert.alert(strings('accounting.something_went_wrong'));
                 });
-            } else if (!error) {
-                this._isLoading(false);
-                Alert.alert(strings('accounting.wrong_file_type'));
             } else {
                 this._isLoading(false);
+                Alert.alert(strings('accounting.wrong_file_type'));
+            }
+        }).catch(error => {
+            if (DocumentPicker.isCancel(error)) {
+                console.log('User cancelled dialog');
+            } else {
+                console.log(error);
             }
         });
     };

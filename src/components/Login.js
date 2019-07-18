@@ -143,6 +143,8 @@ export default class LoginScreen extends Component {
         signInEmail({
             email,
             password
+        }).then(() => {
+            this._navigateAndReset('mainFlow');
         }).catch(error => {
             this._stopLoadingAndSetError(error.message);
         });
@@ -153,6 +155,7 @@ export default class LoginScreen extends Component {
     };
 
     _navigateAndReset = (routeName) => {
+        this.setState({error: '', loading: false});
         const resetAction = StackActions.reset({
             index: 0,
             key: null,
