@@ -5,6 +5,7 @@ import {UserUpdatedNotification} from './notifications/UserNotification';
 import {GossipMessageNotification} from './notifications/GossipNotification';
 import {ViManglerAddedNotification, ViManglerUpdatedNotification} from './notifications/ViManglerNotification';
 import {BeerAccountNotification, KitchenAccountNotification} from './notifications/AccountingNotification';
+import { PartyLightKiller } from './partyLights';
 
 admin.initializeApp(functions.config().firebase);
 
@@ -14,5 +15,6 @@ export {
     ViManglerAddedNotification,
     ViManglerUpdatedNotification,
     BeerAccountNotification,
-    KitchenAccountNotification
+    KitchenAccountNotification,
+    PartyLightKiller
 };
