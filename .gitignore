@@ -56,4 +56,5 @@ buck-out/
 *.env
 GoogleService-Info.plist
 google-services.json
+gradle.properties
 

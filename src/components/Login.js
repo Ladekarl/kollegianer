@@ -3,26 +3,25 @@ import {
     ActivityIndicator,
     Animated,
     Dimensions,
+    Image,
     Keyboard,
     KeyboardAvoidingView,
     Platform,
-    Image,
+    ScrollView,
     StyleSheet,
     Text,
-    ScrollView,
     TextInput,
     TouchableOpacity,
     View
 } from 'react-native';
-import firebase from 'react-native-firebase';
-import {StackActions, NavigationActions} from 'react-navigation';
+import {NavigationActions, StackActions} from 'react-navigation';
 import LocalStorage from '../storage/LocalStorage';
-import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import {strings} from '../shared/i18n';
 import ModalScreen from './Modal';
 import {AccessToken, LoginManager} from 'react-native-fbsdk';
+import {signInEmail, signInFacebook} from '../shared/AuthenticationHelpers';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
@@ -115,14 +114,14 @@ export default class LoginScreen extends Component {
             result => {
                 if (!result.isCancelled) {
                     AccessToken.getCurrentAccessToken().then((data) => {
-                        const credential = firebase.auth.FacebookAuthProvider.credential(data.accessToken);
-                        firebase.auth().signInWithCredential(credential)
-                            .then(response => {
-                                this._onSignInSuccess(response, '', data.accessToken);
-                            })
-                            .catch((error) => {
-                                this._stopLoadingAndSetError(error.message);
-                            });
+                        signInFacebook({
+                            accessToken: data.accessToken,
+                            password: ''
+                        }).then(() => {
+                            this._navigateAndReset('mainFlow');
+                        }).catch((error) => {
+                            this._stopLoadingAndSetError(error.message);
+                        });
                     }).catch((error) => {
                         console.log(error);
                         this._stopLoadingAndSetError(strings('login.could_not_login'));
@@ -141,58 +140,11 @@ export default class LoginScreen extends Component {
 
     _login = (email, password) => {
         this.setState({error: '', loading: true});
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(response => {
-                this._onSignInSuccess(response, password);
-            }).catch(error => {
-            this._stopLoadingAndSetError(error.message);
-        });
-    };
-
-    _onSignInSuccess = (response, password, accessToken) => {
-        const user = response.user;
-        Database.getUser(user.uid).then(snapshot => {
-            const dbUser = snapshot.val();
-            if (!dbUser) {
-                return Database.addUser(user).then(() => {
-                    return Database.getUser(user.uid);
-                });
-            }
-            return snapshot;
-        }).then((response) => {
-            const dbUser = response.val();
-            LocalStorage.getFcmToken().then(fcmToken => {
-                if (fcmToken && fcmToken.token) {
-                    if (!dbUser.notificationTokens) {
-                        dbUser.notificationTokens = [];
-                    }
-                    let tokenFound = false;
-                    dbUser.notificationTokens.forEach(t => {
-                        if (t.token && String(t.token).valueOf() == String(fcmToken.token).valueOf()) {
-                            tokenFound = true;
-                        }
-                    });
-                    if (!tokenFound) {
-                        dbUser.notificationTokens.push(fcmToken);
-                    }
-                    Database.updateUser(user.uid, dbUser).catch(error => console.log(error));
-                }
-            });
-            dbUser.uid = user.uid;
-            dbUser.password = password;
-            dbUser.accessToken = accessToken;
-            this._saveUserAndNavigate(dbUser);
+        signInEmail({
+            email,
+            password
         }).catch(error => {
             this._stopLoadingAndSetError(error.message);
-        });
-    };
-
-    _saveUserAndNavigate = (dbUser) => {
-        LocalStorage.setUser(dbUser).then(() => {
-            this.setState({error: '', loading: false});
-            this._navigateAndReset('mainFlow');
-        }).catch(error => {
-            this._stopLoadingAndSetError(error);
         });
     };
 

@@ -2,7 +2,7 @@ import LocalStorage from '../storage/LocalStorage';
 import firebase from 'react-native-firebase';
 import Database from '../storage/Database';
 
-const _onSignInSuccess = (response, password, accessToken) => {
+export const onSignInSuccess = (response, password, accessToken) => {
     const user = response.user;
     return Database.getUser(user.uid).then(snapshot => {
         const dbUser = snapshot.val();
@@ -41,16 +41,16 @@ const _onSignInSuccess = (response, password, accessToken) => {
     });
 };
 
-const _signInEmail = (user) => {
+export const signInEmail = (user) => {
     return firebase.auth().signInWithEmailAndPassword(user.email, user.password).then(response => {
-        return _onSignInSuccess(response, user.password, user.accessToken);
+        return onSignInSuccess(response, user.password, user.accessToken);
     });
 };
 
-const _signInFacebook = (user) => {
+export const signInFacebook = (user) => {
     const credential = firebase.auth.FacebookAuthProvider.credential(user.accessToken);
     return firebase.auth().signInWithCredential(credential).then(response => {
-        return _onSignInSuccess(response, user.password, user.accessToken);
+        return onSignInSuccess(response, user.password, user.accessToken);
     });
 };
 
@@ -58,9 +58,9 @@ export const signIn = () => {
     return LocalStorage.getUser().then(user => {
         if (user && user.email && user.uid) {
             if (user.accessToken) {
-                return _signInFacebook(user);
+                return signInFacebook(user);
             } else if (user.password) {
-                return _signInEmail(user);
+                return signInEmail(user);
             } else {
                 return Promise.reject('No accessToken or password');
             }
