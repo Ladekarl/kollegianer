@@ -3,9 +3,10 @@ import {NavigationActions, StackActions} from 'react-navigation';
 export const navigate = (navigator, firstRouteName, secondRouteName) => {
     navigator.dispatch(NavigationActions.navigate({
         routeName: firstRouteName,
-        params: {
-            action: secondRouteName
-        }
+        params: {},
+        action: NavigationActions.navigate({
+            routeName: secondRouteName,
+        })
     }));
 };
 

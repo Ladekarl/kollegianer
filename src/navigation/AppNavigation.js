@@ -1,4 +1,4 @@
-import {createAppContainer, createStackNavigator, createDrawerNavigator} from 'react-navigation';
+import {createAppContainer, createDrawerNavigator, createStackNavigator} from 'react-navigation';
 import SplashScreen from '../components/SplashScreen';
 import LoginScreen from '../components/Login';
 import LogoutScreen from '../components/Logout';
@@ -6,11 +6,11 @@ import SettingsScreen from '../components/Settings';
 import ResidentsScreen from '../components/Residents';
 import DrawerScreen from '../components/Drawer';
 import colors from '../shared/colors';
-import {TouchableOpacity, Platform} from 'react-native';
+import {Platform, TouchableOpacity} from 'react-native';
 import Icon from 'react-native-fa-icons';
 import React from 'react';
 import Header from '../components/Header';
-import HomeScreen from '../containers/Home';
+import HomeTab from './HomeTab';
 
 const defaultPageNavigationOptions = ({navigation}) => ({
     headerLeft:
@@ -42,45 +42,44 @@ const defaultPageNavigationOptions = ({navigation}) => ({
 });
 
 const homeNavigationOptions = ({navigation}) => ({
-    headerMode: 'none',
     header: (<Header navigation={navigation}/>),
 });
 
 const AppNavigation = createAppContainer(
     createStackNavigator({
-    loginFlow: {
-        screen: createStackNavigator({
-            SplashScreen: {screen: SplashScreen},
-            Login: {screen: LoginScreen},
-        }, {headerMode: 'none'})
-    },
-    mainFlow: {
-        screen: createDrawerNavigator({
-            Home: {
-                screen: createStackNavigator({
-                    Home: {screen: HomeScreen, navigationOptions: homeNavigationOptions}
-                })
-            },
-            Residents: {
-                screen: createStackNavigator({
-                    Residents: {screen: ResidentsScreen, navigationOptions: defaultPageNavigationOptions}
-                })
-            },
-            Settings: {
-                screen: createStackNavigator({
-                    Settings: {screen: SettingsScreen, navigationOptions: defaultPageNavigationOptions}
-                })
-            },
-            Logout: {screen: LogoutScreen}
-        }, {
-            contentComponent: DrawerScreen,
-            contentOptions: {
-                activeBackgroundColor: colors.modalBackgroundColor,
-                activeTintColor: colors.activeDrawerColor,
-                inactiveTintColor: colors.inactiveTabColor
-            }
-        })
-    }
-}, {headerMode: 'none'}));
+        loginFlow: {
+            screen: createStackNavigator({
+                SplashScreen: {screen: SplashScreen},
+                Login: {screen: LoginScreen},
+            }, {headerMode: 'none'})
+        },
+        mainFlow: {
+            screen: createDrawerNavigator({
+                Home: {
+                    screen: createStackNavigator({
+                        Home: {screen: HomeTab, navigationOptions: homeNavigationOptions}
+                    })
+                },
+                Residents: {
+                    screen: createStackNavigator({
+                        Residents: {screen: ResidentsScreen, navigationOptions: defaultPageNavigationOptions}
+                    })
+                },
+                Settings: {
+                    screen: createStackNavigator({
+                        Settings: {screen: SettingsScreen, navigationOptions: defaultPageNavigationOptions}
+                    })
+                },
+                Logout: {screen: LogoutScreen}
+            }, {
+                contentComponent: DrawerScreen,
+                contentOptions: {
+                    activeBackgroundColor: colors.modalBackgroundColor,
+                    activeTintColor: colors.activeDrawerColor,
+                    inactiveTintColor: colors.inactiveTabColor
+                }
+            })
+        }
+    }, {headerMode: 'none'}));
 
 export default AppNavigation;

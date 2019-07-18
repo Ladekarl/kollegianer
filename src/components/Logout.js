@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 
 import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import firebase from 'react-native-firebase';
-import {StackActions, NavigationActions} from 'react-navigation';
+import {NavigationActions, StackActions} from 'react-navigation';
 
 import LocalStorage from '../storage/LocalStorage';
 import Icon from 'react-native-fa-icons';
@@ -73,7 +73,12 @@ export default class LogoutScreen extends Component {
             index: 0,
             key: null,
             actions: [
-                NavigationActions.navigate({routeName: 'loginFlow'})],
+                NavigationActions.navigate({
+                    routeName: 'loginFlow',
+                    action: NavigationActions.navigate({
+                        routeName: 'Login'
+                    })
+                })],
         });
         this.props.navigation.dispatch(resetAction);
     };

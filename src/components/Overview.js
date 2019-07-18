@@ -5,7 +5,6 @@ import Database from '../storage/Database';
 import colors from '../shared/colors';
 import Icon from 'react-native-fa-icons';
 import ModalScreen from './Modal';
-import Base64 from '../shared/Base64';
 import LocalStorage from '../storage/LocalStorage';
 import {strings} from '../shared/i18n';
 import RequiredSettings from './RequiredSettings';
@@ -165,7 +164,7 @@ export default class OverviewScreen extends Component {
     };
 
     _navigateToSettings = () => {
-        this.props.screenProps.rootNavigation.navigate('Settings');
+        this.props.navigation.navigate('Settings');
     };
 
     _renderPickerItems = (snapshot) => {
@@ -281,26 +280,13 @@ export default class OverviewScreen extends Component {
     };
 
     updatePartyMode = () => {
-        this._togglePartyLights();
+        const partymode = this.state.events.partymode;
+        return Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name)
+            .catch(error => console.log(error));
     };
 
     updateFoxEvent = () => {
         Database.updateEvent('fox', !this.state.events.fox).catch(error => console.log(error));
-    };
-
-    _togglePartyLights = () => {
-        const partymode = this.state.events.partymode;
-        return fetch(`http://192.168.1.105:3030/${partymode.length > 0 ? 'on' : 'off'}`, {
-            method: 'POST',
-            headers: {
-                Accept: 'application/json',
-                'Content-Type': 'text/plain',
-                Authorization: 'Basic ' + Base64.btoa('group-d:hunter2')
-            },
-            body: this.state.events.partymode.length > 0 ? 'OFF' : 'ON'
-        }).then(() => {
-            Database.updateEvent('partymode', partymode.length > 0 ? '' : this.localUser.name).catch(error => console.log(error));
-        });
     };
 
     _renderBirthdayNames = () => {
@@ -314,6 +300,27 @@ export default class OverviewScreen extends Component {
     };
 
     render() {
+        const {
+            fish,
+            kitchenWeek,
+            sheriff,
+            nextBirthdayUsers,
+            events,
+            mvpModalVisible,
+            shotsModalVisible,
+            selectedMvp,
+            pickerItems,
+            selectedShots
+        } = this.state;
+
+        const {
+            shots,
+            mvp,
+            beerpong,
+            partymode,
+            fox
+        } = events;
+
         return (
             <View style={styles.container}>
                 <View style={styles.bigRowContainer}>
@@ -321,12 +328,16 @@ export default class OverviewScreen extends Component {
                         <View style={styles.borderlessColumnContainer}>
                             <Image resizeMode='contain' style={styles.image}
                                    source={require('../../img/køkkenuge.png')}/>
-                            <Text numberOfLines={2} style={styles.text}>{this.state.kitchenWeek}</Text>
+                            {!!kitchenWeek &&
+                            <Text numberOfLines={2} style={styles.text}>{kitchenWeek}</Text>
+                            }
                         </View>
                         <View style={styles.borderlessColumnContainer}>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/fish.png')}/>
                             <Text numberOfLines={1} style={styles.text}>{strings('overview.last_fed')}</Text>
-                            <Text numberOfLines={2} style={styles.text}>{this.state.fish}</Text>
+                            {!!fish &&
+                            <Text numberOfLines={2} style={styles.text}>{fish}</Text>
+                            }
                         </View>
                     </View>
                     <View style={styles.columnContainer}>
@@ -341,14 +352,18 @@ export default class OverviewScreen extends Component {
                         <View style={styles.borderlessColumnContainer}>
                             <Image resizeMode='contain' style={styles.image}
                                    source={require('../../img/sheriff.png')}/>
-                            <Text numberOfLines={2} style={styles.text}>{this.state.sheriff}</Text>
+                            {!!sheriff &&
+                            <Text numberOfLines={2} style={styles.text}>{sheriff}</Text>
+                            }
                         </View>
                         <View style={styles.borderlessColumnContainer}>
                             <Text numberOfLines={1}
-                                  style={styles.text}>{this.state.nextBirthdayUsers.length > 0 ? this.state.nextBirthdayUsers[0].birthday : ''}</Text>
+                                  style={styles.text}>{nextBirthdayUsers.length > 0 ? nextBirthdayUsers[0].birthday : ''}</Text>
                             <Image resizeMode='contain' style={styles.image}
                                    source={require('../../img/birthday.png')}/>
-                            {this._renderBirthdayNames()}
+                            {nextBirthdayUsers && nextBirthdayUsers.length > 0 &&
+                            this._renderBirthdayNames()
+                            }
                         </View>
                     </View>
                 </View>
@@ -359,41 +374,45 @@ export default class OverviewScreen extends Component {
                             onPress={() => this.setShotsModalVisible(true)}>
                             <Image resizeMode='contain' style={styles.image}
                                    source={require('../../img/keep_calm_and_shots.png')}/>
-                            <Text numberOfLines={2} style={styles.text}>{this.state.events.shots}</Text>
+                            {!!shots &&
+                            <Text numberOfLines={2} style={styles.text}>{shots}</Text>
+                            }
                         </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.rightColumnContainer}
                             onPress={() => this.setMvpModalVisible(true)}>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/mvp.png')}/>
-                            <Text numberOfLines={2} style={styles.text}>{this.state.events.mvp}</Text>
+                            {!!mvp &&
+                            <Text numberOfLines={2} style={styles.text}>{mvp}</Text>
+                            }
                         </TouchableOpacity>
                     </View>
                     <View style={styles.rowContainer}>
                         <TouchableOpacity
-                            style={this.columnContainerStyle(this.state.events.beerpong, true)}
+                            style={this.columnContainerStyle(beerpong, true)}
                             onPress={this.updateBeerPongEvent}>
                             <Text style={styles.whiteText}>{strings('overview.beerpong_button')}</Text>
                             <Image resizeMode='contain' style={styles.image}
                                    source={require('../../img/beerpong.png')}/>
                             <Text numberOfLines={2}
-                                  style={styles.whiteText}>{this.state.events.beerpong ? strings('overview.beerpong_button_true') : strings('overview.beerpong_button_false')}</Text>
+                                  style={styles.whiteText}>{beerpong ? strings('overview.beerpong_button_true') : strings('overview.beerpong_button_false')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={this.columnContainerStyle(this.state.events.partymode.length > 0)}
+                            style={this.columnContainerStyle(partymode && partymode.length > 0)}
                             onPress={this.updatePartyMode}>
                             <Text style={styles.whiteText}>{strings('overview.partymode_button')}</Text>
                             <Image resizeMode='contain' style={styles.image}
                                    source={require('../../img/party_mode.png')}/>
                             <Text numberOfLines={2}
-                                  style={styles.whiteText}>{this.state.events.partymode.length > 0 ? this.state.events.partymode : strings('overview.partymode_button_true')}</Text>
+                                  style={styles.whiteText}>{partymode && partymode.length > 0 ? partymode : strings('overview.partymode_button_false')}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity
-                            style={this.columnContainerStyle(this.state.events.fox, false, true)}
+                            style={this.columnContainerStyle(fox, false, true)}
                             onPress={this.updateFoxEvent}>
                             <Text style={styles.whiteText}>{strings('overview.fox_button')}</Text>
                             <Image resizeMode='contain' style={styles.image} source={require('../../img/fox.png')}/>
                             <Text numberOfLines={2}
-                                  style={styles.whiteText}>{this.state.events.fox ? strings('overview.fox_button_true') : strings('overview.fox_button_false')}</Text>
+                                  style={styles.whiteText}>{fox ? strings('overview.fox_button_true') : strings('overview.fox_button_false')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -402,17 +421,17 @@ export default class OverviewScreen extends Component {
                     onCancel={this.onMvpCancel}
                     onSubmit={this.onMvpSubmit}
                     onPickerValueChange={this.onMvpChange}
-                    pickerItems={this.state.pickerItems}
-                    selectedPickerValue={this.state.selectedMvp}
-                    visible={this.state.mvpModalVisible}
+                    pickerItems={pickerItems}
+                    selectedPickerValue={selectedMvp}
+                    visible={mvpModalVisible}
                     isPicker={true}
                 />
                 <ModalScreen
                     onPickerValueChange={this.onShotsChange}
-                    selectedPickerValue={this.state.selectedShots}
-                    pickerItems={this.state.pickerItems}
+                    selectedPickerValue={selectedShots}
+                    pickerItems={pickerItems}
                     modalTitle={strings('overview.modal_choose_person')}
-                    visible={this.state.shotsModalVisible}
+                    visible={shotsModalVisible}
                     onSubmit={this.onShotsSubmit}
                     onCancel={this.onShotsCancel}
                     isPicker={true}

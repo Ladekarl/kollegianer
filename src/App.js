@@ -5,7 +5,10 @@ import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
 import colors from './shared/colors';
 import AppNavigation from './navigation/AppNavigation';
-import {navigateOnNotification} from './shared/NavigationHelpers';
+import {navigateAndReset, navigateOnNotification} from './shared/NavigationHelpers';
+import {signIn} from './shared/AuthenticationHelpers';
+
+const handledNotifications = [];
 
 export default class App extends Component {
 
@@ -19,13 +22,8 @@ export default class App extends Component {
                 return firebase.messaging().requestPermission();
             }
         }).then(() => {
+            this.registerNotificationHandlers();
             this.registerTokenRefreshListener();
-            this.removeNotificationOpenedListener = firebase.notifications().onNotificationOpened(notification => {
-                if (notification) {
-                    navigateOnNotification(this.navigator, notification.notification);
-                    this.removeInitialNotification(notification);
-                }
-            });
             firebase.messaging().getToken().then(token => {
                 if (token) {
                     const newToken = {token: token, isIos: Platform.OS === 'ios'};
@@ -39,8 +37,70 @@ export default class App extends Component {
         });
     }
 
+    supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
+
+    getInitialNotification = () => {
+        return new Promise((resolve, reject) => {
+            firebase.notifications().getInitialNotification().then((notification) => {
+                if (notification) {
+                    const action = notification.notification.data.action;
+                    if (this.supportedNotifications.indexOf(action) !== -1) {
+                        resolve(notification);
+                    } else {
+                        reject('Initial notification not supported');
+                    }
+                } else {
+                    reject('No initial notification');
+                }
+            }).catch(error => {
+                reject(error);
+            });
+        });
+    };
+
+    registerNotificationHandlers = () => {
+        this.getInitialNotification()
+            .then(this.openedOnNotification)
+            .catch(this.onNotificationError);
+
+        this.removeNotificationOpenedListener = firebase.notifications()
+            .onNotificationOpened(this.openedOnNotification);
+    };
+
+    openedOnNotification = notification => {
+        console.log('Launched from notification');
+        if (notification && handledNotifications.indexOf(notification.notification._notificationId) === -1) {
+            signIn().then(() => {
+                navigateOnNotification(this.navigator, notification.notification);
+            }).catch(error => {
+                console.log(error);
+                navigateAndReset(this.navigator, 'Login');
+            }).finally(() => {
+                this.removeInitialNotification(notification);
+            });
+        }
+    };
+
+    removeInitialNotification = (notification) => {
+        const notificationId = notification.notification._notificationId;
+        firebase.notifications().cancelNotification(notificationId);
+        firebase.notifications().removeDeliveredNotification(notificationId);
+        handledNotifications.push(notificationId);
+    };
+
+    onNotificationError = error => {
+        console.log(error);
+        signIn().then(() => {
+            navigateAndReset(this.navigator, 'mainFlow', true);
+        }).catch((error) => {
+                console.log(error);
+                navigateAndReset(this.navigator, 'Login');
+            }
+        );
+    };
+
     registerTokenRefreshListener = () => {
-        this.onTokenRefreshListener = firebase.messaging().onTokenRefresh(token => {
+        this.removeTokenRefreshListener = firebase.messaging().onTokenRefresh(token => {
             const user = firebase.auth().currentUser;
             if (user && token) {
                 const newToken = {token: token, isIos: Platform.OS === 'ios'};
@@ -62,28 +122,9 @@ export default class App extends Component {
         });
     };
 
-    getInitialNotification = () => {
-        return new Promise((resolve, reject) => {
-            firebase.notifications().getInitialNotification().then((notification) => {
-                if (notification) {
-                    const action = notification.notification.data.action;
-                    if (this.supportedNotifications.indexOf(action) !== -1) {
-                        resolve(notification);
-                    } else {
-                        reject('Initial notification not supported');
-                    }
-                } else {
-                    reject('No initial notification');
-                }
-            }).catch(error => {
-                reject(error);
-            });
-        });
-    };
-
     componentWillUnmount() {
-        if (this.onTokenRefreshListener) {
-            this.onTokenRefreshListener();
+        if (this.removeTokenRefreshListener) {
+            this.removeTokenRefreshListener();
         }
         if (this.removeNotificationOpenedListener) {
             this.removeNotificationOpenedListener();
@@ -94,22 +135,14 @@ export default class App extends Component {
         this.navigator = navigator;
     };
 
-    removeInitialNotification = (notification) => {
-        firebase.notifications().removeDeliveredNotification(notification.notification._notificationId);
-    };
-
-    supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
-
     render() {
         if (Platform.OS === 'ios') {
             StatusBar.setBarStyle('light-content', true);
         }
+
         return (
             <View style={styles.container}>
-                <AppNavigation ref={this.setRef} screenProps={{
-                    getInitialNotification: () => this.getInitialNotification(),
-                    removeInitialNotification: (notification) => this.removeInitialNotification(notification),
-                }}/>
+                <AppNavigation ref={this.setRef}/>
             </View>
         );
     }
