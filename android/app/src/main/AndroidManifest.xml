@@ -2,8 +2,8 @@
           package="com.kollegianer">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
@@ -26,6 +26,14 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="fcm.ACCOUNTING"/>
+                <action android:name="fcm.GOSSIP"/>
+                <action android:name="fcm.KITCHEN_WEEK"/>
+                <action android:name="fcm.SHERIFF"/>
+                <action android:name="fcm.VI_MANGLER"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
 
         <activity android:name="com.facebook.react.devsupport.DevSettingsActivity"/>
@@ -40,8 +48,6 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
-
-        <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService"/>
 
         <provider android:authorities="com.facebook.app.FacebookContentProvider1234"
                   android:name="com.facebook.FacebookContentProvider"

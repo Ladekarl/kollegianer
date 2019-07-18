@@ -6,6 +6,7 @@ import MessagingOptions = admin.messaging.MessagingOptions;
 import NotificationMessagePayload = admin.messaging.NotificationMessagePayload;
 import EventContext = functions.EventContext;
 import Change = functions.Change;
+import { Action } from './Constants';
 
 export interface NotificationToken {
     token: string;
@@ -16,7 +17,6 @@ interface Account {
     data: string[][];
     updatedOn: Date;
 }
-
 
 export interface User {
     beerAccount: Account
@@ -103,8 +103,8 @@ export const findUser = (uid: string, userSnapshots: DataSnapshot): User | null 
 };
 
 export const getNotificationTokens = (userSnapshots: DataSnapshot,
-                                      committingUid: string,
-                                      conditionFn?: (key: string | null, user: User) => boolean) => {
+    committingUid: string,
+    conditionFn?: (key: string | null, user: User) => boolean) => {
     let notificationTokens: NotificationToken[] = [];
     const userIsNotCommitting = (uid: string, userId: string | null) => String(uid).valueOf() !== String(userId).valueOf();
     userSnapshots.forEach(snapshot => {
@@ -125,28 +125,17 @@ export const getNotificationTokens = (userSnapshots: DataSnapshot,
 export const buildNotification = (title: string, body: string, clickAction: string): NotificationMessagePayload => {
     return {
         title,
-        body,
-        clickAction,
-        click_action: clickAction
+        body
     }
 };
 
-export const buildNotificationIos = (payload: NotificationMessagePayload): MessagingPayload => {
+export const buildNotificationPayload = (payload: NotificationMessagePayload, action: Action): MessagingPayload => {
     return {
-        notification: payload
-    }
-};
-
-export const buildNotificationAndroid = (payload: NotificationMessagePayload, tag?: string): MessagingPayload => {
-    return {
+        notification: payload,
         data: {
-            custom_notification: JSON.stringify(Object.assign({
-                priority: 'high',
-                show_in_foreground: true,
-                tag
-            }, payload))
+            action
         }
-    };
+    }
 };
 
 export const getPreviousValue = (event: Change<DataSnapshot>) => {
@@ -162,9 +151,9 @@ export const getCommittingId = (context: EventContext) => {
 };
 
 export const publishNotification = async (context: EventContext,
-                                          notificationTokenFn: (userSnapshots: DataSnapshot, committingUid: string) => NotificationToken[],
-                                          notificationFn: (committingUid: string, committingUser: User | null) => NotificationMessagePayload,
-                                          tag?: string) => {
+    notificationTokenFn: (userSnapshots: DataSnapshot, committingUid: string) => NotificationToken[],
+    notificationFn: (committingUid: string, committingUser: User | null) => NotificationMessagePayload,
+    action: Action) => {
     const committingUid = getCommittingId(context);
     const usersSnapshots = await readDatabaseOnce(`/user/`);
 
@@ -176,16 +165,12 @@ export const publishNotification = async (context: EventContext,
         return Promise.resolve();
     }
 
-    const iosNotifTokens = notificationTokens.filter(n => n.token && n.isIos).map(n => n.token);
-    const androidNotifTokens = notificationTokens.filter(n => n.token && !n.isIos).map(n => n.token);
-
-    console.log('There are', notificationTokens.length, 'tokens to send notifications to.', iosNotifTokens.length, 'iOS and', androidNotifTokens.length, 'android');
+    console.log('There are', notificationTokens.length, 'tokens to send notifications to.');
 
     const notificationPayload = notificationFn(committingUid, committingUser);
 
     return Promise.all([
-        sendNotification(iosNotifTokens, buildNotificationIos(notificationPayload)),
-        sendNotification(androidNotifTokens, buildNotificationAndroid(notificationPayload, tag))
+        sendNotification(notificationTokens.map(notifToken => notifToken.token), buildNotificationPayload(notificationPayload, action))
     ]);
 };
 

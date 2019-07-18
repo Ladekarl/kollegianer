@@ -7,18 +7,18 @@ import {
     publishNotification,
     User
 } from './shared/NotificationHelper';
-
+import { Action } from './shared/Constants';
 
 const buildKitchenWeekNotification = (committingUser: User | null) =>
     buildNotification(
         'Du har nu køkkenugen',
         committingUser ? `${committingUser.room} gav dig køkkenugen` : '',
-        'fcm.KITCHEN_WEEK');
+        Action.KitchenWeek);
 const buildSheriffNotification = (committingUser: User | null) =>
     buildNotification(
         'Du er nu sheriff',
         committingUser ? `${committingUser.room} gjorde dig til sheriff` : '',
-        'fcm.SHERIFF');
+        Action.Sheriff);
 
 const getUserUpdatedNotificationTokens = (user: User, previousUser: User) => {
     let notificationTokens: NotificationToken[] = [];
@@ -41,7 +41,5 @@ export const UserUpdatedNotification = notifyOnUpdate('/user/{userUid}', (event,
         (committingUid: string, committingUser: User | null) => buildKitchenWeekNotification(committingUser) :
         (committingUid: string, committingUser: User | null) => buildSheriffNotification(committingUser);
 
-    const tag = user.kitchenweek ? 'kollegianer.kitchen_week' : 'kollegianer.sheriff';
-
-    return publishNotification(context, notificationTokens, notification, tag);
+    return publishNotification(context, notificationTokens, notification, user.kitchenweek ? Action.KitchenWeek : Action.Sheriff);
 });

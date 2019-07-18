@@ -1,5 +1,5 @@
 import React from 'react';
-import {createAppContainer, createBottomTabNavigator, createMaterialTopTabNavigator} from 'react-navigation';
+import {createBottomTabNavigator, createMaterialTopTabNavigator} from 'react-navigation';
 import ViManglerScreen from '../components/ViMangler';
 import OverviewScreen from '../components/Overview';
 import colors from '../shared/colors';
@@ -47,5 +47,5 @@ const config = {
 
 const HomeTab = Platform.OS === 'ios' ? createBottomTabNavigator(routes, config) : createMaterialTopTabNavigator(routes, config);
 
-export default createAppContainer(HomeTab);
+export default HomeTab;
 
