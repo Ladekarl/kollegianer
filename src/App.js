@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import firebase from 'react-native-firebase';
-import {Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
+import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
 import colors from './shared/colors';
@@ -24,17 +24,13 @@ export default class App extends Component {
         }).then(() => {
             this.registerNotificationHandlers();
             this.registerTokenRefreshListener();
-            firebase.messaging().getToken().then(token => {
+            return firebase.messaging().getToken().then(token => {
                 if (token) {
                     const newToken = {token: token, isIos: Platform.OS === 'ios'};
-                    LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
+                    return LocalStorage.setFcmToken(newToken);
                 }
             }).catch(error => console.log(error));
-        }).catch((error) => {
-            console.log(error);
-            Alert.alert('Tilladelse afvist',
-                'Du afviste tilladelsen. Prøv lige igen.');
-        });
+        }).catch(this.onErrorTrySignIn);
     }
 
     supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
@@ -61,7 +57,7 @@ export default class App extends Component {
     registerNotificationHandlers = () => {
         this.getInitialNotification()
             .then(this.openedOnNotification)
-            .catch(this.onNotificationError);
+            .catch(this.onErrorTrySignIn);
 
         this.removeNotificationOpenedListener = firebase.notifications()
             .onNotificationOpened(this.openedOnNotification);
@@ -88,9 +84,9 @@ export default class App extends Component {
         handledNotifications.push(notificationId);
     };
 
-    onNotificationError = error => {
+    onErrorTrySignIn = error => {
         console.log(error);
-        signIn().then(() => {
+        return signIn().then(() => {
             navigateAndReset(this.navigator, 'mainFlow', true);
         }).catch((error) => {
                 console.log(error);
