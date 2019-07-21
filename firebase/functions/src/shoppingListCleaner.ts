@@ -10,7 +10,7 @@ export const ShoppingListCleaner = functions.pubsub.schedule("0 5 1-31/2 * *") /
             let count = 0
             data.forEach(entry => {
                if (entry.val().checked) {
-                  returns.push(entry.ref.set(""))
+                  returns.push(entry.ref.remove())
                   count++
                }
             })
