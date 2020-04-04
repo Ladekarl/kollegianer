@@ -430,51 +430,13 @@ export default class AccountingScreen extends Component {
         };
     };
 
-    _onScrollBeginDrag = () => {
-        if (Platform.OS === 'ios') return;
-        this.hasBegunScrolling = true;
-    };
-
-    _onScrollEndDrag = () => {
-        if (Platform.OS === 'ios') return;
-        if (this.scrollView) {
-            const page = Math.floor(this.beginOffset / this.state.componentHeight) + 1;
-            const nextPage = this.isScrollingUp ? page - 1 : page;
-            const factor = nextPage > 2 ? 2 : nextPage < 0 ? 0 : nextPage;
-            const scrollY = this.state.componentHeight * factor;
-            this.scrollView.scrollTo({x: 0, y: scrollY, animated: true});
-        }
-    };
-
-    hasBegunScrolling = false;
-    isScrollingUp = false;
-    beginOffset = undefined;
-
-    _onScroll = event => {
-        if (Platform.OS === 'ios') return;
-        const currentOffset = event.nativeEvent.contentOffset.y;
-        if (this.hasBegunScrolling) {
-            this.beginOffset = currentOffset;
-            this.hasBegunScrolling = false;
-        }
-        const dif = currentOffset - (this.offset || 0);
-
-        this.isScrollingUp = dif < 0;
-
-        this.offset = currentOffset;
-    };
-
     render() {
         const {user} = this.state;
         return (
             <View style={styles.container} onLayout={this.setComponentHeight}>
                 <ScrollView
                     style={styles.container}
-                    ref={ref => this.scrollView = ref}
-                    onScroll={this._onScroll}
-                    pagingEnabled={true}
-                    onScrollBeginDrag={this._onScrollBeginDrag}
-                    onScrollEndDrag={this._onScrollEndDrag}>
+                    pagingEnabled={true}>
                     <View style={this.pageHeightStyle()}>
                         <View style={styles.sectionHeaderContainer}>
                             <Text style={styles.sectionHeaderText}>{strings('accounting.beer_account')}</Text>

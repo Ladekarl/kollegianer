@@ -257,7 +257,7 @@ export default class GossipScreen extends Component {
                     <View
                         style={styles.rowContainer}>
                         <Icon name='user-circle' style={styles.rowImage}/>
-                        <TouchableOpacity onLongPress={() => this.showMessageOptions(renderMessage)}>
+                        <TouchableOpacity onLongPress={() => this.showMessageOptions(renderMessage)} style={styles.messageButton}>
                             <Text style={styles.messageText}>{message.message}</Text>
                         </TouchableOpacity>
                     </View>
@@ -326,7 +326,7 @@ export default class GossipScreen extends Component {
             aspectRatio: photo.width / photo.height,
             maxHeight: Dimensions.get('window').height,
             maxWidth: Dimensions.get('window').width
-        }
+        };
     };
 
     onMessageChange = (message) => {
@@ -381,18 +381,29 @@ export default class GossipScreen extends Component {
         };
         ImagePicker.showImagePicker(options, (response) => {
             if (!response.error && !response.didCancel) {
-                const photoPath = response.uri;
+                let path = '';
+                if (Platform.OS === 'ios')
+                    path = response.uri.toString();
+                else {
+                    path = response.path.toString();
+                }
+                const image = {
+                    image: response.uri.toString(),
+                    path: path
+                };
+
                 const width = response.width;
                 const height = response.height;
-                const uploadUri = Platform.OS === 'ios' ? photoPath.replace('file://', '') : photoPath;
+
                 this.setState({loading: true});
-                Database.addGossipImage(uploadUri, Guid()).then((snapshot) => {
+                Database.addGossipImage(image, Guid()).then((snapshot) => {
                     this.submitPhotoMessage({
                         url: snapshot.downloadURL,
                         width: width,
                         height: height
                     });
-                }).catch(() => {
+                }).catch((error) => {
+                    console.log(error);
                     this.setState({loading: false});
                 });
             }
@@ -483,6 +494,7 @@ export default class GossipScreen extends Component {
                             <Icon name='plus-circle' style={{fontSize: 20, color: 'black'}}/>
                         </TouchableOpacity>
                         <AutoExpandingTextInput
+                            enablesReturnKeyAutomatically={true}
                             style={styles.newMessageInput}
                             placeholder='Aa'
                             value={this.state.message}
@@ -491,6 +503,8 @@ export default class GossipScreen extends Component {
                             textAlignVertical='bottom'
                             autoCapitalize='sentences'
                             returnKeyType='send'
+                            blurOnSubmit={true}
+                            autoFocus={true}
                             onSubmitEditing={this.submitMessage}
                             onChangeText={this.onMessageChange}/>
                     </View>
@@ -647,18 +661,22 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         fontSize: 12
     },
-    messageText: {
-        padding: 5,
+    messageButton: {
         borderRadius: 10,
-        marginLeft: 5,
-        maxWidth: Platform.OS === 'ios' ? '100%' : '90%',
+        overflow: 'hidden',
         marginRight: 5,
-        fontSize: 16,
         marginBottom: 2,
+        marginLeft: 5,
+        borderWidth: StyleSheet.hairlineWidth
+    },
+    messageText: {
+        borderRadius: 10,
+        padding: 5,
+        maxWidth: '100%',
+        fontSize: 16,
         textAlign: 'left',
         color: colors.messageTextColor,
-        backgroundColor: colors.whiteColor,
-        borderWidth: StyleSheet.hairlineWidth
+        backgroundColor: colors.whiteColor
     },
     newMessageInput: {
         flex: 1,

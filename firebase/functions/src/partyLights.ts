@@ -11,4 +11,4 @@ export const PartyLightKiller = functions.pubsub.schedule("every day 05:00")
             console.log("Successfully turned off partylights @", context.timestamp)
          }
       })
-   })
+   });

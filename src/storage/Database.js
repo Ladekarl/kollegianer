@@ -153,11 +153,7 @@ export default class Database {
     }
 
     static async addGossipImage(image, imageName) {
-        RNFetchBlob.config({fileCache: true, appendExt: 'jpg'});
-        let rnfbURI = RNFetchBlob.wrap(image);
-        return Blob.build(rnfbURI, {type: 'image/jpg;'}).then((blob) => {
-            return firebase.storage().ref('gossip').child(imageName).put(blob, {contentType: 'image/jpg'});
-        });
+        return firebase.storage().ref('gossip').child(imageName).put(image.path, {contentType: 'image/jpg'});
     }
 
     static async updateBeerAccount(data) {
