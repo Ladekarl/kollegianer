@@ -105,8 +105,8 @@ android {
         applicationId 'com.kollegianer'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName '2.1.7'
+        versionCode 20
+        versionName '2.1.8'
     }
     splits {
         abi {
