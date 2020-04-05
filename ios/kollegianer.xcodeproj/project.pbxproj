@@ -1328,6 +1328,7 @@
 					"\"$(SRCROOT)/kollegianer\"",
 					"\"$(SRCROOT)/kollegianer\"",
 				);
+				MARKETING_VERSION = 2.1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1372,6 +1373,7 @@
 					"\"$(SRCROOT)/kollegianer\"",
 					"\"$(SRCROOT)/kollegianer\"",
 				);
+				MARKETING_VERSION = 2.1.4;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",

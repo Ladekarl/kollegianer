@@ -2,13 +2,13 @@ import ThemeManager from 'react-native-color-theme';
 
 export default new ThemeManager({
     bodegaTheme: {
-        backgroundColor: '#faf7f7',
-        redColor: '#fda497',
+        backgroundColor: '#FFD700',
+        redColor: '#fd5f50',
         blueColor: '#d8eafd',
-        goldColor: '#C5B358',
+        goldColor: '#d4c257',
         silverColor: '#C0C0C0',
         bronzeColor: '#8C7853',
-        activeTabColor: '#b5b5b5',
+        activeTabColor: '#111111',
         bottomAccountingBoxColor: '#dcd387',
         activeDrawerColor: '#c6a333',
         inactiveTabColor: '#414141',

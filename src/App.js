@@ -29,7 +29,7 @@ export default class App extends Component {
                     const newToken = {token: token, isIos: Platform.OS === 'ios'};
                     return LocalStorage.setFcmToken(newToken);
                 }
-            }).catch(error => console.log(error));
+            });
         }).catch(this.onErrorTrySignIn);
     }
 

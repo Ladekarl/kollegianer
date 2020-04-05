@@ -105,8 +105,8 @@ android {
         applicationId 'com.kollegianer'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 18
-        versionName '2.1.6'
+        versionCode 20
+        versionName '2.1.8'
     }
     splits {
         abi {
@@ -165,6 +165,7 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:18.0.0"
     implementation "com.google.firebase:firebase-auth:17.0.0"
     implementation "com.google.firebase:firebase-database:17.0.0"
+    implementation "com.google.firebase:firebase-storage:17.0.0"
     implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
     implementation project(':react-native-fbsdk')
 }

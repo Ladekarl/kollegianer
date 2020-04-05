@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, StyleSheet, Text, View, TouchableOpacity, Alert} from 'react-native';
+import {Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
 import {strings} from '../shared/i18n';
@@ -71,12 +71,10 @@ export default class ResidentsScreen extends Component {
             <View key={renderUser.key}>
                 <View style={styles.sectionHeaderContainer}>
                     <Text style={styles.sectionHeaderText}>{user.room || ''}</Text>
-                    {renderUser.key !== localUser.uid &&
                     <TouchableOpacity style={styles.deleteButton}
                                       onPress={() => this.onDeletePress(renderUser.key, user)}>
                         <Text style={styles.deleteText}>{strings('residents.delete')}</Text>
                     </TouchableOpacity>
-                    }
                 </View>
                 {!!user.name &&
                 <View style={styles.innerRowContainer}>

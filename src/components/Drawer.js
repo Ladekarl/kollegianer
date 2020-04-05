@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View, Platform} from 'react-native';
+import {Platform, ScrollView, StyleSheet, Text, TouchableOpacity, TouchableWithoutFeedback, View} from 'react-native';
 import PropTypes from 'prop-types';
 import {NavigationActions} from 'react-navigation';
 import Icon from 'react-native-fa-icons';
@@ -68,7 +68,7 @@ export default class DrawerScreen extends Component {
                                 <Icon name='user' style={styles.headerIcon}/>
                             </View>
                             {!!user.name &&
-                            <Text numberOfLines={2}
+                            <Text numberOfLines={3}
                                   style={styles.headerText}>{user.name}</Text>
                             }
                         </View>
@@ -166,6 +166,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         marginBottom: 10,
         marginLeft: 10,
+        maxWidth: 170,
         fontWeight: 'bold',
         fontSize: 15,
         color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
