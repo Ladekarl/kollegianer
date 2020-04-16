@@ -1,15 +1,19 @@
 PODS:
   - boost-for-react-native (1.63.0)
   - DoubleConversion (1.1.6)
-  - FBSDKCoreKit (5.0.2):
-    - FBSDKCoreKit/Basics (= 5.0.2)
-    - FBSDKCoreKit/Core (= 5.0.2)
-  - FBSDKCoreKit/Basics (5.0.2)
-  - FBSDKCoreKit/Core (5.0.2):
+  - FBSDKCoreKit (5.6.0):
+    - FBSDKCoreKit/Basics (= 5.6.0)
+    - FBSDKCoreKit/Core (= 5.6.0)
+  - FBSDKCoreKit/Basics (5.6.0)
+  - FBSDKCoreKit/Core (5.6.0):
     - FBSDKCoreKit/Basics
-  - FBSDKLoginKit (5.0.2):
+  - FBSDKLoginKit (5.6.0):
+    - FBSDKLoginKit/Login (= 5.6.0)
+  - FBSDKLoginKit/Login (5.6.0):
     - FBSDKCoreKit (~> 5.0)
-  - FBSDKShareKit (5.0.2):
+  - FBSDKShareKit (5.6.0):
+    - FBSDKShareKit/Share (= 5.6.0)
+  - FBSDKShareKit/Share (5.6.0):
     - FBSDKCoreKit (~> 5.0)
   - Firebase/Auth (6.3.0):
     - Firebase/CoreOnly
@@ -37,14 +41,14 @@ PODS:
     - GoogleUtilities/Network (~> 6.0)
     - "GoogleUtilities/NSData+zlib (~> 6.0)"
     - nanopb (~> 0.3)
-  - FirebaseAnalyticsInterop (1.2.0)
+  - FirebaseAnalyticsInterop (1.5.0)
   - FirebaseAuth (6.1.2):
     - FirebaseAuthInterop (~> 1.0)
     - FirebaseCore (~> 6.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 6.2)
     - GoogleUtilities/Environment (~> 6.2)
     - GTMSessionFetcher/Core (~> 1.1)
-  - FirebaseAuthInterop (1.0.0)
+  - FirebaseAuthInterop (1.1.0)
   - FirebaseCore (6.0.3):
     - GoogleUtilities/Environment (~> 6.0)
     - GoogleUtilities/Logger (~> 6.0)
@@ -52,7 +56,7 @@ PODS:
     - FirebaseAuthInterop (~> 1.0)
     - FirebaseCore (~> 6.0)
     - leveldb-library (~> 1.18)
-  - FirebaseInstanceID (4.2.1):
+  - FirebaseInstanceID (4.2.7):
     - FirebaseCore (~> 6.0)
     - GoogleUtilities/Environment (~> 6.0)
     - GoogleUtilities/UserDefaults (~> 6.0)
@@ -80,47 +84,47 @@ PODS:
     - GoogleUtilities/Network (~> 6.0)
     - "GoogleUtilities/NSData+zlib (~> 6.0)"
     - nanopb (~> 0.3)
-  - GoogleUtilities/AppDelegateSwizzler (6.2.3):
+  - GoogleUtilities/AppDelegateSwizzler (6.5.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
-  - GoogleUtilities/Environment (6.2.3)
-  - GoogleUtilities/Logger (6.2.3):
+  - GoogleUtilities/Environment (6.5.2)
+  - GoogleUtilities/Logger (6.5.2):
     - GoogleUtilities/Environment
-  - GoogleUtilities/MethodSwizzler (6.2.3):
+  - GoogleUtilities/MethodSwizzler (6.5.2):
     - GoogleUtilities/Logger
-  - GoogleUtilities/Network (6.2.3):
+  - GoogleUtilities/Network (6.5.2):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (6.2.3)"
-  - GoogleUtilities/Reachability (6.2.3):
+  - "GoogleUtilities/NSData+zlib (6.5.2)"
+  - GoogleUtilities/Reachability (6.5.2):
     - GoogleUtilities/Logger
-  - GoogleUtilities/UserDefaults (6.2.3):
+  - GoogleUtilities/UserDefaults (6.5.2):
     - GoogleUtilities/Logger
-  - GTMSessionFetcher/Core (1.2.2)
-  - leveldb-library (1.20)
-  - nanopb (0.3.901):
-    - nanopb/decode (= 0.3.901)
-    - nanopb/encode (= 0.3.901)
-  - nanopb/decode (0.3.901)
-  - nanopb/encode (0.3.901)
-  - Protobuf (3.9.0)
+  - GTMSessionFetcher/Core (1.3.1)
+  - leveldb-library (1.22)
+  - nanopb (0.3.9011):
+    - nanopb/decode (= 0.3.9011)
+    - nanopb/encode (= 0.3.9011)
+  - nanopb/decode (0.3.9011)
+  - nanopb/encode (0.3.9011)
+  - Protobuf (3.11.4)
   - React (0.59.10):
     - React/Core (= 0.59.10)
-  - react-native-fbsdk (0.10.1):
+  - react-native-fbsdk (0.10.3):
     - React
-    - react-native-fbsdk/Core (= 0.10.1)
-    - react-native-fbsdk/Login (= 0.10.1)
-    - react-native-fbsdk/Share (= 0.10.1)
-  - react-native-fbsdk/Core (0.10.1):
-    - FBSDKCoreKit (~> 5.0.0)
+    - react-native-fbsdk/Core (= 0.10.3)
+    - react-native-fbsdk/Login (= 0.10.3)
+    - react-native-fbsdk/Share (= 0.10.3)
+  - react-native-fbsdk/Core (0.10.3):
+    - FBSDKCoreKit (~> 5.6.0)
     - React
-  - react-native-fbsdk/Login (0.10.1):
-    - FBSDKLoginKit (~> 5.0.0)
+  - react-native-fbsdk/Login (0.10.3):
+    - FBSDKLoginKit (~> 5.6.0)
     - React
-  - react-native-fbsdk/Share (0.10.1):
-    - FBSDKShareKit (~> 5.0.0)
+  - react-native-fbsdk/Share (0.10.3):
+    - FBSDKShareKit (~> 5.6.0)
     - React
   - React/Core (0.59.10):
     - yoga (= 0.59.10.React)
@@ -185,6 +189,7 @@ PODS:
 
 DEPENDENCIES:
   - DoubleConversion (from `../node_modules/react-native/third-party-podspecs/DoubleConversion.podspec`)
+  - FBSDKCoreKit
   - FBSDKLoginKit
   - FBSDKShareKit
   - Firebase/Auth (~> 6.3.0)
@@ -214,7 +219,7 @@ DEPENDENCIES:
   - yoga (from `../node_modules/react-native/ReactCommon/yoga/yoga.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  trunk:
     - boost-for-react-native
     - FBSDKCoreKit
     - FBSDKLoginKit
@@ -228,14 +233,13 @@ SPEC REPOS:
     - FirebaseDatabase
     - FirebaseInstanceID
     - FirebaseMessaging
+    - FirebaseStorage
     - GoogleAppMeasurement
     - GoogleUtilities
     - GTMSessionFetcher
     - leveldb-library
     - nanopb
     - Protobuf
-  trunk:
-    - FirebaseStorage
 
 EXTERNAL SOURCES:
   DoubleConversion:
@@ -260,34 +264,34 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
   DoubleConversion: bb338842f62ab1d708ceb63ec3d999f0f3d98ecd
-  FBSDKCoreKit: 3e41c402eb64ea7799c71833ff9e5690f27b9c42
-  FBSDKLoginKit: a88f36da648e4c5d60eb261c63eac067abb97130
-  FBSDKShareKit: 8695bbb97c18a381bbf2851a3f24f95a59121b82
+  FBSDKCoreKit: d6655a343868d4bb5c29a60859bab07c3be14a0b
+  FBSDKLoginKit: c5a623de88a6b0cda35b35582921f6cec2efcc36
+  FBSDKShareKit: 0d8c4cfd5c1f185d5f9c26d79758b141086e1251
   Firebase: 8432d732974498afd5987e9001a05f90f1a3d625
   FirebaseAnalytics: 470ddab7253b21ad5a40bebd4a9903d7ae19386a
-  FirebaseAnalyticsInterop: efbe45c8385ec626e29f9525e5ebd38520dfb6c1
+  FirebaseAnalyticsInterop: 3f86269c38ae41f47afeb43ebf32a001f58fcdae
   FirebaseAuth: 7fa2cc010b93770831a4e7a60651b52c3b8d111a
-  FirebaseAuthInterop: 0ffa57668be100582bb7643d4fcb7615496c41fc
+  FirebaseAuthInterop: a0f37ae05833af156e72028f648d313f7e7592e9
   FirebaseCore: 68f8a7f50cdae542715d4e86afa37c4067217dcb
   FirebaseDatabase: f48e067716864be2b855cf716b927ef375d6cfa0
-  FirebaseInstanceID: 9782fcfb89e4d7da76cc28eac4b8543dc7be4a4b
+  FirebaseInstanceID: ebd2ea79ee38db0cb5f5167b17a0d387e1cc7b6e
   FirebaseMessaging: 6bb0bdaf64c55fef7a219b7bb1e94e94a0855ced
   FirebaseStorage: 926d41552072b9fee67aa645760f05f87b7ce604
   Folly: de497beb10f102453a1afa9edbf8cf8a251890de
   glog: aefd1eb5dda2ab95ba0938556f34b98e2da3a60d
   GoogleAppMeasurement: a35a645835bae31b6bdc0576396bc23908f12a22
-  GoogleUtilities: d2b0e277a95962e09bb27f5cd42f5f0b6a506c7d
-  GTMSessionFetcher: 61bb0f61a4cb560030f1222021178008a5727a23
-  leveldb-library: 08cba283675b7ed2d99629a4bc5fd052cd2bb6a5
-  nanopb: 2901f78ea1b7b4015c860c2fdd1ea2fee1a18d48
-  Protobuf: 1097ca58584c8d9be81bfbf2c5ff5975648dd87a
+  GoogleUtilities: ad0f3b691c67909d03a3327cc205222ab8f42e0e
+  GTMSessionFetcher: cea130bbfe5a7edc8d06d3f0d17288c32ffe9925
+  leveldb-library: 55d93ee664b4007aac644a782d11da33fba316f7
+  nanopb: 18003b5e52dab79db540fe93fe9579f399bd1ccd
+  Protobuf: 176220c526ad8bd09ab1fb40a978eac3fef665f7
   React: 36d0768f9e93be2473b37e7fa64f92c1d5341eef
-  react-native-fbsdk: 38ee580e77319d03f8ed0bf4a020cbfd70dc4d2d
+  react-native-fbsdk: 6e8697bdaf14db367b70a5d1c546b490f1f7b032
   rn-fetch-blob: 766f85cabd2992300dfa1be2bc9e4e258abc6f04
   RNCAsyncStorage: 2808c378f6a70f22f66eeb6c11a8d69f326dd795
   RNGestureHandler: 5329a942fce3d41c68b84c2c2276ce06a696d8b0
   yoga: 684513b14b03201579ba3cee20218c9d1298b0cc
 
-PODFILE CHECKSUM: 3a0c944a0defa2972217a927bfae8aae87f62285
+PODFILE CHECKSUM: cb73a30818bce3946ffa1766a3bd117370e39672
 
 COCOAPODS: 1.9.1
