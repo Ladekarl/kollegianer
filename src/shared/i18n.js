@@ -9,8 +9,8 @@ I18n.fallbacks = true;
 
 // Define the supported translations
 I18n.translations = {
-    en,
-    da
+  en,
+  da,
 };
 
 I18n.fallbacks = true;
@@ -18,7 +18,7 @@ const currentLocale = I18n.currentLocale();
 console.log(currentLocale);
 
 export function strings(name, params = {}) {
-    return I18n.t(name, params);
+  return I18n.t(name, params);
 }
 
 export default I18n;

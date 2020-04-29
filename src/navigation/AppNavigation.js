@@ -1,4 +1,5 @@
-import {createAppContainer, createDrawerNavigator, createStackNavigator} from 'react-navigation';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createStackNavigator} from '@react-navigation/stack';
 import SplashScreen from '../components/SplashScreen';
 import LoginScreen from '../components/Login';
 import LogoutScreen from '../components/Logout';
@@ -6,80 +7,174 @@ import SettingsScreen from '../components/Settings';
 import ResidentsScreen from '../components/Residents';
 import DrawerScreen from '../components/Drawer';
 import colors from '../shared/colors';
-import {Platform, TouchableOpacity} from 'react-native';
+import {Text} from 'react-native';
 import Icon from 'react-native-fa-icons';
 import React from 'react';
 import Header from '../components/Header';
 import HomeTab from './HomeTab';
+import {strings} from '../shared/i18n';
 
-const defaultPageNavigationOptions = ({navigation}) => ({
-    headerLeft:
-        <TouchableOpacity style={{
-            height: 35,
-            width: 35,
-            marginLeft: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-        }} onPress={() => navigation.openDrawer()}>
-            <Icon name='navicon' style={{
+const defaultPageNavigationOptions = {
+  headerTitleStyle: {
+    fontSize: 17,
+    color: colors.backgroundColor,
+  },
+  headerStyle: {
+    backgroundColor: colors.inactiveTabColor,
+  },
+  headerTintColor: colors.backgroundColor,
+};
+
+const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
+
+function HomeStack() {
+  return (
+    <Stack.Navigator initialRouteName="Home">
+      <Stack.Screen
+        name="Home"
+        component={HomeTab}
+        options={{
+          header: ({navigation}) => <Header navigation={navigation} />,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function ResidentsStack() {
+  return (
+    <Stack.Navigator initialRouteName="Residents">
+      <Stack.Screen
+        name="Residents"
+        component={ResidentsScreen}
+        options={{
+          title: strings('residents.residents'),
+          drawerIcon: ({tintColor}) => (
+            <Icon name="users" style={{fontSize: 15, color: tintColor}} />
+          ),
+          ...defaultPageNavigationOptions,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function SettingsStack() {
+  return (
+    <Stack.Navigator initialRouteName="Settings">
+      <Stack.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          ...defaultPageNavigationOptions,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
+
+function MainDrawer() {
+  return (
+    <Drawer.Navigator
+      drawerPosition="left"
+      drawerType="slide"
+      drawerContent={props => <DrawerScreen {...props} />}
+      initialRouteName="Home">
+      <Drawer.Screen name="Home" component={HomeStack} />
+      <Drawer.Screen name="Residents" component={ResidentsStack} />
+      <Drawer.Screen
+        name="Settings"
+        component={SettingsStack}
+        options={{
+          title: strings('settings.settings'),
+          headerTitleStyle: {
+            fontSize: 18,
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="Logout"
+        component={LogoutScreen}
+        options={{
+          title: strings('drawer.logout'),
+          drawerLabel: () => (
+            <Text
+              style={{
+                color: colors.logoutTextColor,
+                fontWeight: 'bold',
+                marginLeft: 17,
+                marginTop: 15,
+                marginBottom: 15,
+              }}>
+              {strings('drawer.logout')}
+            </Text>
+          ),
+          drawerIcon: ({tintColor}) => (
+            <Icon
+              name="sign-out"
+              style={{
                 fontSize: 20,
-                height: undefined,
-                width: undefined,
-                color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
-            }}/>
-        </TouchableOpacity>,
-    headerTitleStyle: {
-        fontSize: 20,
-        color: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
-    },
-    headerStyle: {
-        elevation: 1,
-        backgroundColor: Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor,
-        margin: 0,
-        paddingBottom: Platform.OS === 'ios' ? 10 : 0
-    },
-    headerTintColor: Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor
-});
+                color: colors.logoutIconColor,
+                marginTop: 15,
+                marginBottom: 15,
+              }}
+            />
+          ),
+          headerTitleStyle: {
+            fontSize: 15,
+            tintColor: colors.logoutColor,
+          },
+          labelStyle: {
+            color: colors.logoutColor,
+            tintColor: colors.logoutColor,
+          },
+        }}
+      />
+    </Drawer.Navigator>
+  );
+}
 
-const homeNavigationOptions = ({navigation}) => ({
-    header: (<Header navigation={navigation}/>),
-});
+function LoginStack() {
+  return (
+    <Stack.Navigator
+      initialRouteName="SplashScreen"
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+      <Stack.Screen
+        name="Login"
+        component={LoginScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
+    </Stack.Navigator>
+  );
+}
 
-const AppNavigation = createAppContainer(
-    createStackNavigator({
-        loginFlow: {
-            screen: createStackNavigator({
-                SplashScreen: {screen: SplashScreen},
-                Login: {screen: LoginScreen},
-            }, {headerMode: 'none'})
-        },
-        mainFlow: {
-            screen: createDrawerNavigator({
-                Home: {
-                    screen: createStackNavigator({
-                        Home: {screen: HomeTab, navigationOptions: homeNavigationOptions}
-                    })
-                },
-                Residents: {
-                    screen: createStackNavigator({
-                        Residents: {screen: ResidentsScreen, navigationOptions: defaultPageNavigationOptions}
-                    })
-                },
-                Settings: {
-                    screen: createStackNavigator({
-                        Settings: {screen: SettingsScreen, navigationOptions: defaultPageNavigationOptions}
-                    })
-                },
-                Logout: {screen: LogoutScreen}
-            }, {
-                contentComponent: DrawerScreen,
-                contentOptions: {
-                    activeBackgroundColor: colors.modalBackgroundColor,
-                    activeTintColor: colors.activeDrawerColor,
-                    inactiveTintColor: colors.inactiveTabColor
-                }
-            })
-        }
-    }, {headerMode: 'none'}));
+function AppNavigation() {
+  return (
+    <Stack.Navigator initialRouteName="loginFlow">
+      <Stack.Screen
+        name="loginFlow"
+        component={LoginStack}
+        options={{headerShown: false}}
+      />
+      <Stack.Screen
+        name="mainFlow"
+        component={MainDrawer}
+        options={{headerShown: false}}
+      />
+    </Stack.Navigator>
+  );
+}
 
 export default AppNavigation;

@@ -11,7 +11,7 @@
     "deposit": "Deposit",
     "dept": "Dept",
     "payed": "Payed",
-    "current":"Current",
+    "current": "Current",
     "deadline": "Deadline",
     "to_pay": "To pay",
     "reg_nr": "Reg nr:",
@@ -57,6 +57,7 @@
     "cancel": "CANCEL"
   },
   "overview": {
+    "overview": "Overview",
     "change_status": "Change status:",
     "change_beerpong_text": "Can you confirm that you have just bought for 1800 kr - you just have to send your bank account number",
     "modal_cancel": "Dismiss",
@@ -119,7 +120,7 @@
     "phone_number_placeholder": "88888888"
   },
   "vi_mangler": {
-    "vi_manger": "Shopping List",
+    "vi_mangler": "Shopping List",
     "delete_modal_title": "Delete ",
     "delete_modal_text": "Are you sure you want to delete ",
     "delete_modal_cancel": "Cancel",
