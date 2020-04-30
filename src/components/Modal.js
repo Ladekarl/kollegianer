@@ -1,15 +1,9 @@
 import React, {Component} from 'react';
-import {
-  Modal,
-  Picker,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import {Modal, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from 'prop-types';
 import colors from '../shared/colors';
 import {strings} from '../shared/i18n';
+import {Picker} from '@react-native-community/picker';
 
 export default class ModalScreen extends Component {
   static propTypes = {

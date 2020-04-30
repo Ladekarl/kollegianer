@@ -29,16 +29,11 @@ export const navigateOnNotification = (navigator, notification) => {
   }
 };
 
-export const navigateAndReset = (
-  navigator,
-  routeName,
-  nested,
-  secondRouteName,
-) => {
-  let resetAction = CommonActions.reset({
-    index: 0,
-    key: nested ? null : undefined,
-    routes: [{name: routeName}],
+export const navigateAndReset = (navigator, routeName, params) => {
+  navigator.dispatch({
+    ...CommonActions.reset({
+      index: 0,
+      routes: [{name: routeName, params}],
+    }),
   });
-  navigator.dispatch(resetAction);
 };

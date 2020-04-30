@@ -105,7 +105,7 @@ export default class App extends Component {
     console.log(error);
     return signIn()
       .then(() => {
-        navigateAndReset(this.navigator, 'mainFlow', true);
+        navigateAndReset(this.navigator, 'mainFlow');
       })
       .catch(catchError => {
         console.log(catchError);

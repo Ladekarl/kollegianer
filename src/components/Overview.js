@@ -3,7 +3,6 @@ import React, {Component} from 'react';
 import {
   Alert,
   Image,
-  Picker,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -11,11 +10,11 @@ import {
 } from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
-import Icon from 'react-native-fa-icons';
 import ModalScreen from './Modal';
 import LocalStorage from '../storage/LocalStorage';
 import {strings} from '../shared/i18n';
 import RequiredSettings from './RequiredSettings';
+import {Picker} from '@react-native-community/picker';
 
 export default class OverviewScreen extends Component {
   days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

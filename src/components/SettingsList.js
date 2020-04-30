@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
   Alert,
-  Picker,
   ScrollView,
   StyleSheet,
   Switch,
@@ -18,6 +17,7 @@ import ModalScreen from './Modal';
 import {strings} from '../shared/i18n';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-fa-icons';
+import {Picker} from '@react-native-community/picker';
 
 export default class SettingsList extends Component {
   static propTypes = {
@@ -188,11 +188,11 @@ export default class SettingsList extends Component {
         Database.listenUsers(snapshot => {
           this.users = snapshot;
           snapshot.forEach(snap => {
-            const user = snap.val();
-            if (user.sheriff) {
+            const snapUser = snap.val();
+            if (snapUser.sheriff) {
               this.currentSheriff = snap;
             }
-            if (user.kitchenweek) {
+            if (snapUser.kitchenweek) {
               this.currentKitchenWeek = snap;
             }
           });

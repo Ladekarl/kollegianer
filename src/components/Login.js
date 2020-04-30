@@ -169,7 +169,7 @@ export default class LoginScreen extends Component {
 
   _navigateAndReset = routeName => {
     this.setState({error: '', loading: false});
-    NavigationHelpers.navigateAndReset(this.props.navigation, routeName, true);
+    NavigationHelpers.navigateAndReset(this.props.navigation, routeName);
   };
 
   _renderIos = () => {

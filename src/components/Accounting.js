@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import LocalStorage from '../storage/LocalStorage';
 import DocumentPicker from 'react-native-document-picker';
 import * as Papa from 'papaparse';

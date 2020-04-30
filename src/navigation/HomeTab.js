@@ -1,5 +1,5 @@
 import React from 'react';
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
+import {createMaterialBottomTabNavigator} from '@react-navigation/material-bottom-tabs';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import ViManglerScreen from '../components/ViMangler';
@@ -90,67 +90,36 @@ const tabBarOptions = {
   showIcon: true,
 };
 
-const TopTabs = createMaterialTopTabNavigator();
-const BottomTabs = createBottomTabNavigator();
+const Tabs =
+  Platform.OS === 'ios'
+    ? createBottomTabNavigator()
+    : createMaterialBottomTabNavigator();
 
-function HomeTopTabs() {
+function HomeTab() {
   return (
-    <TopTabs.Navigator
-      tabBarOptions={tabBarOptions}
-      initialRouteName="Overview">
-      <TopTabs.Screen
+    <Tabs.Navigator tabBarOptions={tabBarOptions} initialRouteName="Overview">
+      <Tabs.Screen
         name="Overview"
         component={OverviewScreen}
         options={overviewOptions}
       />
-      <TopTabs.Screen
+      <Tabs.Screen
         name="ViMangler"
         component={ViManglerScreen}
         options={viManglerOptions}
       />
-      <TopTabs.Screen
+      <Tabs.Screen
         name="Regnskab"
         component={AccountingScreen}
         options={regnskabOptions}
       />
-      <TopTabs.Screen
+      <Tabs.Screen
         name="Gossip"
         component={GossipScreen}
         options={gossipOptions}
       />
-    </TopTabs.Navigator>
+    </Tabs.Navigator>
   );
 }
-
-function HomeBottomTabs() {
-  return (
-    <BottomTabs.Navigator
-      tabBarOptions={tabBarOptions}
-      initialRouteName="Overview">
-      <BottomTabs.Screen
-        name="Overview"
-        component={OverviewScreen}
-        options={overviewOptions}
-      />
-      <BottomTabs.Screen
-        name="ViMangler"
-        component={ViManglerScreen}
-        options={viManglerOptions}
-      />
-      <BottomTabs.Screen
-        name="Regnskab"
-        component={AccountingScreen}
-        options={regnskabOptions}
-      />
-      <BottomTabs.Screen
-        name="Gossip"
-        component={GossipScreen}
-        options={gossipOptions}
-      />
-    </BottomTabs.Navigator>
-  );
-}
-
-const HomeTab = Platform.OS === 'ios' ? HomeBottomTabs : HomeTopTabs;
 
 export default HomeTab;

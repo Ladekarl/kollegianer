@@ -2,8 +2,6 @@ import React, {Component} from 'react';
 
 import {ActivityIndicator, StyleSheet, Text, View} from 'react-native';
 import auth from '@react-native-firebase/auth';
-import {StackActions} from '@react-navigation/stack';
-import {CommonActions} from '@react-navigation/native';
 
 import LocalStorage from '../storage/LocalStorage';
 import * as NavigationHelpers from '../shared/NavigationHelpers';
@@ -46,12 +44,9 @@ export default class LogoutScreen extends Component {
   };
 
   _redirectToLogin = () => {
-    NavigationHelpers.navigateAndReset(
-      this.props.navigation,
-      'loginFlow',
-      true,
-      'Login',
-    );
+    NavigationHelpers.navigateAndReset(this.props.navigation, 'loginFlow', {
+      screen: 'Login',
+    });
   };
 
   render() {

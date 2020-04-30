@@ -1,24 +1,30 @@
-'use strict';
+import * as RNLocalize from 'react-native-localize';
+import i18n from 'i18n-js';
+import memoize from 'lodash.memoize';
+import {I18nManager} from 'react-native';
 
-import I18n from 'react-native-i18n';
-import en from '../../locales/en.json';
-import da from '../../locales/da.json';
-
-// Should the app fallback to English if user locale doesn't exists
-I18n.fallbacks = true;
-
-// Define the supported translations
-I18n.translations = {
-  en,
-  da,
+const translationGetters = {
+  en: () => require('../../locales/en.json'),
+  da: () => require('../../locales/da.json'),
 };
 
-I18n.fallbacks = true;
-const currentLocale = I18n.currentLocale();
-console.log(currentLocale);
+export const strings = memoize(
+  (key, config) => i18n.t(key, config),
+  (key, config) => (config ? key + JSON.stringify(config) : key),
+);
 
-export function strings(name, params = {}) {
-  return I18n.t(name, params);
-}
+const setI18nConfig = () => {
+  const fallback = {languageTag: 'en', isRTL: false};
 
-export default I18n;
+  const {languageTag, isRTL} =
+    RNLocalize.findBestAvailableLanguage(Object.keys(translationGetters)) ||
+    fallback;
+
+  strings.cache.clear();
+  I18nManager.forceRTL(isRTL);
+
+  i18n.translations = {[languageTag]: translationGetters[languageTag]()};
+  i18n.locale = languageTag;
+};
+
+setI18nConfig();

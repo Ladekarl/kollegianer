@@ -57,6 +57,7 @@
     "cancel": "ANNULLER"
   },
   "overview": {
+    "overview": "Oversigt",
     "change_status": "Skift status:",
     "change_beerpong_text": "Kan du bekræfte at du lige har købt for 1800kr - du skal bare sende de fire sidste cifre i dit cpr-nr",
     "modal_cancel": "Fortryd",
