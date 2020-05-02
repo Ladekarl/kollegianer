@@ -7,9 +7,17 @@ import OverviewScreen from '../components/Overview';
 import colors from '../shared/colors';
 import GossipScreen from '../components/Gossip';
 import AccountingScreen from '../components/Accounting';
-import {Platform} from 'react-native';
-import Icon from 'react-native-fa-icons';
+import {Platform, StyleSheet} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {strings} from '../shared/i18n';
+
+const styles = StyleSheet.create({
+  tabIcon: {
+    fontSize: 20,
+    height: undefined,
+    width: undefined,
+  },
+});
 
 const overviewOptions = {
   tabBarLabel: strings('overview.overview'),
@@ -17,10 +25,8 @@ const overviewOptions = {
     <Icon
       name="home"
       style={{
-        fontSize: 20,
-        height: undefined,
-        width: undefined,
-        color: color,
+        color,
+        ...styles.tabIcon,
       }}
     />
   ),
@@ -32,10 +38,8 @@ const gossipOptions = {
     <Icon
       name="heartbeat"
       style={{
-        fontSize: 20,
-        height: undefined,
-        width: undefined,
-        color: color,
+        color,
+        ...styles.tabIcon,
       }}
     />
   ),
@@ -47,10 +51,8 @@ const viManglerOptions = {
     <Icon
       name="shopping-cart"
       style={{
-        fontSize: 20,
-        height: undefined,
-        width: undefined,
-        color: color,
+        color,
+        ...styles.tabIcon,
       }}
     />
   ),
@@ -62,10 +64,8 @@ const regnskabOptions = {
     <Icon
       name="credit-card"
       style={{
-        fontSize: 20,
-        height: undefined,
-        width: undefined,
-        color: color,
+        color,
+        ...styles.tabIcon,
       }}
     />
   ),

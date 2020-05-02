@@ -11,7 +11,7 @@ import Database from '../storage/Database';
 import colors from '../shared/colors';
 import {strings} from '../shared/i18n';
 import LocalStorage from '../storage/LocalStorage';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 export default class ResidentsScreen extends Component {
   constructor(props) {
@@ -27,23 +27,9 @@ export default class ResidentsScreen extends Component {
     this.props.navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
-          style={{
-            height: 35,
-            width: 35,
-            marginLeft: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
+          style={styles.headerButton}
           onPress={() => this.props.navigation.openDrawer()}>
-          <Icon
-            name="navicon"
-            style={{
-              fontSize: 20,
-              height: undefined,
-              width: undefined,
-              color: colors.backgroundColor,
-            }}
-          />
+          <Icon name="navicon" style={styles.headerIcon} />
         </TouchableOpacity>
       ),
     });
@@ -148,6 +134,19 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.backgroundColor,
+  },
+  headerButton: {
+    height: 35,
+    width: 35,
+    marginLeft: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  headerIcon: {
+    fontSize: 20,
+    height: undefined,
+    width: undefined,
+    color: colors.backgroundColor,
   },
   sectionHeaderContainer: {
     backgroundColor: colors.backgroundColor,

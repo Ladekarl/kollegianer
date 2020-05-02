@@ -7,12 +7,28 @@ import SettingsScreen from '../components/Settings';
 import ResidentsScreen from '../components/Residents';
 import DrawerScreen from '../components/Drawer';
 import colors from '../shared/colors';
-import {Text} from 'react-native';
-import Icon from 'react-native-fa-icons';
+import {Text, StyleSheet} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import React from 'react';
 import Header from '../components/Header';
 import HomeTab from './HomeTab';
 import {strings} from '../shared/i18n';
+
+const styles = StyleSheet.create({
+  logoutText: {
+    color: colors.logoutTextColor,
+    fontWeight: 'bold',
+    marginLeft: 17,
+    marginTop: 15,
+    marginBottom: 15,
+  },
+  logoutIcon: {
+    fontSize: 20,
+    color: colors.logoutIconColor,
+    marginTop: 15,
+    marginBottom: 15,
+  },
+});
 
 const defaultPageNavigationOptions = {
   headerTitleStyle: {
@@ -50,9 +66,6 @@ function ResidentsStack() {
         component={ResidentsScreen}
         options={{
           title: strings('residents.residents'),
-          drawerIcon: ({tintColor}) => (
-            <Icon name="users" style={{fontSize: 15, color: tintColor}} />
-          ),
           ...defaultPageNavigationOptions,
         }}
       />
@@ -99,27 +112,10 @@ function MainDrawer() {
         options={{
           title: strings('drawer.logout'),
           drawerLabel: () => (
-            <Text
-              style={{
-                color: colors.logoutTextColor,
-                fontWeight: 'bold',
-                marginLeft: 17,
-                marginTop: 15,
-                marginBottom: 15,
-              }}>
-              {strings('drawer.logout')}
-            </Text>
+            <Text style={styles.logoutText}>{strings('drawer.logout')}</Text>
           ),
           drawerIcon: ({tintColor}) => (
-            <Icon
-              name="sign-out"
-              style={{
-                fontSize: 20,
-                color: colors.logoutIconColor,
-                marginTop: 15,
-                marginBottom: 15,
-              }}
-            />
+            <Icon name="sign-out" style={styles.logoutIcon} />
           ),
           headerTitleStyle: {
             fontSize: 15,

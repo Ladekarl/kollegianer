@@ -85,25 +85,25 @@ export default class AccountingScreen extends Component {
           let user = snap.val();
           tiers.forEach((item, key, mapObj) => {
             for (let i = 0; i < item.length; i++) {
-              const takeSpot = (user, fromIndex) => {
+              const takeSpot = (newUser, fromIndex) => {
                 if (fromIndex + 1 < item.length) {
                   takeSpot(item[fromIndex], fromIndex + 1);
                   item[fromIndex + 1] = item[fromIndex];
                 }
-                item[fromIndex] = user;
+                item[fromIndex] = newUser;
               };
 
               let userBeerAccount = user.beerAccount;
               let userBeers, userSodas, userCiders;
               if (userBeerAccount) {
                 userBeers = userBeerAccount.beers
-                  ? parseInt(userBeerAccount.beers)
+                  ? parseInt(userBeerAccount.beers, 10)
                   : 0;
                 userSodas = userBeerAccount.sodas
-                  ? parseInt(userBeerAccount.sodas)
+                  ? parseInt(userBeerAccount.sodas, 10)
                   : 0;
                 userCiders = userBeerAccount.ciders
-                  ? parseInt(userBeerAccount.ciders)
+                  ? parseInt(userBeerAccount.ciders, 10)
                   : 0;
                 user.beerAccount.beers = userBeers;
                 user.beerAccount.sodas = userSodas;
@@ -113,13 +113,13 @@ export default class AccountingScreen extends Component {
                 if (item[i] && item[i].beerAccount) {
                   let itemBeerAccount = item[i].beerAccount;
                   const topBeers = itemBeerAccount.beers
-                    ? parseInt(itemBeerAccount.beers)
+                    ? parseInt(itemBeerAccount.beers, 10)
                     : 0;
                   const topSodas = itemBeerAccount.sodas
-                    ? parseInt(itemBeerAccount.sodas)
+                    ? parseInt(itemBeerAccount.sodas, 10)
                     : 0;
                   const topCiders = itemBeerAccount.ciders
-                    ? parseInt(itemBeerAccount.ciders)
+                    ? parseInt(itemBeerAccount.ciders, 10)
                     : 0;
 
                   if (key === 'beer') {

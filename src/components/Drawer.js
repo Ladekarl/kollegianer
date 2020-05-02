@@ -7,7 +7,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import colors from '../shared/colors';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';

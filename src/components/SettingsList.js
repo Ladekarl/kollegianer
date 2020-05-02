@@ -16,7 +16,7 @@ import auth from '@react-native-firebase/auth';
 import ModalScreen from './Modal';
 import {strings} from '../shared/i18n';
 import PropTypes from 'prop-types';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {Picker} from '@react-native-community/picker';
 
 export default class SettingsList extends Component {
@@ -340,7 +340,7 @@ export default class SettingsList extends Component {
     let initialSheriffName = '';
     if (visible) {
       let nextRoom =
-        (parseInt(this.currentSheriff.val().room.substr(2, 3)) % 14) + 1;
+        (parseInt(this.currentSheriff.val().room.substr(2, 3), 10) % 14) + 1;
       nextRoom = nextRoom.length < 2 ? '0' + nextRoom : nextRoom;
       const initialSheriffRoom =
         this.currentSheriff.val().room.substr(0, 2) + nextRoom;
@@ -630,24 +630,30 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 5,
-    marginBottom: 7,
-    padding: 15,
+    marginTop: 10,
+    padding: 5,
   },
   changePasswordButton: {
     backgroundColor: colors.submitButtonColor,
-    padding: 15,
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 30,
     elevation: 5,
   },
   deleteAccountButton: {
     backgroundColor: colors.cancelButtonColor,
     padding: 15,
+    paddingTop: 15,
+    paddingBottom: 15,
+    paddingLeft: 15,
+    paddingRight: 15,
     borderRadius: 30,
     elevation: 5,
   },
   changePasswordText: {
-    fontSize: 18,
+    fontSize: 15,
     color: colors.whiteColor,
   },
   leftContainer: {

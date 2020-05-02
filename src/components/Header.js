@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, Text, TouchableOpacity, View, Platform} from 'react-native';
 import colors from '../shared/colors';
 import PropTypes from 'prop-types';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {SafeAreaView} from 'react-native-safe-area-context';
 
 export default class HeaderScreen extends Component {
@@ -24,7 +24,7 @@ export default class HeaderScreen extends Component {
 
   render() {
     return (
-      <SafeAreaView style={styles.safeAreaView} forceInset={{top: 'never'}}>
+      <SafeAreaView style={styles.safeAreaView}>
         <View style={styles.container}>
           <TouchableOpacity
             style={styles.headerButton}
@@ -45,9 +45,7 @@ export default class HeaderScreen extends Component {
 
 const styles = StyleSheet.create({
   safeAreaView: {
-    flex: 1,
     paddingBottom: 0,
-    justifyContent: 'flex-end',
   },
   container: {
     flexDirection: 'row',
@@ -58,6 +56,7 @@ const styles = StyleSheet.create({
     paddingRight: 20,
     paddingTop: 5,
     paddingBottom: 5,
+    height: Platform.select({ios: 45, android: 56}),
   },
   headerText: {
     fontSize: 17,
@@ -68,7 +67,6 @@ const styles = StyleSheet.create({
     height: 35,
     width: 35,
     borderRadius: 100,
-    elevation: 10,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.inactiveTabColor,

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import colors from '../shared/colors';
 import AutoExpandingTextInput from './AutoExpandingTextInput';
 import Database from '../storage/Database';
@@ -325,16 +325,13 @@ export default class GossipScreen extends Component {
                 }}
                 style={styles.lightBoxContainer}
                 onLongPress={() => this.showMessageOptions(renderMessage)}
-                buttonStyle={{borderRadius: 10}}
+                buttonStyle={styles.lightBoxButton}
                 originOffset={{x: 0, y: 25}}
                 renderContent={() => (
                   <ScrollView
                     minimumZoomScale={1}
                     maximumZoomScale={5}
-                    contentContainerStyle={{
-                      flexGrow: 1,
-                      justifyContent: 'center',
-                    }}
+                    contentContainerStyle={styles.lightBoxScrollView}
                     centerContent={true}>
                     <Image
                       style={styles.messageImage}
@@ -552,7 +549,7 @@ export default class GossipScreen extends Component {
             <TouchableOpacity
               style={styles.rowImageContainer}
               onPress={this.selectImage}>
-              <Icon name="plus-circle" style={{fontSize: 20, color: 'black'}} />
+              <Icon name="plus-circle" style={styles.imageIcon} />
             </TouchableOpacity>
             <AutoExpandingTextInput
               enablesReturnKeyAutomatically={true}
@@ -565,7 +562,7 @@ export default class GossipScreen extends Component {
               autoCapitalize="sentences"
               returnKeyType="send"
               blurOnSubmit={true}
-              autoFocus={true}
+              autoFocus={false}
               onSubmitEditing={this.submitMessage}
               onChangeText={this.onMessageChange}
             />
@@ -573,7 +570,7 @@ export default class GossipScreen extends Component {
           <TouchableOpacity
             style={styles.rowImageContainer}
             onPress={this.submitMessage}>
-            <Icon name="send" style={{fontSize: 20, color: 'black'}} />
+            <Icon name="send" style={styles.imageIcon} />
           </TouchableOpacity>
         </View>
         <ModalScreen
@@ -700,6 +697,10 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     justifyContent: 'flex-end',
   },
+  imageIcon: {
+    fontSize: 20,
+    color: 'black',
+  },
   rowContainer: {
     maxWidth: '90%',
     flexDirection: 'row',
@@ -787,6 +788,13 @@ const styles = StyleSheet.create({
     marginLeft: 5,
     marginRight: 5,
     marginBottom: 2,
+  },
+  lightBoxButton: {
+    borderRadius: 10,
+  },
+  lightBoxScrollView: {
+    flexGrow: 1,
+    justifyContent: 'center',
   },
   loadingContainer: {
     position: 'absolute',

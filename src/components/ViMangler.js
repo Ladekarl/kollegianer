@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import {
   Alert,
-  Platform,
   RefreshControl,
   ScrollView,
   StyleSheet,
@@ -10,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
 import colors from '../shared/colors';
@@ -21,7 +20,7 @@ export default class ViManglerScreen extends Component {
     super(props);
     this.state = {
       item: '',
-      fetching: false,
+      fetching: true,
       renderItems: [],
     };
 
@@ -31,7 +30,6 @@ export default class ViManglerScreen extends Component {
   }
 
   componentDidMount() {
-    this.setState({fetching: true});
     Database.listenViMangler(snapshot => {
       this.items = snapshot;
       this.setState({
@@ -230,8 +228,7 @@ const styles = StyleSheet.create({
     marginRight: 9,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor:
-      Platform.OS === 'ios' ? colors.backgroundColor : colors.inactiveTabColor,
+    backgroundColor: colors.backgroundColor,
   },
   rowImageContainer: {
     height: 35,
@@ -242,8 +239,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     alignSelf: 'center',
-    backgroundColor:
-      Platform.OS === 'ios' ? colors.whiteColor : colors.inactiveTabColor,
+    backgroundColor: colors.whiteColor,
   },
   descriptionContainer: {
     flex: 7,
@@ -276,15 +272,13 @@ const styles = StyleSheet.create({
   },
   rowImage: {
     textAlign: 'center',
-    color:
-      Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor,
-    fontSize: Platform.OS === 'ios' ? 20 : 15,
+    color: colors.inactiveTabColor,
+    fontSize: 20,
     alignItems: 'center',
     justifyContent: 'center',
   },
   icon: {
-    fontSize: Platform.OS === 'ios' ? 20 : 15,
-    color:
-      Platform.OS === 'ios' ? colors.inactiveTabColor : colors.backgroundColor,
+    fontSize: 20,
+    color: colors.inactiveTabColor,
   },
 });

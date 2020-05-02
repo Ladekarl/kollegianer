@@ -156,9 +156,7 @@ export default class App extends Component {
   };
 
   render() {
-    if (Platform.OS === 'ios') {
-      StatusBar.setBarStyle('light-content', true);
-    }
+    StatusBar.setBarStyle('light-content', true);
 
     const KollegianerTheme = {
       dark: true,

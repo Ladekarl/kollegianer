@@ -16,7 +16,7 @@ import {
 } from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import colors from '../shared/colors';
-import Icon from 'react-native-fa-icons';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {strings} from '../shared/i18n';
 import ModalScreen from './Modal';
 import {AccessToken, LoginManager} from 'react-native-fbsdk';
@@ -200,7 +200,7 @@ export default class LoginScreen extends Component {
             />
           </Animated.View>
           <View style={styles.inputContainer}>
-            <View style={[styles.elevatedInputContainer, {marginBottom: 20}]}>
+            <View style={[styles.elevatedInputContainer, styles.extraMargin]}>
               <Icon name={'user'} style={styles.icon} />
               <TextInput
                 style={styles.usernameInput}
@@ -274,7 +274,7 @@ export default class LoginScreen extends Component {
             <ActivityIndicator
               size="large"
               color={colors.inactiveTabColor}
-              style={{elevation: 10}}
+              style={styles.activityIndicator}
             />
           </View>
         )}
@@ -313,6 +313,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  activityIndicator: {
+    elevation: 10,
+  },
   topContainer: {
     minHeight: IMAGE_HEIGHT_SMALL,
     alignSelf: 'center',
@@ -342,6 +345,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: Platform.OS === 'ios' ? StyleSheet.hairlineWidth : 0,
     borderColor: colors.inactiveTabColor,
+  },
+  extraMargin: {
+    marginBottom: 20,
   },
   errorContainer: {
     height: 80,
