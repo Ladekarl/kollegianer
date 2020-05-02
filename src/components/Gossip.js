@@ -431,23 +431,19 @@ export default class GossipScreen extends Component {
       if (!response.error && !response.didCancel) {
         let path = '';
         if (Platform.OS === 'ios') {
-          path = response.uri.toString();
+          path = response.uri;
         } else {
-          path = response.path.toString();
+          path = response.path;
         }
-        const image = {
-          image: response.uri.toString(),
-          path: path,
-        };
 
         const width = response.width;
         const height = response.height;
 
         this.setState({loading: true});
-        Database.addGossipImage(image, Guid())
-          .then(snapshot => {
+        Database.addGossipImage(path, Guid())
+          .then(downloadUrl => {
             this.submitPhotoMessage({
-              url: snapshot.downloadURL,
+              url: downloadUrl,
               width: width,
               height: height,
             });

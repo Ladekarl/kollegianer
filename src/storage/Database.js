@@ -218,11 +218,15 @@ export default class Database {
       .update(updates);
   }
 
-  static async addGossipImage(image, imageName) {
-    return storage()
+  static async addGossipImage(imagePath, imageName) {
+    const imageRef = storage()
       .ref('gossip')
-      .child(imageName)
-      .put(image.path, {contentType: 'image/jpg'});
+      .child(imageName);
+    const file = await imageRef.putFile(imagePath, {contentType: 'image/jpeg'});
+    const imageUrl = await imageRef.getDownloadURL();
+    console.log(imageRef);
+    console.log(file);
+    return imageUrl;
   }
 
   static async updateBeerAccount(data) {
