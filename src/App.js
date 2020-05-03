@@ -1,152 +1,203 @@
 import React, {Component} from 'react';
-import firebase from 'react-native-firebase';
+import messaging from '@react-native-firebase/messaging';
+import auth from '@react-native-firebase/auth';
 import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
-import colors from './shared/colors';
+import {loadThemeManager, bodegaTheme} from './shared/colors';
 import AppNavigation from './navigation/AppNavigation';
-import {navigateAndReset, navigateOnNotification} from './shared/NavigationHelpers';
+import {NavigationContainer} from '@react-navigation/native';
+import {
+  navigateAndReset,
+  navigateOnNotification,
+} from './shared/NavigationHelpers';
 import {signIn} from './shared/AuthenticationHelpers';
 
 const handledNotifications = [];
 
 export default class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      kollegianerTheme: undefined,
+      backgroundColor: bodegaTheme.backgroundColor,
+    };
+  }
 
-    constructor(props) {
-        super(props);
-    }
-
-    componentDidMount() {
-        firebase.messaging().hasPermission().then(enabled => {
-            if (!enabled) {
-                return firebase.messaging().requestPermission();
+  componentDidMount() {
+    messaging()
+      .hasPermission()
+      .then(enabled => {
+        if (!enabled) {
+          return messaging().requestPermission();
+        }
+      })
+      .then(() => {
+        return this.loadColors();
+      })
+      .then(() => {
+        this.registerNotificationHandlers();
+        this.registerTokenRefreshListener();
+        return messaging()
+          .getToken()
+          .then(token => {
+            if (token) {
+              const newToken = {token: token, isIos: Platform.OS === 'ios'};
+              return LocalStorage.setFcmToken(newToken);
             }
-        }).then(() => {
-            this.registerNotificationHandlers();
-            this.registerTokenRefreshListener();
-            return firebase.messaging().getToken().then(token => {
-                if (token) {
-                    const newToken = {token: token, isIos: Platform.OS === 'ios'};
-                    return LocalStorage.setFcmToken(newToken);
-                }
-            });
-        }).catch(this.onErrorTrySignIn);
-    }
+          });
+      })
+      .catch(this.onErrorTrySignIn);
+  }
 
-    supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
+  supportedNotifications = ['fcm.VI_MANGLER', 'fcm.GOSSIP', 'fcm.ACCOUNTING'];
 
-    getInitialNotification = () => {
-        return new Promise((resolve, reject) => {
-            firebase.notifications().getInitialNotification().then((notification) => {
-                if (notification) {
-                    const action = notification.notification.data.action;
-                    if (this.supportedNotifications.indexOf(action) !== -1) {
-                        resolve(notification);
-                    } else {
-                        reject('Initial notification not supported');
-                    }
-                } else {
-                    reject('No initial notification');
-                }
-            }).catch(error => {
-                reject(error);
-            });
+  getInitialNotification = () => {
+    return new Promise((resolve, reject) => {
+      messaging()
+        .getInitialNotification()
+        .then(notification => {
+          if (notification) {
+            const action = notification.notification.data.action;
+            if (this.supportedNotifications.indexOf(action) !== -1) {
+              resolve(notification);
+            } else {
+              reject('Initial notification not supported');
+            }
+          } else {
+            reject('No initial notification');
+          }
+        })
+        .catch(error => {
+          reject(error);
         });
-    };
+    });
+  };
 
-    registerNotificationHandlers = () => {
-        this.getInitialNotification()
-            .then(this.openedOnNotification)
-            .catch(this.onErrorTrySignIn);
+  loadColors = async () => {
+    const colors = await loadThemeManager();
+    this.setState({
+      backgroundColor: colors.backgroundColor,
+      kollegianerTheme: {
+        dark: true,
+        colors: {
+          primary: colors.activeTabColor,
+          background: colors.inactiveTabColor,
+          card: colors.backgroundColor,
+          text: colors.backgroundColor,
+          border: colors.inactiveTabColor,
+        },
+      },
+    });
+  };
 
-        this.removeNotificationOpenedListener = firebase.notifications()
-            .onNotificationOpened(this.openedOnNotification);
-    };
+  registerNotificationHandlers = () => {
+    this.getInitialNotification()
+      .then(this.openedOnNotification)
+      .catch(this.onErrorTrySignIn);
 
-    openedOnNotification = notification => {
-        console.log('Launched from notification');
-        if (notification && handledNotifications.indexOf(notification.notification._notificationId) === -1) {
-            signIn().then(() => {
-                navigateOnNotification(this.navigator, notification.notification);
-            }).catch(error => {
-                console.log(error);
-                navigateAndReset(this.navigator, 'Login');
-            }).finally(() => {
-                this.removeInitialNotification(notification);
-            });
-        }
-    };
+    this.removeNotificationOpenedListener = messaging().onNotificationOpenedApp(
+      this.openedOnNotification,
+    );
+  };
 
-    removeInitialNotification = (notification) => {
-        const notificationId = notification.notification._notificationId;
-        firebase.notifications().cancelNotification(notificationId);
-        firebase.notifications().removeDeliveredNotification(notificationId);
-        handledNotifications.push(notificationId);
-    };
-
-    onErrorTrySignIn = error => {
-        console.log(error);
-        return signIn().then(() => {
-            navigateAndReset(this.navigator, 'mainFlow', true);
-        }).catch((error) => {
-                console.log(error);
-                navigateAndReset(this.navigator, 'Login');
-            }
-        );
-    };
-
-    registerTokenRefreshListener = () => {
-        this.removeTokenRefreshListener = firebase.messaging().onTokenRefresh(token => {
-            const user = firebase.auth().currentUser;
-            if (user && token) {
-                const newToken = {token: token, isIos: Platform.OS === 'ios'};
-                LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
-                Database.getNotificationTokens(user.uid).then(snapshot => {
-                    let tokens = snapshot.val();
-                    let tokenFound = false;
-                    tokens.forEach(t => {
-                        if (String(t.token).valueOf() == String(newToken.token).valueOf()) {
-                            tokenFound = true;
-                        }
-                    });
-                    if (!tokenFound) {
-                        tokens.push(newToken);
-                        Database.updateNotificationTokens(user.uid, tokens).catch(error => console.log(error));
-                    }
-                }).catch(error => console.log(error));
-            }
+  openedOnNotification = async notification => {
+    console.log('Launched from notification');
+    await this.loadColors();
+    if (
+      notification &&
+      handledNotifications.indexOf(
+        notification.notification._notificationId,
+      ) === -1
+    ) {
+      signIn()
+        .then(() => {
+          navigateOnNotification(this.navigator, notification.notification);
+        })
+        .catch(error => {
+          console.log(error);
+          navigateAndReset(this.navigator, 'Login');
+        })
+        .finally(() => {
+          this.removeInitialNotification(
+            notification.notification._notificationId,
+          );
         });
-    };
-
-    componentWillUnmount() {
-        if (this.removeTokenRefreshListener) {
-            this.removeTokenRefreshListener();
-        }
-        if (this.removeNotificationOpenedListener) {
-            this.removeNotificationOpenedListener();
-        }
     }
+  };
 
-    setRef = (navigator) => {
-        this.navigator = navigator;
-    };
+  onErrorTrySignIn = error => {
+    console.log(error);
+    return signIn()
+      .then(() => {
+        navigateAndReset(this.navigator, 'mainFlow');
+      })
+      .catch(catchError => {
+        console.log(catchError);
+        navigateAndReset(this.navigator, 'Login');
+      });
+  };
 
-    render() {
-        if (Platform.OS === 'ios') {
-            StatusBar.setBarStyle('light-content', true);
-        }
+  registerTokenRefreshListener = () => {
+    this.removeTokenRefreshListener = messaging().onTokenRefresh(token => {
+      const user = auth().currentUser;
+      if (user && token) {
+        const newToken = {token: token, isIos: Platform.OS === 'ios'};
+        LocalStorage.setFcmToken(newToken).catch(error => console.log(error));
+        Database.getNotificationTokens(user.uid)
+          .then(snapshot => {
+            let tokens = snapshot.val();
+            let tokenFound = false;
+            tokens.forEach(t => {
+              if (
+                String(t.token).valueOf() === String(newToken.token).valueOf()
+              ) {
+                tokenFound = true;
+              }
+            });
+            if (!tokenFound) {
+              tokens.push(newToken);
+              Database.updateNotificationTokens(user.uid, tokens).catch(error =>
+                console.log(error),
+              );
+            }
+          })
+          .catch(error => console.log(error));
+      }
+    });
+  };
 
-        return (
-            <View style={styles.container}>
-                <AppNavigation ref={this.setRef}/>
-            </View>
-        );
+  componentWillUnmount() {
+    if (this.removeTokenRefreshListener) {
+      this.removeTokenRefreshListener();
     }
+    if (this.removeNotificationOpenedListener) {
+      this.removeNotificationOpenedListener();
+    }
+  }
+
+  setRef = navigator => {
+    this.navigator = navigator;
+  };
+
+  render() {
+    const {kollegianerTheme, backgroundColor} = this.state;
+    StatusBar.setBarStyle('light-content', true);
+
+    return (
+      <View style={[styles.container, {backgroundColor}]}>
+        {kollegianerTheme && (
+          <NavigationContainer theme={kollegianerTheme} ref={this.setRef}>
+            <AppNavigation />
+          </NavigationContainer>
+        )}
+      </View>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: colors.backgroundColor,
-    }
+  container: {
+    flex: 1,
+  },
 });

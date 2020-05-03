@@ -57,6 +57,7 @@
     "cancel": "ANNULLER"
   },
   "overview": {
+    "overview": "Oversigt",
     "change_status": "Skift status:",
     "change_beerpong_text": "Kan du bekræfte at du lige har købt for 1800kr - du skal bare sende de fire sidste cifre i dit cpr-nr",
     "modal_cancel": "Fortryd",
@@ -116,10 +117,14 @@
     "keyphrase": "Nøgleord",
     "keyphrase_placeholder": "Aa",
     "phone_number": "Telefon",
-    "phone_number_placeholder": "88888888"
+    "phone_number_placeholder": "88888888",
+    "color": "Temafarve:",
+    "color_placeholder": "Farvekode",
+    "color_modal_title": "Vælg temafarve",
+    "color_modal_text": "Du skal genstarte app'en når du vælger en ny farve. App'en ser bedst ud med en lys farve."
   },
   "vi_mangler": {
-    "vi_manger": "Vi Mangler",
+    "vi_mangler": "Vi Mangler",
     "delete_modal_title": "Slet ",
     "delete_modal_text": "Er du nu helt sikker på at du vil slette ",
     "delete_modal_cancel": "Annullér",
