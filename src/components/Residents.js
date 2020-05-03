@@ -24,13 +24,15 @@ export default class ResidentsScreen extends Component {
 
   componentDidMount() {
     this.getUsers();
-    const headerIcon = [styles.headerIcon, {color: colors.backgroundColor}];
     this.props.navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
           style={styles.headerButton}
           onPress={() => this.props.navigation.openDrawer()}>
-          <Icon name="navicon" style={headerIcon} />
+          <Icon
+            name="navicon"
+            style={[styles.headerIcon, {color: colors.backgroundColor}]}
+          />
         </TouchableOpacity>
       ),
     });
