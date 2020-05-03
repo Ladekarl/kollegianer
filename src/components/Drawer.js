@@ -58,16 +58,21 @@ export default class DrawerScreen extends Component {
 
   render() {
     const {user} = this.state;
+    const headerIconContainer = [
+      styles.headerIconContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
+    const headerText = [styles.headerText, {color: colors.backgroundColor}];
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.headerContainer}>
           <TouchableWithoutFeedback onPress={this.closeDrawer}>
             <View style={styles.headerIconTextContainer}>
-              <View style={styles.headerIconContainer}>
+              <View style={headerIconContainer}>
                 <Icon name="user" style={styles.headerIcon} />
               </View>
               {!!user.name && (
-                <Text numberOfLines={3} style={styles.headerText}>
+                <Text numberOfLines={3} style={headerText}>
                   {user.name}
                 </Text>
               )}
@@ -141,7 +146,6 @@ const styles = StyleSheet.create({
     elevation: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.backgroundColor,
   },
   footerIconContainer: {
     marginTop: 10,

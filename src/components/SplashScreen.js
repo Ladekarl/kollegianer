@@ -7,9 +7,13 @@ const IMAGE_HEIGHT = window.width / 2;
 
 export default class SplashScreen extends Component {
   render() {
+    const innerContainer = [
+      styles.innerContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
       <View style={styles.container}>
-        <View style={styles.innerContainer}>
+        <View style={innerContainer}>
           <Image
             resizeMode="contain"
             style={styles.image}
@@ -26,7 +30,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   innerContainer: {
-    backgroundColor: colors.backgroundColor,
     ...StyleSheet.absoluteFill,
   },
   image: {

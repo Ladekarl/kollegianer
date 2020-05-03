@@ -160,8 +160,17 @@ export default class ViManglerScreen extends Component {
   };
 
   render() {
+    const container = [
+      styles.container,
+      {backgroundColor: colors.backgroundColor},
+    ];
+
+    const rowPlusImageContainer = [
+      styles.rowPlusImageContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
-      <View style={styles.container}>
+      <View style={container}>
         <View style={styles.newRowContainer}>
           <View style={styles.descriptionContainer}>
             <TextInput
@@ -175,7 +184,7 @@ export default class ViManglerScreen extends Component {
             />
           </View>
           <TouchableOpacity
-            style={styles.rowPlusImageContainer}
+            style={rowPlusImageContainer}
             onPress={this.submitItem}>
             <Icon name="plus" style={styles.icon} />
           </TouchableOpacity>
@@ -198,7 +207,6 @@ export default class ViManglerScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
   scrollContainer: {
     justifyContent: 'flex-start',
@@ -228,7 +236,6 @@ const styles = StyleSheet.create({
     marginRight: 9,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: colors.backgroundColor,
   },
   rowImageContainer: {
     height: 35,

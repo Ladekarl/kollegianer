@@ -1,5 +1,9 @@
 import AsyncStorage from '@react-native-community/async-storage';
-import {FCM_TOKEN_STORAGE_KEY, USER_STORAGE_KEY} from 'react-native-dotenv';
+import {
+  FCM_TOKEN_STORAGE_KEY,
+  USER_STORAGE_KEY,
+  COLOR_STORAGE_KEY,
+} from 'react-native-dotenv';
 
 export default class LocalStorage {
   static async getUser() {
@@ -39,6 +43,23 @@ export default class LocalStorage {
     try {
       let tokenJson = await AsyncStorage.getItem(FCM_TOKEN_STORAGE_KEY);
       return (await JSON.parse(tokenJson)) || null;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async setColor(color) {
+    try {
+      await AsyncStorage.setItem(COLOR_STORAGE_KEY, JSON.stringify(color));
+    } catch (error) {
+      return error;
+    }
+  }
+
+  static async getColor() {
+    try {
+      let colorJson = await AsyncStorage.getItem(COLOR_STORAGE_KEY);
+      return (await JSON.parse(colorJson)) || null;
     } catch (error) {
       return error;
     }

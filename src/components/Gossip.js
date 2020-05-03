@@ -523,8 +523,16 @@ export default class GossipScreen extends Component {
   };
 
   _renderShared() {
+    const innerContainer = [
+      styles.innerContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
+    const messageModalButton = [
+      styles.messageModalButton,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
-      <View style={styles.innerContainer}>
+      <View style={innerContainer}>
         <ScrollView
           refreshControl={
             <RefreshControl
@@ -580,7 +588,7 @@ export default class GossipScreen extends Component {
           <View style={styles.messageModalContainer}>
             {this.selectedMessage && this.selectedMessage.isOwnMessage && (
               <TouchableOpacity
-                style={styles.messageModalButton}
+                style={messageModalButton}
                 onPress={this._deleteMessage}>
                 <Text style={styles.messageModalTextStyle}>
                   {strings('gossip.delete_message')}
@@ -589,7 +597,7 @@ export default class GossipScreen extends Component {
             )}
             {this.selectedMessage && !this.selectedMessage.isOwnMessage && (
               <TouchableOpacity
-                style={styles.messageModalButton}
+                style={messageModalButton}
                 onPress={this._blockOrUnblockMessage}>
                 <Text style={styles.messageModalTextStyle}>
                   {this.messageFilter.indexOf(this.selectedMessage.key) === -1
@@ -600,7 +608,7 @@ export default class GossipScreen extends Component {
             )}
             {this.selectedMessage && !this.selectedMessage.isOwnMessage && (
               <TouchableOpacity
-                style={styles.messageModalButton}
+                style={messageModalButton}
                 onPress={this._blockOrUnblockSender}>
                 <Text style={styles.messageModalTextStyle}>
                   {this.senderFilter.indexOf(this.selectedMessage.val().id) ===
@@ -615,7 +623,7 @@ export default class GossipScreen extends Component {
               this.selectedMessage.val() &&
               !this.selectedMessage.val().flagged && (
                 <TouchableOpacity
-                  style={styles.messageModalButton}
+                  style={messageModalButton}
                   onPress={this._reportContent}>
                   <Text style={styles.messageModalTextStyle}>
                     {strings('gossip.report')}
@@ -631,7 +639,7 @@ export default class GossipScreen extends Component {
               String(this.selectedMessage.val().flaggedBy).valueOf() ===
                 String(this.localUser.uid).valueOf() && (
                 <TouchableOpacity
-                  style={styles.messageModalButton}
+                  style={messageModalButton}
                   onPress={this._cancelReport}>
                   <Text style={styles.messageModalTextStyle}>
                     {strings('gossip.undo_report')}
@@ -666,7 +674,6 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    backgroundColor: colors.backgroundColor,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -810,7 +817,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: StyleSheet.hairlineWidth,
-    backgroundColor: colors.backgroundColor,
     margin: 10,
   },
   messageModalTextStyle: {

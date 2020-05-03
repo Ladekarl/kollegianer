@@ -24,12 +24,13 @@ export default class ResidentsScreen extends Component {
 
   componentDidMount() {
     this.getUsers();
+    const headerIcon = [styles.headerIcon, {color: colors.backgroundColor}];
     this.props.navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
           style={styles.headerButton}
           onPress={() => this.props.navigation.openDrawer()}>
-          <Icon name="navicon" style={styles.headerIcon} />
+          <Icon name="navicon" style={headerIcon} />
         </TouchableOpacity>
       ),
     });
@@ -79,9 +80,13 @@ export default class ResidentsScreen extends Component {
 
   _renderUser = (renderUser, localUser) => {
     let user = renderUser.val();
+    const sectionHeaderContainer = [
+      styles.sectionHeaderContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
       <View key={renderUser.key}>
-        <View style={styles.sectionHeaderContainer}>
+        <View style={sectionHeaderContainer}>
           <Text style={styles.sectionHeaderText}>{user.room || ''}</Text>
           <TouchableOpacity
             style={styles.deleteButton}
@@ -125,7 +130,10 @@ export default class ResidentsScreen extends Component {
 
   render() {
     return (
-      <ScrollView style={styles.container}>{this.state.renderUsers}</ScrollView>
+      <ScrollView
+        style={[styles.container, {backgroundColor: colors.backgroundColor}]}>
+        {this.state.renderUsers}
+      </ScrollView>
     );
   }
 }
@@ -133,7 +141,6 @@ export default class ResidentsScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
   headerButton: {
     height: 35,
@@ -146,10 +153,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
     height: undefined,
     width: undefined,
-    color: colors.backgroundColor,
   },
   sectionHeaderContainer: {
-    backgroundColor: colors.backgroundColor,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

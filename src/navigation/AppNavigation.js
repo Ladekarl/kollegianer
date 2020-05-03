@@ -33,12 +33,10 @@ const styles = StyleSheet.create({
 const defaultPageNavigationOptions = {
   headerTitleStyle: {
     fontSize: 17,
-    color: colors.backgroundColor,
   },
   headerStyle: {
     backgroundColor: colors.inactiveTabColor,
   },
-  headerTintColor: colors.backgroundColor,
 };
 
 const Stack = createStackNavigator();

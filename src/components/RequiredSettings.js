@@ -75,23 +75,30 @@ export default class RequiredSettings extends Component {
 
   render() {
     const {shouldShow} = this.state;
+
+    const innerContainer = [
+      styles.innerContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
+
+    const topText = [styles.topText, {color: colors.backgroundColor}];
+    const buttonContainer = [
+      styles.buttonContainer,
+      {color: colors.backgroundColor},
+    ];
     return (
       <Modal visible={shouldShow}>
-        <SafeAreaView
-          style={{flex: 0, backgroundColor: colors.inactiveTabColor}}
-        />
+        <SafeAreaView style={styles.safeAreaView} />
         <SafeAreaView style={styles.container} forceInset={{top: 'always'}}>
           {this.renderViewContainer(
-            <View style={styles.innerContainer}>
+            <View style={innerContainer}>
               <View style={styles.topContainer}>
-                <Text style={styles.topText}>
-                  {strings('settings.fill_required')}
-                </Text>
+                <Text style={topText}>{strings('settings.fill_required')}</Text>
               </View>
               <View style={styles.settingsContainer}>
                 <SettingsList required={true} />
               </View>
-              <View style={styles.buttonContainer}>
+              <View style={buttonContainer}>
                 <TouchableOpacity
                   style={styles.button}
                   onPress={this.onDonePress}>
@@ -117,9 +124,9 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: 'transparent',
   },
+  safeAreaView: {flex: 0, backgroundColor: colors.inactiveTabColor},
   innerContainer: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
   topContainer: {
     height: 50,
@@ -133,7 +140,6 @@ const styles = StyleSheet.create({
   },
   topText: {
     textAlign: 'center',
-    color: colors.backgroundColor,
     fontSize: 18,
   },
   button: {
@@ -153,7 +159,6 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     height: 70,
-    backgroundColor: colors.backgroundColor,
     justifyContent: 'center',
     alignItems: 'center',
   },

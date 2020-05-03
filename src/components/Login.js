@@ -20,8 +20,17 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import {strings} from '../shared/i18n';
 import ModalScreen from './Modal';
 import {AccessToken, LoginManager} from 'react-native-fbsdk';
-import {signInEmail, signInFacebook} from '../shared/AuthenticationHelpers';
+import {
+  signInEmail,
+  signInFacebook,
+  signInApple,
+} from '../shared/AuthenticationHelpers';
 import * as NavigationHelpers from '../shared/NavigationHelpers';
+import appleAuth, {
+  AppleButton,
+  AppleAuthRequestScope,
+  AppleAuthRequestOperation,
+} from '@invertase/react-native-apple-authentication';
 
 const window = Dimensions.get('window');
 const IMAGE_HEIGHT = window.width / 2;
@@ -113,6 +122,37 @@ export default class LoginScreen extends Component {
     }
   };
 
+  onAppleLoginPress = () => {
+    appleAuth
+      .performRequest({
+        requestedOperation: AppleAuthRequestOperation.LOGIN,
+        requestedScopes: [
+          AppleAuthRequestScope.EMAIL,
+          AppleAuthRequestScope.FULL_NAME,
+        ],
+      })
+      .then(appleAuthRequestResponse => {
+        const {identityToken, nonce} = appleAuthRequestResponse;
+        if (identityToken) {
+          const user = {
+            accessToken: identityToken,
+            password: '',
+          };
+          signInApple(user, nonce)
+            .then(() => {
+              this._navigateAndReset('mainFlow');
+            })
+            .catch(error => {
+              this._stopLoadingAndSetError(error.message);
+            });
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        this._stopLoadingAndSetError(strings('login.could_not_login'));
+      });
+  };
+
   onFacebookLoginPress = () => {
     Keyboard.dismiss();
     this.setState({error: '', loading: true});
@@ -173,15 +213,23 @@ export default class LoginScreen extends Component {
   };
 
   _renderIos = () => {
+    const container = [
+      styles.container,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
-      <KeyboardAvoidingView style={styles.container} behavior="padding">
+      <KeyboardAvoidingView style={container} behavior="padding">
         {this._renderShared()}
       </KeyboardAvoidingView>
     );
   };
 
   _renderAndroid = () => {
-    return <View style={styles.container}>{this._renderShared()}</View>;
+    const container = [
+      styles.container,
+      {backgroundColor: colors.backgroundColor},
+    ];
+    return <View style={container}>{this._renderShared()}</View>;
   };
 
   showEulaDialog = visible => {
@@ -266,6 +314,15 @@ export default class LoginScreen extends Component {
                   {strings('login.login_button_facebook')}
                 </Text>
               </TouchableOpacity>
+              {appleAuth.isSupported && (
+                <AppleButton
+                  cornerRadius={5}
+                  style={styles.appleLoginButton}
+                  buttonStyle={AppleButton.Style.WHITE}
+                  buttonType={AppleButton.Type.SIGN_IN}
+                  onPress={this.onAppleLoginPress}
+                />
+              )}
             </View>
           </View>
         </View>
@@ -306,7 +363,6 @@ export default class LoginScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
   innerContainer: {
     flex: 1,
@@ -430,6 +486,11 @@ const styles = StyleSheet.create({
     padding: 18,
     elevation: 5,
     backgroundColor: colors.facebookColor,
+  },
+  appleLoginButton: {
+    height: 50,
+    marginTop: 20,
+    elevation: 5,
   },
   loginButtonText: {
     color: colors.whiteColor,

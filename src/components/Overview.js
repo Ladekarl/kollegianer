@@ -100,7 +100,7 @@ export default class OverviewScreen extends Component {
           let user = snap.val();
           if (user.birthday) {
             let birthdayYearString = user.birthday.split('/').pop();
-            let birthdayYear = parseInt(birthdayYearString);
+            let birthdayYear = parseInt(birthdayYearString, 10);
             let userBirthday;
             if (birthdayYear < 100) {
               birthdayYear =
@@ -379,8 +379,17 @@ export default class OverviewScreen extends Component {
 
     const {shots, mvp, beerpong, partymode, fox} = events;
 
+    const container = [
+      styles.container,
+      {backgroundColor: colors.backgroundColor},
+    ];
+
+    const headerContainer = [
+      styles.headerContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
-      <View style={styles.container}>
+      <View style={container}>
         <View style={styles.bigRowContainer}>
           <View style={styles.columnContainer}>
             <View style={styles.borderlessColumnContainer}>
@@ -412,7 +421,7 @@ export default class OverviewScreen extends Component {
             </View>
           </View>
           <View style={styles.columnContainer}>
-            <View style={styles.headerContainer}>
+            <View style={headerContainer}>
               <Image
                 resizeMode="contain"
                 style={styles.headerImage}
@@ -566,7 +575,6 @@ export default class OverviewScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -598,7 +606,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   headerContainer: {
-    backgroundColor: colors.backgroundColor,
     flex: 1,
     justifyContent: 'space-between',
     flexDirection: 'column',

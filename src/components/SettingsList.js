@@ -11,13 +11,15 @@ import {
 } from 'react-native';
 import LocalStorage from '../storage/LocalStorage';
 import Database from '../storage/Database';
-import colors from '../shared/colors';
+import colors, {loadThemeManager} from '../shared/colors';
 import auth from '@react-native-firebase/auth';
 import ModalScreen from './Modal';
 import {strings} from '../shared/i18n';
 import PropTypes from 'prop-types';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {Picker} from '@react-native-community/picker';
+import {ColorPicker, fromHsv} from 'react-native-color-picker';
+import Slider from '@react-native-community/slider';
 
 export default class SettingsList extends Component {
   static propTypes = {
@@ -46,9 +48,11 @@ export default class SettingsList extends Component {
       selectedDuty: '',
       selectedKitchenWeek: '',
       selectedSheriff: '',
+      selectedColor: '',
       dutyModalVisible: false,
       kitchenWeekModalVisible: false,
       sheriffModalVisible: false,
+      colorPickerVisible: false,
       tempUser: {
         name: '',
         birthday: '',
@@ -57,6 +61,7 @@ export default class SettingsList extends Component {
         keyphrase: '',
         phone: '',
       },
+      color: '',
     };
     this.auth = auth();
   }
@@ -64,11 +69,20 @@ export default class SettingsList extends Component {
   componentDidMount() {
     this._getUser();
     this._getDuties();
+    this._getColor();
   }
 
   componentWillUnmount() {
     Database.unListenUsers().catch(error => console.log(error));
   }
+
+  _getColor = () => {
+    LocalStorage.getColor().then(color => {
+      this.setState({
+        color,
+      });
+    });
+  };
 
   changeDuty = () => {
     if (this.state.selectedDuty) {
@@ -303,6 +317,12 @@ export default class SettingsList extends Component {
     });
   };
 
+  setColorPickerVisible = visible => {
+    this.setState({
+      colorPickerVisible: visible,
+    });
+  };
+
   onKitchenWeekCancel = () => {
     this.setKitchenWeekModalVisible(false);
   };
@@ -330,6 +350,29 @@ export default class SettingsList extends Component {
   onSheriffSubmit = () => {
     this.changeSheriff();
     this.setSheriffModalVisible(false);
+  };
+
+  onColorCancel = () => {
+    this.setColorPickerVisible(false);
+  };
+
+  onColorSubmit = () => {
+    this.changeColor(fromHsv(this.state.selectedColor));
+    this.setColorPickerVisible(false);
+  };
+
+  changeColor = color => {
+    LocalStorage.setColor(color).then(() => {
+      loadThemeManager().then(() => {
+        this.setState({
+          color,
+        });
+      });
+    });
+  };
+
+  onColorChange = color => {
+    this.setState({selectedColor: color});
   };
 
   onSheriffChange = itemValue => {
@@ -376,12 +419,20 @@ export default class SettingsList extends Component {
   };
 
   render() {
-    const {user, tempUser} = this.state;
+    const {user, tempUser, color} = this.state;
     const {required} = this.props;
 
+    const container = [
+      styles.container,
+      {backgroundColor: colors.backgroundColor},
+    ];
+    const sectionHeaderContainer = [
+      styles.sectionHeaderContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
-      <ScrollView style={styles.container}>
-        <View style={styles.sectionHeaderContainer}>
+      <ScrollView style={container}>
+        <View style={sectionHeaderContainer}>
           <Text style={styles.sectionHeaderText}>
             {strings('settings.profile')}
           </Text>
@@ -542,6 +593,18 @@ export default class SettingsList extends Component {
               />
             </View>
           )}
+        {this.localUser && !required && (
+          <View style={styles.rowContainer}>
+            <View style={styles.leftContainer}>
+              <Text style={styles.leftText}>{strings('settings.color')}</Text>
+            </View>
+            <TouchableOpacity onPress={() => this.setColorPickerVisible(true)}>
+              <Text style={styles.rightText}>
+                {color ? color : strings('settings.color_placeholder')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
         {this.localUser && !!this.localUser.password && !required && (
           <View style={styles.changePasswordRowContainer}>
             <TouchableOpacity
@@ -594,6 +657,22 @@ export default class SettingsList extends Component {
           onCancel={this.onSheriffCancel}
           isPicker={true}
         />
+        <ModalScreen
+          modalTitle={strings('settings.color_modal_title')}
+          visible={this.state.colorPickerVisible}
+          onSubmit={this.onColorSubmit}
+          onCancel={this.onColorCancel}>
+          <View style={styles.colorPickerContainer}>
+            <Text style={styles.colorPickerText}>
+              {strings('settings.color_modal_text')}
+            </Text>
+            <ColorPicker
+              sliderComponent={Slider}
+              onColorChange={this.onColorChange}
+              style={styles.colorPicker}
+            />
+          </View>
+        </ModalScreen>
       </ScrollView>
     );
   }
@@ -602,7 +681,6 @@ export default class SettingsList extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
   requiredIcon: {
     color: colors.cancelButtonColor,
@@ -620,7 +698,6 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   sectionHeaderContainer: {
-    backgroundColor: colors.backgroundColor,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -674,5 +751,17 @@ const styles = StyleSheet.create({
   rightText: {
     marginRight: 10,
     color: colors.submitButtonColor,
+  },
+  colorPickerContainer: {
+    height: '60%',
+    flexGrow: 1,
+  },
+  colorPicker: {
+    flex: 1,
+  },
+  colorPickerText: {
+    textAlign: 'center',
+    fontSize: 15,
+    padding: 10,
   },
 });

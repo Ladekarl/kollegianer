@@ -595,13 +595,35 @@ export default class AccountingScreen extends Component {
   };
 
   render() {
+    const container = [
+      styles.container,
+      {backgroundColor: colors.backgroundColor},
+    ];
+    const sectionHeaderText = [
+      styles.sectionHeaderText,
+      {color: colors.backgroundColor},
+    ];
+    const innerSectionContainer = [
+      styles.innerSectionContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
+    const innerBottomText = [
+      styles.innerBottomText,
+      {color: colors.backgroundColor},
+    ];
+    const columnHeadlineText = [
+      styles.columnHeadlineText,
+      {color: colors.backgroundColor},
+    ];
+    const uploadImage = [styles.uploadImage, {color: colors.backgroundColor}];
+
     const {user} = this.state;
     return (
-      <View style={styles.container} onLayout={this.setComponentHeight}>
-        <ScrollView style={styles.container} pagingEnabled={true}>
+      <View style={container} onLayout={this.setComponentHeight}>
+        <ScrollView style={container} pagingEnabled={true}>
           <View style={this.pageHeightStyle()}>
             <View style={styles.sectionHeaderContainer}>
-              <Text style={styles.sectionHeaderText}>
+              <Text style={sectionHeaderText}>
                 {strings('accounting.beer_account')}
               </Text>
               {user &&
@@ -610,11 +632,11 @@ export default class AccountingScreen extends Component {
                   <TouchableOpacity
                     style={styles.buttonContainer}
                     onPress={() => this._uploadFile(false)}>
-                    <Icon name="cloud-upload" style={styles.uploadImage} />
+                    <Icon name="cloud-upload" style={uploadImage} />
                   </TouchableOpacity>
                 )}
             </View>
-            <View style={styles.innerSectionContainer}>
+            <View style={innerSectionContainer}>
               <Text style={styles.innerSectionText}>
                 {strings('accounting.consumption')}
               </Text>
@@ -641,7 +663,7 @@ export default class AccountingScreen extends Component {
                   user.beerAccount.beers}
               </Text>
             </View>
-            <View style={styles.innerSectionContainer}>
+            <View style={innerSectionContainer}>
               <Text style={styles.innerSectionText}>
                 {strings('accounting.status')}
               </Text>
@@ -668,7 +690,7 @@ export default class AccountingScreen extends Component {
               <Text style={styles.leftText}>{strings('accounting.payed')}</Text>
               <Text style={styles.rightText}>{user.beerAccount.payed}</Text>
             </View>
-            <View style={styles.innerSectionContainer}>
+            <View style={innerSectionContainer}>
               <Text style={styles.innerSectionText}>
                 {strings('accounting.current')}
               </Text>
@@ -688,23 +710,19 @@ export default class AccountingScreen extends Component {
               </Text>
             </View>
             <View style={styles.innerBottomContainer}>
-              <Text style={styles.columnHeadlineText}>
+              <Text style={columnHeadlineText}>
                 {strings('accounting.reg_nr')}
               </Text>
-              <Text style={styles.innerBottomText}>
-                {user.beerAccount.regNr}
-              </Text>
-              <Text style={styles.columnHeadlineText}>
+              <Text style={innerBottomText}>{user.beerAccount.regNr}</Text>
+              <Text style={columnHeadlineText}>
                 {strings('accounting.account_nr')}
               </Text>
-              <Text style={styles.innerBottomText}>
-                {user.beerAccount.accountNr}
-              </Text>
+              <Text style={innerBottomText}>{user.beerAccount.accountNr}</Text>
             </View>
           </View>
           <View style={this.pageHeightStyle()}>
             <View style={styles.sectionHeaderContainer}>
-              <Text style={styles.sectionHeaderText}>
+              <Text style={sectionHeaderText}>
                 {strings('accounting.kitchen_account')}
               </Text>
               {user &&
@@ -713,11 +731,11 @@ export default class AccountingScreen extends Component {
                   <TouchableOpacity
                     style={styles.buttonContainer}
                     onPress={() => this._uploadFile(true)}>
-                    <Icon name="cloud-upload" style={styles.uploadImage} />
+                    <Icon name="cloud-upload" style={uploadImage} />
                   </TouchableOpacity>
                 )}
             </View>
-            <View style={styles.innerSectionContainer}>
+            <View style={innerSectionContainer}>
               <Text style={styles.innerSectionText}>
                 {strings('accounting.status')}
               </Text>
@@ -772,7 +790,7 @@ export default class AccountingScreen extends Component {
               <Text style={styles.leftText}>{strings('accounting.other')}</Text>
               <Text style={styles.rightText}>{user.kitchenAccount.other}</Text>
             </View>
-            <View style={styles.innerSectionContainer}>
+            <View style={innerSectionContainer}>
               <Text style={styles.innerSectionText}>
                 {strings('accounting.current')}
               </Text>
@@ -794,16 +812,14 @@ export default class AccountingScreen extends Component {
               </Text>
             </View>
             <View style={styles.innerBottomContainer}>
-              <Text style={styles.columnHeadlineText}>
+              <Text style={columnHeadlineText}>
                 {strings('accounting.reg_nr')}
               </Text>
-              <Text style={styles.innerBottomText}>
-                {user.kitchenAccount.regNr}
-              </Text>
-              <Text style={styles.columnHeadlineText}>
+              <Text style={innerBottomText}>{user.kitchenAccount.regNr}</Text>
+              <Text style={columnHeadlineText}>
                 {strings('accounting.account_nr')}
               </Text>
-              <Text style={styles.innerBottomText}>
+              <Text style={innerBottomText}>
                 {user.kitchenAccount.accountNr}
               </Text>
             </View>
@@ -811,11 +827,11 @@ export default class AccountingScreen extends Component {
           {this.state.tiers && (
             <View style={this.pageHeightStyle()}>
               <View style={styles.sectionHeaderContainer}>
-                <Text style={styles.sectionHeaderText}>
+                <Text style={sectionHeaderText}>
                   {strings('accounting.topscorers')}
                 </Text>
               </View>
-              <View style={styles.innerSectionContainer}>
+              <View style={innerSectionContainer}>
                 <Text style={styles.innerSectionText}>
                   {strings('accounting.beer')}
                 </Text>
@@ -853,7 +869,7 @@ export default class AccountingScreen extends Component {
                   {this.state.tiers.get('beer')[2].name}
                 </Text>
               </View>
-              <View style={styles.innerSectionContainer}>
+              <View style={innerSectionContainer}>
                 <Text style={styles.innerSectionText}>
                   {strings('accounting.soda')}
                 </Text>
@@ -891,7 +907,7 @@ export default class AccountingScreen extends Component {
                   {this.state.tiers.get('soda')[2].name}
                 </Text>
               </View>
-              <View style={styles.innerSectionContainer}>
+              <View style={innerSectionContainer}>
                 <Text style={styles.innerSectionText}>
                   {strings('accounting.cider')}
                 </Text>
@@ -929,7 +945,7 @@ export default class AccountingScreen extends Component {
                   {this.state.tiers.get('cider')[2].name}
                 </Text>
               </View>
-              <View style={styles.innerSectionContainer}>
+              <View style={innerSectionContainer}>
                 <Text style={styles.innerSectionText}>
                   {strings('accounting.total')}
                 </Text>
@@ -989,7 +1005,6 @@ export default class AccountingScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -1012,7 +1027,6 @@ const styles = StyleSheet.create({
     paddingRight: 15,
   },
   innerSectionContainer: {
-    backgroundColor: colors.backgroundColor,
     flexDirection: 'row',
     flex: 1,
     justifyContent: 'space-between',
@@ -1042,18 +1056,15 @@ const styles = StyleSheet.create({
   },
   sectionHeaderText: {
     fontSize: 18,
-    color: colors.backgroundColor,
     marginLeft: 10,
   },
   innerBottomText: {
     marginLeft: 10,
     marginRight: 10,
-    color: colors.backgroundColor,
   },
   columnHeadlineText: {
     fontWeight: 'bold',
     textAlign: 'center',
-    color: colors.backgroundColor,
     marginLeft: 10,
     marginRight: 10,
   },
@@ -1078,7 +1089,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     height: undefined,
     width: undefined,
-    color: colors.backgroundColor,
   },
   loadingContainer: {
     position: 'absolute',

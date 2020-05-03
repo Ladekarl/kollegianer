@@ -222,10 +222,8 @@ export default class Database {
     const imageRef = storage()
       .ref('gossip')
       .child(imageName);
-    const file = await imageRef.putFile(imagePath, {contentType: 'image/jpeg'});
+    await imageRef.putFile(imagePath, {contentType: 'image/jpeg'});
     const imageUrl = await imageRef.getDownloadURL();
-    console.log(imageRef);
-    console.log(file);
     return imageUrl;
   }
 

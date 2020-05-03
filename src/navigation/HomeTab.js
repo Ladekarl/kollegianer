@@ -74,13 +74,6 @@ const regnskabOptions = {
 const tabBarOptions = {
   activeTintColor: colors.activeTabColor,
   inactiveTintColor: colors.inactiveTabColor,
-  tabStyle: {
-    backgroundColor: colors.backgroundColor,
-  },
-  style: {
-    backgroundColor: colors.backgroundColor,
-    elevation: 1,
-  },
   labelStyle: {
     display: 'none',
   },

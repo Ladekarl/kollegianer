@@ -117,7 +117,11 @@
     "keyphrase": "Nøgleord",
     "keyphrase_placeholder": "Aa",
     "phone_number": "Telefon",
-    "phone_number_placeholder": "88888888"
+    "phone_number_placeholder": "88888888",
+    "color": "Temafarve:",
+    "color_placeholder": "Farvekode",
+    "color_modal_title": "Vælg temafarve",
+    "color_modal_text": "Du skal genstarte app'en når du vælger en ny farve. App'en ser bedst ud med en lys farve."
   },
   "vi_mangler": {
     "vi_mangler": "Vi Mangler",

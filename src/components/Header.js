@@ -23,19 +23,21 @@ export default class HeaderScreen extends Component {
   };
 
   render() {
+    const headerText = [styles.headerText, {color: colors.backgroundColor}];
+    const icon = [styles.icon, {color: colors.backgroundColor}];
     return (
       <SafeAreaView style={styles.safeAreaView}>
         <View style={styles.container}>
           <TouchableOpacity
             style={styles.headerButton}
             onPress={this.openDrawer}>
-            <Icon name="bars" style={styles.icon} />
+            <Icon name="bars" style={icon} />
           </TouchableOpacity>
-          <Text style={styles.headerText}>Kollegianer</Text>
+          <Text style={headerText}>Kollegianer</Text>
           <TouchableOpacity
             style={styles.headerButton}
             onPress={this.openSettings}>
-            <Icon name="cog" style={styles.icon} />
+            <Icon name="cog" style={icon} />
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -60,7 +62,6 @@ const styles = StyleSheet.create({
   },
   headerText: {
     fontSize: 17,
-    color: colors.backgroundColor,
     fontWeight: 'bold',
   },
   headerButton: {
@@ -75,6 +76,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     height: undefined,
     width: undefined,
-    color: colors.backgroundColor,
   },
 });

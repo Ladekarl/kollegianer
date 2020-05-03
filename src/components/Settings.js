@@ -11,7 +11,10 @@ export default class SettingsScreen extends Component {
         <TouchableOpacity
           style={styles.headerButton}
           onPress={() => this.props.navigation.openDrawer()}>
-          <Icon name="navicon" style={styles.headerIcon} />
+          <Icon
+            name="navicon"
+            style={[styles.headerIcon, {color: colors.backgroundColor}]}
+          />
         </TouchableOpacity>
       ),
     });
@@ -34,6 +37,5 @@ const styles = StyleSheet.create({
     fontSize: 20,
     height: undefined,
     width: undefined,
-    color: colors.backgroundColor,
   },
 });

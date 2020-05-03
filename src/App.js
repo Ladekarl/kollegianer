@@ -4,7 +4,7 @@ import auth from '@react-native-firebase/auth';
 import {Platform, StatusBar, StyleSheet, View} from 'react-native';
 import LocalStorage from './storage/LocalStorage';
 import Database from './storage/Database';
-import colors from './shared/colors';
+import {loadThemeManager, bodegaTheme} from './shared/colors';
 import AppNavigation from './navigation/AppNavigation';
 import {NavigationContainer} from '@react-navigation/native';
 import {
@@ -18,6 +18,10 @@ const handledNotifications = [];
 export default class App extends Component {
   constructor(props) {
     super(props);
+    this.state = {
+      kollegianerTheme: undefined,
+      backgroundColor: bodegaTheme.backgroundColor,
+    };
   }
 
   componentDidMount() {
@@ -27,6 +31,9 @@ export default class App extends Component {
         if (!enabled) {
           return messaging().requestPermission();
         }
+      })
+      .then(() => {
+        return this.loadColors();
       })
       .then(() => {
         this.registerNotificationHandlers();
@@ -67,6 +74,23 @@ export default class App extends Component {
     });
   };
 
+  loadColors = async () => {
+    const colors = await loadThemeManager();
+    this.setState({
+      backgroundColor: colors.backgroundColor,
+      kollegianerTheme: {
+        dark: true,
+        colors: {
+          primary: colors.activeTabColor,
+          background: colors.inactiveTabColor,
+          card: colors.backgroundColor,
+          text: colors.backgroundColor,
+          border: colors.inactiveTabColor,
+        },
+      },
+    });
+  };
+
   registerNotificationHandlers = () => {
     this.getInitialNotification()
       .then(this.openedOnNotification)
@@ -77,8 +101,9 @@ export default class App extends Component {
     );
   };
 
-  openedOnNotification = notification => {
+  openedOnNotification = async notification => {
     console.log('Launched from notification');
+    await this.loadColors();
     if (
       notification &&
       handledNotifications.indexOf(
@@ -156,24 +181,16 @@ export default class App extends Component {
   };
 
   render() {
+    const {kollegianerTheme, backgroundColor} = this.state;
     StatusBar.setBarStyle('light-content', true);
 
-    const KollegianerTheme = {
-      dark: true,
-      colors: {
-        primary: colors.activeTabColor,
-        background: colors.inactiveTabColor,
-        card: colors.backgroundColor,
-        text: colors.backgroundColor,
-        border: colors.inactiveTabColor,
-      },
-    };
-
     return (
-      <View style={styles.container}>
-        <NavigationContainer theme={KollegianerTheme} ref={this.setRef}>
-          <AppNavigation />
-        </NavigationContainer>
+      <View style={[styles.container, {backgroundColor}]}>
+        {kollegianerTheme && (
+          <NavigationContainer theme={kollegianerTheme} ref={this.setRef}>
+            <AppNavigation />
+          </NavigationContainer>
+        )}
       </View>
     );
   }
@@ -182,6 +199,5 @@ export default class App extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.backgroundColor,
   },
 });

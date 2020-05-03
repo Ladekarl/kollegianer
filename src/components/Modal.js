@@ -37,7 +37,10 @@ export default class ModalScreen extends Component {
       noCancelButton,
       noSubmitButton,
     } = this.props;
-
+    const modalInnerContainer = [
+      styles.modalInnerContainer,
+      {backgroundColor: colors.backgroundColor},
+    ];
     return (
       <Modal
         animationType="fade"
@@ -45,7 +48,7 @@ export default class ModalScreen extends Component {
         onRequestClose={onCancel}
         visible={visible}>
         <View style={styles.modalContainer}>
-          <View style={[styles.modalInnerContainer]}>
+          <View style={[modalInnerContainer]}>
             <View style={styles.modalTopContainer}>
               <Text style={styles.modalTitleText}>{modalTitle}</Text>
             </View>
@@ -108,7 +111,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: 'center',
     opacity: 1,
-    backgroundColor: colors.backgroundColor,
     borderWidth: StyleSheet.hairlineWidth,
   },
   modalTopContainer: {
@@ -148,8 +150,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     marginTop: 15,
     marginBottom: 15,
-    color: colors.backgroundColor,
     fontWeight: 'bold',
+    color: colors.whiteColor,
   },
   modalTitleText: {
     fontSize: 18,
