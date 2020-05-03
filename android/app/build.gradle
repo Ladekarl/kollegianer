@@ -131,8 +131,8 @@ android {
         applicationId 'com.kollegianer'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 21
-        versionName '2.1.9'
+        versionCode 22
+        versionName '2.2.0'
         multiDexEnabled true
     }
     splits {
@@ -224,5 +224,6 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
 apply plugin: 'com.google.gms.google-services'
