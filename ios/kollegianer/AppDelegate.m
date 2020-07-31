@@ -1,29 +1,40 @@
-/**
- * Copyright (c) 2015-present, Facebook, Inc.
- * All rights reserved.
- *
- * This source code is licensed under the BSD-style license found in the
- * LICENSE file in the root directory of this source tree. An additional grant
- * of patent rights can be found in the PATENTS file in the same directory.
- */
-
-#import "RNFirebaseNotifications.h"
-#import "RNFirebaseMessaging.h"
-
 #import "AppDelegate.h"
 
-#import <Firebase.h>
-#import <FBSDKCoreKit/FBSDKCoreKit.h>
 #import <React/RCTBridge.h>
 #import <React/RCTBundleURLProvider.h>
 #import <React/RCTRootView.h>
+
+#import <Firebase.h>
+#import <FBSDKCoreKit/FBSDKCoreKit.h>
+
+#if DEBUG
+#import <FlipperKit/FlipperClient.h>
+#import <FlipperKitLayoutPlugin/FlipperKitLayoutPlugin.h>
+#import <FlipperKitUserDefaultsPlugin/FKUserDefaultsPlugin.h>
+#import <FlipperKitNetworkPlugin/FlipperKitNetworkPlugin.h>
+#import <SKIOSNetworkPlugin/SKIOSNetworkAdapter.h>
+#import <FlipperKitReactPlugin/FlipperKitReactPlugin.h>
+static void InitializeFlipper(UIApplication *application) {
+  FlipperClient *client = [FlipperClient sharedClient];
+  SKDescriptorMapper *layoutDescriptorMapper = [[SKDescriptorMapper alloc] initWithDefaults];
+  [client addPlugin:[[FlipperKitLayoutPlugin alloc] initWithRootNode:application withDescriptorMapper:layoutDescriptorMapper]];
+  [client addPlugin:[[FKUserDefaultsPlugin alloc] initWithSuiteName:nil]];
+  [client addPlugin:[FlipperKitReactPlugin new]];
+  [client addPlugin:[[FlipperKitNetworkPlugin alloc] initWithNetworkAdapter:[SKIOSNetworkAdapter new]]];
+  [client start];
+}
+#endif
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [FIRApp configure];
-  [RNFirebaseNotifications configure];
+  if ([FIRApp defaultApp] == nil) {
+    [FIRApp configure];
+  }
+#if DEBUG
+  InitializeFlipper(application);
+#endif
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
                                                    moduleName:@"kollegianer"
@@ -62,19 +73,6 @@
   ];
   // Add any custom logic here.
   return handled;
-}
-
-- (void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification {
-    [[RNFirebaseNotifications instance] didReceiveLocalNotification:notification];
-}
-
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(nonnull NSDictionary *)userInfo
-fetchCompletionHandler:(nonnull void (^)(UIBackgroundFetchResult))completionHandler{
-    [[RNFirebaseNotifications instance] didReceiveRemoteNotification:userInfo fetchCompletionHandler:completionHandler];
-}
-
-- (void)application:(UIApplication *)application didRegisterUserNotificationSettings:(UIUserNotificationSettings *)notificationSettings {
-    [[RNFirebaseMessaging instance] didRegisterUserNotificationSettings:notificationSettings];
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {

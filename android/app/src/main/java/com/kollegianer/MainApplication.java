@@ -1,38 +1,17 @@
 package com.kollegianer;
 
 import android.app.Application;
-import com.AlexanderZaytsev.RNI18n.RNI18nPackage;
-import com.RNFetchBlob.RNFetchBlobPackage;
-import com.facebook.CallbackManager;
-import com.facebook.appevents.AppEventsLogger;
+import android.content.Context;
+import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
-import com.reactnativecommunity.asyncstorage.AsyncStoragePackage;
+import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
-import com.facebook.react.shell.MainReactPackage;
-import com.facebook.reactnative.androidsdk.FBSDKPackage;
 import com.facebook.soloader.SoLoader;
-import com.imagepicker.ImagePickerPackage;
-import com.rnfs.RNFSPackage;
-import com.swmansion.gesturehandler.react.RNGestureHandlerPackage;
-import io.github.elyx0.reactnativedocumentpicker.DocumentPickerPackage;
-import io.invertase.firebase.RNFirebasePackage;
-import io.invertase.firebase.auth.RNFirebaseAuthPackage;
-import io.invertase.firebase.database.RNFirebaseDatabasePackage;
-import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
-import io.invertase.firebase.notifications.RNFirebaseNotificationsPackage;
-import io.invertase.firebase.storage.RNFirebaseStoragePackage;
-
-import java.util.Arrays;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
-
-    private static CallbackManager mCallbackManager = CallbackManager.Factory.create();
-
-    protected static CallbackManager getCallbackManager() {
-        return mCallbackManager;
-    }
 
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
         @Override
@@ -42,23 +21,12 @@ public class MainApplication extends Application implements ReactApplication {
 
         @Override
         protected List<ReactPackage> getPackages() {
-            return Arrays.<ReactPackage>asList(
-                    new MainReactPackage(),
-            new AsyncStoragePackage(),
-                    new RNFetchBlobPackage(),
-                    new RNGestureHandlerPackage(),
-                    new RNI18nPackage(),
-                    new RNFSPackage(),
-                    new DocumentPickerPackage(),
-                    new ImagePickerPackage(),
-                    new RNFirebasePackage(),
-                    new RNFirebaseMessagingPackage(),
-                    new RNFirebaseAuthPackage(),
-                    new RNFirebaseDatabasePackage(),
-                    new RNFirebaseNotificationsPackage(),
-                    new RNFirebaseStoragePackage(),
-                    new FBSDKPackage(mCallbackManager)
-            );
+            @SuppressWarnings("UnnecessaryLocalVariable")
+            List<ReactPackage> packages = new PackageList(this).getPackages();
+            // Packages that cannot be autolinked yet can be added manually here, for
+            // example:
+            // packages.add(new MyReactNativePackage());
+            return packages;
         }
 
         @Override
@@ -72,11 +40,40 @@ public class MainApplication extends Application implements ReactApplication {
         return mReactNativeHost;
     }
 
-
     @Override
     public void onCreate() {
         super.onCreate();
-        AppEventsLogger.activateApp(this);
         SoLoader.init(this, /* native exopackage */ false);
+        initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+    }
+
+    /**
+     * Loads Flipper in React Native templates. Call this in the onCreate method
+     * with something like initializeFlipper(this,
+     * getReactNativeHost().getReactInstanceManager());
+     *
+     * @param context
+     * @param reactInstanceManager
+     */
+    private static void initializeFlipper(Context context, ReactInstanceManager reactInstanceManager) {
+        if (BuildConfig.DEBUG) {
+            try {
+                /*
+                 * We use reflection here to pick up the class that initializes Flipper, since
+                 * Flipper library is not available in release mode
+                 */
+                Class<?> aClass = Class.forName("com.kollegianer.ReactNativeFlipper");
+                aClass.getMethod("initializeFlipper", Context.class, ReactInstanceManager.class).invoke(null, context,
+                        reactInstanceManager);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
