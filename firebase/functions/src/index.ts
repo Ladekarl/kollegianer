@@ -1,14 +1,5 @@
 import * as functions from 'firebase-functions';
-import *
-   as admin from 'fi
-r ebase-
-a dmin';
- 
- 
- 
- 
- ,
-
+import * as admin from 'firebase-admin';
 
 import {UserUpdatedNotification} from './notifications/UserNotification';
 import {GossipMessageNotification} from './notifications/GossipNotification';
