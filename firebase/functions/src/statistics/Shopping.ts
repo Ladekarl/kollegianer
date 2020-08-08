@@ -16,15 +16,15 @@ const enum ACTIONS {
 export const ShoppingListStatistics = functions.database.ref(`${CONFIG_DATA_PATH}/{ITEM}`).onWrite(
    async (change, context) => {
       let action = ACTIONS.UPDATED
-      let room = (await admin.database().ref(`/user/${context.auth?.uid}`).once("value")).val().room
+      let room = (await admin.database().ref(`/user/${context.auth?.uid}`).once("value")).val()?.room || "SYSTEM"
       if (!change.before.exists()) { // New entry
          action = ACTIONS.NEW
          room = change.after.val().room
       } else if (!change.after.exists()) // Deleted
          action = ACTIONS.DELETED
 
-      const item = change.after.val().item || change.before.val().item || "Unknown";
-      const checked = change.after.val().checked || false
+      const item = change.after.val()?.item || change.before.val()?.item || "Unknown";
+      const checked = change.after.val()?.checked || false
 
       return appendToSheet(CONFIG_SHEET_ID, 'Shopping!A:E',
       [`=${Date.now()}/86400000+DATE(1970;1;1)`, room, action, checked, item])
