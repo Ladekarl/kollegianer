@@ -7,6 +7,10 @@ import {ViManglerAddedNotification, ViManglerUpdatedNotification} from './notifi
 import {BeerAccountNotification, KitchenAccountNotification} from './notifications/AccountingNotification';
 import { PartyLightKiller } from './partyLights';
 import { ShoppingListCleaner } from './shoppingListCleaner';
+import { appendToSheet } from "./statistics/Shared";
+import { ShoppingListStatistics } from './statistics/Shopping';
+import { authgoogleapi, oauthcallback } from './statistics/OAuth';
+
 
 admin.initializeApp(functions.config().firebase);
 
@@ -18,5 +22,9 @@ export {
     BeerAccountNotification,
     KitchenAccountNotification,
     PartyLightKiller,
-    ShoppingListCleaner
+    ShoppingListCleaner,
+    appendToSheet,
+    ShoppingListStatistics,
+    authgoogleapi,
+    oauthcallback
 };
