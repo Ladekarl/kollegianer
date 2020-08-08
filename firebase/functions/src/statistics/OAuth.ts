@@ -35,9 +35,11 @@ export const oauthcallback = functions.https.onRequest((req, res) => {
          await admin.database().ref(DB_TOKEN_PATH).set(tokens);
          res.status(200).send('App successfully configured with new Credentials. '
             + 'You can now close this page.')
-         return resolve()
+         resolve()
+         return
       } catch (error) {
-         return reject(res.status(400).send(error))
+         reject(res.status(400).send(error))
+         return
       }
    })
 });

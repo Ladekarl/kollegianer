@@ -28,12 +28,14 @@ const appendPromise = (requestWithoutAuth: any) => {
       const sheets = google.sheets('v4');
       const request = requestWithoutAuth;
       request.auth = client;
-      return sheets.spreadsheets.values.append(request, (err: any, response: any) => {
+      sheets.spreadsheets.values.append(request, (err: any, response: any) => {
          if (err) {
             console.log(`The API returned an error: ${err}`);
-            return reject(err);
+            reject(err);
+            return
          }
-         return resolve(response.data);
+         resolve(response.data);
+         return
       });
    });
 }
