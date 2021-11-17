@@ -1,3 +1,4 @@
+import { UpdateSheriffAndKitchenWeek } from './UpdateSheriffAndKitchenWeek';
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 
@@ -26,5 +27,6 @@ export {
     appendToSheet,
     ShoppingListStatistics,
     authgoogleapi,
-    oauthcallback
+    oauthcallback,
+    UpdateSheriffAndKitchenWeek
 };
